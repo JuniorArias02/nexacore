@@ -10,6 +10,8 @@ import CpDependenciaList from '../modules/cpDependencia/pages/CpDependenciaList'
 import CpDependenciaFormPage from '../modules/cpDependencia/pages/CpDependenciaFormPage';
 import CpCentroCostoList from '../modules/cpCentroCosto/pages/CpCentroCostoList';
 import CpCentroCostoFormPage from '../modules/cpCentroCosto/pages/CpCentroCostoFormPage';
+import CpProductoList from '../modules/cpProducto/pages/CpProductoList';
+import CpProductoFormPage from '../modules/cpProducto/pages/CpProductoFormPage';
 import MainLayout from '../layout/MainLayout';
 
 // Componente para proteger rutas privadas
@@ -93,6 +95,11 @@ const AppRouter = () => {
                     <Route path="/cp-centro-costos" element={<CpCentroCostoList />} />
                     <Route path="/cp-centro-costos/nuevo" element={<CpCentroCostoFormPage />} />
                     <Route path="/cp-centro-costos/editar/:id" element={<CpCentroCostoFormPage />} />
+
+                    {/* CP Productos */}
+                    <Route path="/cp-productos" element={<CpProductoList />} />
+                    <Route path="/cp-productos/nuevo" element={<CpProductoFormPage />} />
+                    <Route path="/cp-productos/editar/:id" element={<CpProductoFormPage />} />
                 </Route>
 
                 {/* Redirecciones por defecto */}
