@@ -3,29 +3,40 @@ import { inventoryService } from '../../services/inventoryService';
 
 export default function DependenciaProcesoSelect({ sedeId, dependenciaValue, procesoValue, onDependenciaChange, onProcesoChange }) {
     const [procesos, setProcesos] = useState([]);
-    const [cpDependencias, setCpDependencias] = useState([]);
+    const [areas, setAreas] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        loadAreas();
+    }, []);
+
+    useEffect(() => {
         if (sedeId) {
-            loadCatalogs(sedeId);
+            loadProcesos(sedeId);
         } else {
             setProcesos([]);
-            setCpDependencias([]);
         }
     }, [sedeId]);
 
-    const loadCatalogs = async (id) => {
+    const loadAreas = async () => {
         setLoading(true);
         try {
-            const [procesosData, cpDependenciasData] = await Promise.all([
-                inventoryService.getProcesos(id),
-                inventoryService.getCpDependencias(id)
-            ]);
-            setProcesos(procesosData || []);
-            setCpDependencias(cpDependenciasData || []);
+            const areasData = await inventoryService.getAreas();
+            setAreas(areasData || []);
         } catch (err) {
-            console.error("Error loading catalogs:", err);
+            console.error("Error loading areas:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadProcesos = async (id) => {
+        setLoading(true);
+        try {
+            const procesosData = await inventoryService.getProcesos(id);
+            setProcesos(procesosData || []);
+        } catch (err) {
+            console.error("Error loading procesos:", err);
         } finally {
             setLoading(false);
         }
@@ -34,7 +45,7 @@ export default function DependenciaProcesoSelect({ sedeId, dependenciaValue, pro
     return (
         <>
             <div>
-                <label className="block text-sm font-medium leading-6 text-gray-900">Dependencia *</label>
+                <label className="block text-sm font-medium leading-6 text-gray-900">Dependencia (Área) *</label>
                 <select
                     name="dependencia"
                     required
@@ -44,12 +55,12 @@ export default function DependenciaProcesoSelect({ sedeId, dependenciaValue, pro
                         const text = e.target.options[idx].text;
                         onDependenciaChange(text); // Passing text/name as requested
                     }}
-                    disabled={!sedeId || loading}
+                    disabled={loading}
                     className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm disabled:bg-gray-100"
                 >
-                    <option value="">{loading ? 'Cargando...' : 'Seleccionar Dependencia...'}</option>
-                    {cpDependencias.map(d => (
-                        <option key={d.id} value={d.nombre}>{d.nombre}</option>
+                    <option value="">{loading ? 'Cargando...' : 'Seleccionar Área...'}</option>
+                    {areas.map(a => (
+                        <option key={a.id} value={a.nombre}>{a.nombre}</option>
                     ))}
                 </select>
             </div>

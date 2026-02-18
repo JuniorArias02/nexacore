@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { inventoryService } from '../services/inventoryService';
+import Swal from 'sweetalert2';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import {
     PhotoIcon,
@@ -19,6 +21,8 @@ import DependenciaProcesoSelect from '../components/search/DependenciaProcesoSel
 
 const InventoryFormPage = () => {
     const { user } = useAuth();
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(null);
@@ -82,6 +86,43 @@ const InventoryFormPage = () => {
         loadCatalogs();
     }, []);
 
+
+    // Load Inventory Data if ID exists
+    useEffect(() => {
+        if (id) {
+            loadInventory(id);
+        }
+    }, [id]);
+
+    const loadInventory = async (inventoryId) => {
+        setLoading(true);
+        try {
+            const data = await inventoryService.getInventarioById(inventoryId);
+            if (data) {
+                // Populate form data
+                setFormData(prev => ({
+                    ...prev,
+                    ...data,
+                    // Ensure selects match values
+                    estado: data.estado || 'Nuevo',
+                    tipo_adquisicion: data.tipo_adquisicion || '03',
+                    tiene_accesorio: data.tiene_accesorio || 'No'
+                }));
+                // If there's a file, we can't easily preview it as a File object, but we can show the name/link
+                if (data.soporte_adjunto) {
+                    setFilePreview({ name: 'Archivo Adjunto Existente', size: 'N/A' });
+                }
+            }
+        } catch (err) {
+            console.error("Error loading inventory:", err);
+            setError("Error al cargar los datos del inventario.");
+            Swal.fire('Error', 'No se pudo cargar la información del inventario.', 'error');
+            navigate('/inventario'); // Redirect back if error
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Load Centros Costo on mount
     const loadCatalogs = async () => {
         try {
@@ -92,6 +133,13 @@ const InventoryFormPage = () => {
             setError("Error cargando catálogos iniciales.");
         }
     };
+
+    // Update creado_por when user is loaded, ONLY if creating new
+    useEffect(() => {
+        if (user?.id && !id) {
+            setFormData(prev => ({ ...prev, creado_por: user.id }));
+        }
+    }, [user, id]);
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
@@ -117,14 +165,82 @@ const InventoryFormPage = () => {
         setError(null);
         setSuccess(false);
 
+        // Debug: Log user and formData
+        console.log('User object:', user);
+        console.log('FormData before submit:', formData);
+        console.log('creado_por value:', formData.creado_por);
+
+        // Ensure creado_por is set
+        const dataToSend = {
+            ...formData,
+            creado_por: formData.creado_por || user?.id
+        };
+
+        console.log('Data to send:', dataToSend);
+
         try {
-            await inventoryService.createInventario(formData);
-            setSuccess(true);
-            window.scrollTo(0, 0);
-            // Optionally reset form
+            if (id) {
+                // Update
+                await inventoryService.updateInventario(id, dataToSend);
+                setSuccess(true);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inventario Actualizado',
+                    text: 'El item se ha actualizado correctamente.',
+                    timer: 2000
+                });
+                // Navigate back or stay? Maybe stay to keep editing
+            } else {
+                // Create
+                await inventoryService.createInventario(dataToSend);
+                setSuccess(true);
+                setFormData(prev => ({ // Reset critical fields
+                    ...prev,
+                    codigo: '',
+                    nombre: '',
+                    serial: ''
+                }));
+                setFilePreview(null);
+                window.scrollTo(0, 0);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inventario Creado',
+                    text: 'El item se ha registrado correctamente.',
+                    timer: 2000
+                });
+            }
+
         } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.message || "Error al crear el inventario. Verifique los campos.");
+            console.error('Error completo:', err);
+            console.error('Response data:', err.response?.data);
+
+            // Extraer mensaje de error detallado
+            let errorMessage = id ? 'Error al actualizar el inventario.' : 'Error al crear el inventario. Verifique los campos.';
+
+            if (err.response?.data) {
+                const data = err.response.data;
+                // Si hay un mensaje específico
+                if (data.mensaje || data.message) {
+                    errorMessage = data.mensaje || data.message;
+                }
+                // Si hay errores de validación
+                if (data.errors) {
+                    const errorList = Object.entries(data.errors)
+                        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+                        .join('\n');
+                    errorMessage = `Errores de validación:\n${errorList}`;
+                }
+            }
+
+            // Mostrar en SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: id ? 'Error al actualizar' : 'Error al crear',
+                text: errorMessage,
+                confirmButtonColor: '#d33'
+            });
+
+            setError(errorMessage);
             window.scrollTo(0, 0);
         } finally {
             setLoading(false);
@@ -190,6 +306,7 @@ const InventoryFormPage = () => {
                             <div className="col-span-full sm:col-span-2">
                                 <ProductSearch
                                     value={formData.codigo}
+                                    initialOption={formData.codigo && formData.nombre ? { codigo_producto: formData.codigo, nombre: formData.nombre } : null}
                                     onChange={(option) => {
                                         setFormData(prev => ({
                                             ...prev,
@@ -234,8 +351,8 @@ const InventoryFormPage = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="grupo" className="block text-sm font-medium leading-6 text-gray-900">Grupo *</label>
-                                <select name="grupo" required onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <label htmlFor="grupo" className="block text-sm font-medium leading-6 text-gray-900">Grupo</label>
+                                <select name="grupo" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                                     <option value="">Seleccionar...</option>
                                     <option value="EC">EC</option>
                                     <option value="ME">ME</option>
@@ -245,8 +362,8 @@ const InventoryFormPage = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="estado" className="block text-sm font-medium leading-6 text-gray-900">Estado *</label>
-                                <select name="estado" required value={formData.estado} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <label htmlFor="estado" className="block text-sm font-medium leading-6 text-gray-900">Estado</label>
+                                <select name="estado" value={formData.estado} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                                     <option value="Nuevo">Nuevo</option>
                                     <option value="Buen Estado">Buen Estado</option>
                                     <option value="Regular">Regular</option>
@@ -268,6 +385,7 @@ const InventoryFormPage = () => {
                                 <PersonalSearch
                                     label="Responsable *"
                                     value={formData.responsable_id}
+                                    initialOption={formData.responsable_personal ? { id: formData.responsable_personal.id, nombre: formData.responsable_personal.nombre } : null}
                                     onChange={(opt) => setFormData(prev => ({ ...prev, responsable_id: opt.id, responsable: opt.nombre }))}
                                 />
                             </div>
@@ -277,6 +395,7 @@ const InventoryFormPage = () => {
                                     label="Coordinador"
                                     placeholder="Buscar coordinador..."
                                     value={formData.coordinador_id}
+                                    initialOption={formData.coordinador_personal ? { id: formData.coordinador_personal.id, nombre: formData.coordinador_personal.nombre } : null}
                                     onChange={(opt) => setFormData(prev => ({ ...prev, coordinador_id: opt.id }))}
                                 />
                             </div>
@@ -326,13 +445,12 @@ const InventoryFormPage = () => {
 
                         <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
                             <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Tipo Adquisición *</label>
+                                <label className="block text-sm font-medium leading-6 text-gray-900">Tipo Adquisición</label>
                                 <select
                                     name="tipo_adquisicion"
                                     value={formData.tipo_adquisicion}
                                     onChange={handleChange}
                                     className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm bg-gray-50"
-                                    required
                                 >
                                     <option value="03">03 - Compra</option>
                                     <option value="01">01 - Donación</option>
@@ -381,8 +499,8 @@ const InventoryFormPage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Vida Útil *</label>
-                                <select name="vida_util" onChange={handleChange} required className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <label className="block text-sm font-medium leading-6 text-gray-900">Vida Útil</label>
+                                <select name="vida_util" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                                     <option value="">Seleccionar...</option>
                                     <option value="12">12 Meses</option>
                                     <option value="60">60 Meses</option>
@@ -529,7 +647,7 @@ const InventoryFormPage = () => {
                             )}
 
                             <div className="col-span-full">
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Soporte Adjunto (PDF) *</label>
+                                <label className="block text-sm font-medium leading-6 text-gray-900">Soporte Adjunto (PDF)</label>
                                 <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-300 px-6 py-10 bg-gray-50 hover:bg-indigo-50/50 transition-colors">
                                     <div className="text-center">
                                         <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
@@ -539,7 +657,7 @@ const InventoryFormPage = () => {
                                                 className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500 px-2"
                                             >
                                                 <span>Subir un archivo</span>
-                                                <input id="file-upload" name="soporte_adjunto" type="file" className="sr-only" accept="application/pdf" onChange={handleChange} required />
+                                                <input id="file-upload" name="soporte_adjunto" type="file" className="sr-only" accept="application/pdf" onChange={handleChange} />
                                             </label>
                                             <p className="pl-1">o arrastrar y soltar</p>
                                         </div>

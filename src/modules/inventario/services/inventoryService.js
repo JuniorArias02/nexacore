@@ -31,6 +31,12 @@ export const inventoryService = {
         return response.data.objeto;
     },
 
+    // Areas (from areas table - for Dependencia field)
+    getAreas: async () => {
+        const response = await api.get('/areas');
+        return response.data.objeto || response.data;
+    },
+
     // Centros de Costo
     getCentrosCosto: async () => {
         const response = await api.get('/cp-centro-costos');
@@ -54,6 +60,19 @@ export const inventoryService = {
             },
         });
         return response.data; // Return full response to get message and status
+    },
+
+    // Update Inventario
+    updateInventario: async (id, data) => {
+        // Use JSON for updates usually, unless file upload is needed.
+        // If file upload support is needed in update, we must use FormData and POST with _method=PUT mechanism or just PUT with JSON if no file.
+        // Given current controller accepts Request, let's try standard PUT with JSON first, as implementation plan implies JSON updates for most fields.
+        // However, if we need to update 'soporte_adjunto', we might need FormData.
+        // Let's stick to JSON for now as commonly defined in Swagger component, 
+        // BUT if file update is required we might need special handling.
+        // For simplicity and common Laravel patterns for API Resources:
+        const response = await api.put(`/inventario/${id}`, data);
+        return response.data;
     },
 
     // Get All Inventory

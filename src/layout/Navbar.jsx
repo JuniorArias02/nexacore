@@ -1,8 +1,38 @@
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Bars3Icon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+    Bars3Icon,
+    UserCircleIcon,
+    ArrowRightOnRectangleIcon,
+    Cog6ToothIcon,
+    UserIcon,
+    ChevronDownIcon
+} from '@heroicons/react/24/outline';
 
 const Navbar = ({ onOpenSidebar }) => {
     const { user, logout } = useAuth();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     return (
         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -18,21 +48,70 @@ const Navbar = ({ onOpenSidebar }) => {
 
                 <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 justify-end items-center">
                     <div className="flex items-center gap-x-4 lg:gap-x-6">
-                        {/* User Profile Dropdown or static info */}
-                        <div className="flex items-center gap-x-3 pl-4 lg:pl-6 border-l border-gray-200">
-                            <div className="hidden sm:flex sm:flex-col sm:items-end">
-                                <span className="text-sm font-semibold leading-6 text-gray-900">{user?.nombre_completo || 'Usuario'}</span>
-                                <span className="text-xs text-gray-500">{user?.usuario}</span>
-                            </div>
-                            <UserCircleIcon className="h-8 w-8 text-gray-300 bg-gray-50 rounded-full" />
-
+                        {/* User Profile Dropdown */}
+                        <div className="relative" ref={dropdownRef}>
                             <button
-                                onClick={logout}
-                                className="ml-2 rounded-full p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/20"
-                                title="Cerrar Sesión"
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="flex items-center gap-x-3 pl-4 lg:pl-6 border-l border-gray-200 focus:outline-none group"
                             >
-                                <ArrowRightOnRectangleIcon className="h-6 w-6" />
+                                <div className="hidden sm:flex sm:flex-col sm:items-end">
+                                    <span className="text-sm font-semibold leading-6 text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                        {user?.nombre_completo || 'Usuario'}
+                                    </span>
+                                    <span className="text-xs text-gray-500">{user?.usuario}</span>
+                                </div>
+                                {user?.foto_usuario ? (
+                                    <img
+                                        src={user.foto_usuario}
+                                        alt="Perfil"
+                                        className="h-8 w-8 rounded-full object-cover border border-gray-200 group-hover:border-indigo-500 transition-colors"
+                                    />
+                                ) : (
+                                    <UserCircleIcon className="h-8 w-8 text-gray-300 bg-gray-50 rounded-full group-hover:text-indigo-500 transition-colors" />
+                                )}
+                                <ChevronDownIcon className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
+
+                            {/* Dropdown Menu */}
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-4 w-64 origin-top-right rounded-2xl bg-white shadow-2xl border border-gray-100 focus:outline-none animate-fade-in-up z-50">
+                                    <div className="p-2">
+                                        <div className="px-4 py-3 mb-2 bg-gray-50 rounded-xl">
+                                            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-0.5">Conectado como</p>
+                                            <p className="text-sm font-bold text-gray-900 truncate">{user?.usuario}</p>
+                                        </div>
+
+                                        {[
+                                            { to: '/profile', icon: UserIcon, label: 'Mi Perfil' },
+                                            { to: '/configuration', icon: Cog6ToothIcon, label: 'Configuración' },
+                                        ].map((item) => (
+                                            <Link
+                                                key={item.to}
+                                                to={item.to}
+                                                className="group flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                <div className="mr-3 p-1.5 rounded-lg bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                                                    <item.icon className="h-4 w-4" />
+                                                </div>
+                                                {item.label}
+                                            </Link>
+                                        ))}
+
+                                        <div className="border-t border-gray-100 my-2"></div>
+
+                                        <button
+                                            onClick={handleLogout}
+                                            className="group flex w-full items-center rounded-xl px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
+                                        >
+                                            <div className="mr-3 p-1.5 rounded-lg bg-red-50 text-red-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+                                                <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                                            </div>
+                                            Cerrar Sesión
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

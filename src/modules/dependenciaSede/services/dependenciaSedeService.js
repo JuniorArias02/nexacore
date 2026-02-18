@@ -3,7 +3,7 @@ import api from '../../../services/api';
 export const dependenciaSedeService = {
     getAll: async (params = {}) => {
         const response = await api.get('/dependencias-sedes', { params });
-        return response.data;
+        return response.data.objeto || response.data;
     },
 
     getById: async (id) => {
