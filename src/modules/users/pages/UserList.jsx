@@ -70,25 +70,32 @@ export default function UserList() {
 
     return (
         <div className="space-y-8 px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 min-h-screen">
-            {/* Header Section */}
-            <div className="md:flex md:items-center md:justify-between">
-                <div className="min-w-0 flex-1">
-                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {/* Hero Section - Nexa Purple Theme */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm">
+                        SEGURIDAD Y ACCESO
+                    </span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
                         Gestión de Usuarios
-                    </h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                        Administra los accesos y perfiles del sistema NEXA.
+                    </h1>
+                    <p className="text-indigo-100 max-w-2xl text-lg">
+                        Administra los accesos, roles y perfiles de seguridad del sistema NEXA.
                     </p>
+
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                        <Link
+                            to="/usuarios/nuevo"
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                        >
+                            <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                            Nuevo Usuario
+                        </Link>
+                    </div>
                 </div>
-                <div className="mt-4 flex md:ml-4 md:mt-0">
-                    <Link
-                        to="/usuarios/nuevo"
-                        className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200"
-                    >
-                        <PlusIcon className="-ml-0.5 mr-2.5 h-5 w-5" aria-hidden="true" />
-                        Nuevo Usuario
-                    </Link>
-                </div>
+                {/* Decorative Blobs */}
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-white/10 blur-3xl opacity-50 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
             </div>
 
             {/* Filters & Search Card */}
@@ -157,8 +164,23 @@ export default function UserList() {
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm">
                                             <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
-                                                    {item.nombre_completo.charAt(0)}
+                                                <div className="h-10 w-10 flex-shrink-0">
+                                                    {item.foto_usuario ? (
+                                                        <img
+                                                            className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-sm"
+                                                            src={item.foto_usuario}
+                                                            alt={item.usuario}
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                                e.target.nextSibling.style.display = 'flex';
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <div
+                                                        className={`h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold ${item.foto_usuario ? 'hidden' : ''}`}
+                                                    >
+                                                        {item.nombre_completo.charAt(0)}
+                                                    </div>
                                                 </div>
                                                 <div className="ml-4">
                                                     <div className="font-medium text-gray-900">{item.nombre_completo}</div>
@@ -178,13 +200,13 @@ export default function UserList() {
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm">
                                             <span className={`inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${item.is_online
-                                                    ? 'bg-green-50 text-green-700 ring-green-600/20'
-                                                    : item.activity_status === 'away'
-                                                        ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
-                                                        : 'bg-gray-50 text-gray-600 ring-gray-500/10'
+                                                ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                                : item.activity_status === 'away'
+                                                    ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
+                                                    : 'bg-gray-50 text-gray-600 ring-gray-500/10'
                                                 }`}>
                                                 <span className={`h-1.5 w-1.5 rounded-full ${item.is_online ? 'bg-green-600 animate-pulse' :
-                                                        item.activity_status === 'away' ? 'bg-yellow-600' : 'bg-gray-400'
+                                                    item.activity_status === 'away' ? 'bg-yellow-600' : 'bg-gray-400'
                                                     }`} />
                                                 {item.is_online ? 'En línea' : item.activity_status === 'away' ? 'Ausente' : 'Offline'}
                                             </span>

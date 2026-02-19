@@ -187,7 +187,7 @@ export default function PermisosPage() {
     return (
         <div className="space-y-8 animate-fade-in pb-20">
             {/* NexaCore Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 to-cyan-500 p-8 md:p-12 text-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl">
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                     <div>
                         <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-md mb-3 border border-white/20">
@@ -197,7 +197,7 @@ export default function PermisosPage() {
                         <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
                             Gestión de Permisos
                         </h1>
-                        <p className="text-blue-50 max-w-2xl text-lg opacity-90">
+                        <p className="text-indigo-50 max-w-2xl text-lg opacity-90">
                             Configura el control de acceso basado en roles (RBAC) para la plataforma NexaCore.
                         </p>
                     </div>
@@ -205,17 +205,17 @@ export default function PermisosPage() {
                     <div className="flex gap-4">
                         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-center min-w-[100px]">
                             <div className="text-3xl font-bold">{permisos.length}</div>
-                            <div className="text-xs text-blue-100 uppercase tracking-widest opacity-80">Permisos</div>
+                            <div className="text-xs text-indigo-100 uppercase tracking-widest opacity-80">Permisos</div>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-center min-w-[100px]">
                             <div className="text-3xl font-bold">{roles.length}</div>
-                            <div className="text-xs text-blue-100 uppercase tracking-widest opacity-80">Roles</div>
+                            <div className="text-xs text-indigo-100 uppercase tracking-widest opacity-80">Roles</div>
                         </div>
                     </div>
                 </div>
                 {/* Decorative Blobs */}
                 <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-blue-500/30 blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-indigo-500/30 blur-2xl"></div>
             </div>
 
             {/* Navigation Tabs */}
@@ -224,8 +224,8 @@ export default function PermisosPage() {
                     <button
                         onClick={() => setActiveTab('permisos')}
                         className={`flex items-center rounded-full px-6 py-2.5 text-sm font-bold transition-all ${activeTab === 'permisos'
-                                ? 'bg-white text-blue-600 shadow-md ring-1 ring-black/5'
-                                : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+                            ? 'bg-white text-blue-600 shadow-md ring-1 ring-black/5'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
                             }`}
                     >
                         <ServerStackIcon className="mr-2 h-4 w-4" />
@@ -234,8 +234,8 @@ export default function PermisosPage() {
                     <button
                         onClick={() => setActiveTab('asignacion')}
                         className={`flex items-center rounded-full px-6 py-2.5 text-sm font-bold transition-all ${activeTab === 'asignacion'
-                                ? 'bg-white text-blue-600 shadow-md ring-1 ring-black/5'
-                                : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+                            ? 'bg-white text-blue-600 shadow-md ring-1 ring-black/5'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
                             }`}
                     >
                         <UserGroupIcon className="mr-2 h-4 w-4" />
@@ -366,8 +366,8 @@ export default function PermisosPage() {
                                             key={rol.id}
                                             onClick={() => setSelectedRoleId(rol.id)}
                                             className={`group relative flex items-center justify-between p-4 cursor-pointer rounded-2xl transition-all duration-200 border ${selectedRoleId === rol.id
-                                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 border-blue-500' // Dark text removed, white text used
-                                                    : 'bg-white text-gray-700 hover:bg-blue-50 hover:border-blue-200 border-gray-100 shadow-sm'
+                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 border-blue-500' // Dark text removed, white text used
+                                                : 'bg-white text-gray-700 hover:bg-blue-50 hover:border-blue-200 border-gray-100 shadow-sm'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">

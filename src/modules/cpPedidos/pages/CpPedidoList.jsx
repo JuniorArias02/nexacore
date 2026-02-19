@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { cpPedidoService } from '../services/cpPedidoService';
@@ -11,16 +11,19 @@ import {
     PencilSquareIcon,
     TrashIcon,
     DocumentArrowDownIcon,
-    TableCellsIcon
+    TableCellsIcon,
+    ChevronDownIcon,
+    ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
 export default function CpPedidoList() {
     const navigate = useNavigate();
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [expandedOrderId, setExpandedOrderId] = useState(null);
 
     // Filters & Pagination
-    const [filterMonth, setFilterMonth] = useState('');
+    const [filterMonth, setFilterMonth] = useState(new Date().toISOString().slice(0, 7));
     const [filterEstado, setFilterEstado] = useState('');
     const [searchCreator, setSearchCreator] = useState('');
 
@@ -37,7 +40,7 @@ export default function CpPedidoList() {
             setLoading(true);
             const data = await cpPedidoService.getAll();
             console.log(data);
-            const sortedData = (data.objeto || []).sort((a, b) => b.id - a.id);
+            const sortedData = (data || []).sort((a, b) => b.id - a.id);
             setPedidos(sortedData);
         } catch (error) {
             console.error('Error loading pedidos:', error);
@@ -78,6 +81,14 @@ export default function CpPedidoList() {
             } catch (error) {
                 Swal.fire('Error', 'No se pudo eliminar el pedido', 'error');
             }
+        }
+    };
+
+    const toggleRow = (id) => {
+        if (expandedOrderId === id) {
+            setExpandedOrderId(null);
+        } else {
+            setExpandedOrderId(id);
         }
     };
 
@@ -148,66 +159,103 @@ export default function CpPedidoList() {
     return (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
 
-            {/* Header */}
-            <div className="md:flex md:items-center md:justify-between mb-8">
-                <div className="min-w-0 flex-1">
-                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {/* Hero Section - Nexa Purple Theme */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm">
+                        GESTIÓN DE COMPRAS
+                    </span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
                         Pedidos de Compra
-                    </h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                        Gestiona las solicitudes de compra del departamento.
+                    </h1>
+                    <p className="text-indigo-50 max-w-2xl text-lg">
+                        Gestiona, aprueba y da seguimiento a las solicitudes de compra de la organización.
                     </p>
+
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                        <button
+                            onClick={() => navigate('/cp-pedidos/nuevo')}
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                        >
+                            <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                            Nuevo Pedido
+                        </button>
+                    </div>
                 </div>
-                <div className="mt-4 flex md:ml-4 md:mt-0">
-                    <button
-                        type="button"
-                        onClick={() => navigate('/cp-pedidos/nuevo')}
-                        className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all"
-                    >
-                        <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                        Nuevo Pedido
-                    </button>
-                </div>
+                {/* Decorative Blobs */}
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-white/10 blur-3xl opacity-50 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
             </div>
 
-            {/* Filters */}
-            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="relative rounded-md shadow-sm">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </div>
-                    <input
-                        type="month"
-                        value={filterMonth}
-                        onChange={(e) => setFilterMonth(e.target.value)}
-                        className="block w-full rounded-xl border-0 py-2 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
+            {/* Filters & Search Card */}
+            <div className="mb-8 bg-white p-6 rounded-3xl shadow-lg ring-1 ring-gray-900/5 transition-all hover:shadow-xl">
+                <div className="flex items-center gap-2 mb-4">
+                    <FunnelIcon className="h-5 w-5 text-indigo-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">Filtros de Búsqueda</h2>
                 </div>
-
-                <div className="relative rounded-md shadow-sm">
-                    <select
-                        value={filterEstado}
-                        onChange={(e) => setFilterEstado(e.target.value)}
-                        className="block w-full rounded-xl border-0 py-2 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    >
-                        <option value="">Todos los Estados</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="aprobado">Aprobado</option>
-                        <option value="rechazado">Rechazado</option>
-                    </select>
-                </div>
-
-                <div className="relative rounded-md shadow-sm lg:col-span-2">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Month Filter */}
+                    <div className="relative group">
+                        <label htmlFor="filterMonth" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Mes</label>
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                {/* <span className="text-gray-400 text-sm">🗓️</span> */}
+                            </div>
+                            <input
+                                id="filterMonth"
+                                type="month"
+                                value={filterMonth}
+                                onChange={(e) => setFilterMonth(e.target.value)}
+                                className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
+                            />
+                        </div>
                     </div>
-                    <input
-                        type="text"
-                        placeholder="Buscar por Elaborado Por..."
-                        value={searchCreator}
-                        onChange={(e) => setSearchCreator(e.target.value)}
-                        className="block w-full rounded-xl border-0 py-2 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
+
+                    {/* Estado Filter */}
+                    <div className="relative group">
+                        <label htmlFor="filterEstado" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Estado</label>
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <div className={`h-2.5 w-2.5 rounded-full ${!filterEstado ? 'bg-gray-400' :
+                                    filterEstado === 'pendiente' ? 'bg-yellow-400' :
+                                        filterEstado === 'aprobado' ? 'bg-green-400' :
+                                            'bg-red-400'
+                                    }`}></div>
+                            </div>
+                            <select
+                                id="filterEstado"
+                                value={filterEstado}
+                                onChange={(e) => setFilterEstado(e.target.value)}
+                                className="block w-full rounded-2xl border-0 py-3 pl-9 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white appearance-none"
+                            >
+                                <option value="">Todos los Estados</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="aprobado">Aprobado</option>
+                                <option value="rechazado">Rechazado</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Search Creator */}
+                    <div className="relative group lg:col-span-2">
+                        <label htmlFor="searchCreator" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Buscar</label>
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" aria-hidden="true" />
+                            </div>
+                            <input
+                                id="searchCreator"
+                                type="text"
+                                placeholder="Buscar por nombre de solicitante..."
+                                value={searchCreator}
+                                onChange={(e) => setSearchCreator(e.target.value)}
+                                className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -236,68 +284,127 @@ export default function CpPedidoList() {
                                 </tr>
                             ) : (
                                 paginatedPedidos.map((pedido) => (
-                                    <tr key={pedido.id} className="hover:bg-gray-50 transition-colors duration-150">
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-gray-900">#{pedido.consecutivo}</span>
-                                                <span className="text-xs text-gray-500">{formatDate(pedido.fecha_solicitud)}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm text-gray-900 font-medium">{pedido.solicitante?.nombre || 'N/A'}</span>
-                                                <span className="text-xs text-gray-500">Sede: {pedido.sede?.nombre || 'N/A'}</span>
-                                                <span className="text-xs text-gray-400 mt-1">Por: {pedido.elaborado_por?.nombre_completo || 'N/A'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {getEstadoBadge(pedido.estado_compras)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {getEstadoBadge(pedido.estado_gerencia)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {pedido.items?.length || 0} items
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleViewDetails(pedido.id)}
-                                                    className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
-                                                    title="Ver Detalles"
-                                                >
-                                                    <EyeIcon className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate(`/cp-pedidos/${pedido.id}/editar`)}
-                                                    className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
-                                                    title="Editar"
-                                                >
-                                                    <PencilSquareIcon className="h-5 w-5" />
-                                                </button>
-                                                {/* Placeholder for Excel/PDF - functionality to be added */}
-                                                <button
-                                                    className="p-1 rounded-full text-green-600 hover:bg-green-50 transition-colors"
-                                                    title="Descargar Excel (Próximamente)"
-                                                >
-                                                    <TableCellsIcon className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors"
-                                                    title="Descargar PDF (Próximamente)"
-                                                >
-                                                    <DocumentArrowDownIcon className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(pedido.id)}
-                                                    className="p-1 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                                    title="Eliminar"
-                                                >
-                                                    <TrashIcon className="h-5 w-5" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <React.Fragment key={pedido.id}>
+                                        <tr className={`hover:bg-gray-50 transition-colors duration-150 ${expandedOrderId === pedido.id ? 'bg-indigo-50/30' : ''}`}>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col">
+                                                    <button
+                                                        onClick={() => toggleRow(pedido.id)}
+                                                        className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 focus:outline-none transition-colors"
+                                                    >
+                                                        {expandedOrderId === pedido.id ? (
+                                                            <ChevronUpIcon className="h-4 w-4" />
+                                                        ) : (
+                                                            <ChevronDownIcon className="h-4 w-4" />
+                                                        )}
+                                                        #{pedido.consecutivo}
+                                                    </button>
+                                                    <span className="text-xs text-gray-500 ml-5">{formatDate(pedido.fecha_solicitud)}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm text-gray-900 font-medium">{pedido.solicitante?.nombre || 'N/A'}</span>
+                                                    <span className="text-xs text-gray-500">Sede: {pedido.sede?.nombre || 'N/A'}</span>
+                                                    <span className="text-xs text-gray-400 mt-1">Por: {pedido.elaborado_por?.nombre_completo || 'N/A'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {getEstadoBadge(pedido.estado_compras)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {getEstadoBadge(pedido.estado_gerencia)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {pedido.items?.length || 0} items
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleViewDetails(pedido.id)}
+                                                        className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                                        title="Ver Detalles"
+                                                    >
+                                                        <EyeIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => navigate(`/cp-pedidos/${pedido.id}/editar`)}
+                                                        className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
+                                                        title="Editar"
+                                                    >
+                                                        <PencilSquareIcon className="h-5 w-5" />
+                                                    </button>
+                                                    {/* Placeholder for Excel/PDF - functionality to be added */}
+                                                    <button
+                                                        className="p-1 rounded-full text-green-600 hover:bg-green-50 transition-colors"
+                                                        title="Descargar Excel (Próximamente)"
+                                                    >
+                                                        <TableCellsIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors"
+                                                        title="Descargar PDF (Próximamente)"
+                                                    >
+                                                        <DocumentArrowDownIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(pedido.id)}
+                                                        className="p-1 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                        title="Eliminar"
+                                                    >
+                                                        <TrashIcon className="h-5 w-5" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {expandedOrderId === pedido.id && (
+                                            <tr className="bg-gray-50 animate-fade-in">
+                                                <td colSpan="6" className="px-6 py-4 border-t border-gray-100 shadow-inner">
+                                                    <div className="rounded-lg overflow-hidden border border-gray-200">
+                                                        <table className="min-w-full divide-y divide-gray-200">
+                                                            <thead className="bg-gray-100">
+                                                                <tr>
+                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Item</th>
+                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
+                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referencia</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                                {pedido.items && pedido.items.length > 0 ? (
+                                                                    pedido.items.map((item) => (
+                                                                        <tr key={item.id}>
+                                                                            <td className="px-4 py-2 text-sm text-gray-900">{item.nombre}</td>
+                                                                            <td className="px-4 py-2 text-sm text-gray-500">{item.cantidad}</td>
+                                                                            <td className="px-4 py-2 text-sm text-gray-500">{item.unidad_medida}</td>
+                                                                            <td className="px-4 py-2 text-sm text-gray-500">
+                                                                                {item.referencia_items ? (
+                                                                                    <a
+                                                                                        href={item.referencia_items}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        className="text-indigo-600 hover:text-indigo-800 transition-colors inline-flex items-center gap-1"
+                                                                                        title="Ver referencia"
+                                                                                    >
+                                                                                        <LinkIcon className="h-4 w-4" />
+                                                                                        <span className="text-xs underline">Ver enlace</span>
+                                                                                    </a>
+                                                                                ) : '-'}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))
+                                                                ) : (
+                                                                    <tr>
+                                                                        <td colSpan="4" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
+                                                                    </tr>
+                                                                )}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 ))
                             )}
                         </tbody>

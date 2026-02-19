@@ -46,6 +46,7 @@ const menuConfig = [
         items: [
             { name: 'Inventario', href: '/inventario', icon: ClipboardDocumentListIcon, roles: ['administrador', 'admin', 'sistemas', 'compras'] },
             { name: 'Pedidos de Compra', href: '/cp-pedidos', icon: ShoppingCartIcon, roles: ['administrador', 'admin', 'compras'] },
+            { name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon, roles: ['administrador', 'admin', 'compras'] },
             { name: 'Productos', href: '/cp-productos', icon: TagIcon, roles: ['administrador', 'admin', 'compras'] },
             { name: 'Proveedores', href: '/cp-proveedores', icon: UsersIcon, roles: ['administrador', 'admin', 'compras'] },
             { name: 'Centro de Costos', href: '/cp-centro-costos', icon: BuildingOfficeIcon, roles: ['administrador', 'admin', 'compras'] },

@@ -7,6 +7,7 @@ import { sedeService } from '../../users/services/sedeService';
 import { dependenciaSedeService } from '../../dependenciaSede/services/dependenciaSedeService';
 import { inventarioService } from '../../inventario/services/inventarioService';
 import SignaturePad from '../../signatures/components/SignaturePad';
+import SearchableSelect from '../../../components/SearchableSelect';
 
 export default function EntregaActivosFijosForm() {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function EntregaActivosFijosForm() {
     const [personal, setPersonal] = useState([]);
     const [sedes, setSedes] = useState([]);
     const [dependencias, setDependencias] = useState([]);
+    const [filteredDependencias, setFilteredDependencias] = useState([]);
     const [inventarioItems, setInventarioItems] = useState([]);
 
     const [formData, setFormData] = useState({
@@ -39,6 +41,24 @@ export default function EntregaActivosFijosForm() {
         }
     }, [id]);
 
+    // Filter dependencias based on selected Sede
+    useEffect(() => {
+        if (formData.sede_id) {
+            const filtered = dependencias.filter(d => d.sede_id == formData.sede_id);
+            setFilteredDependencias(filtered);
+
+            // Clear selected proceso if it doesn't belong to the new sede
+            if (formData.proceso_solicitante) {
+                const currentProceso = dependencias.find(d => d.id == formData.proceso_solicitante);
+                if (currentProceso && currentProceso.sede_id != formData.sede_id) {
+                    setFormData(prev => ({ ...prev, proceso_solicitante: '' }));
+                }
+            }
+        } else {
+            setFilteredDependencias([]);
+        }
+    }, [formData.sede_id, dependencias]);
+
     // Auto-fetch inventory when both personal and coordinador are selected, BUT ONLY IF NOT EDITING
     useEffect(() => {
         if (!isEditing && formData.personal_id && formData.coordinador_id) {
@@ -57,14 +77,19 @@ export default function EntregaActivosFijosForm() {
             ]);
 
             // Safely handle responses - extract data if wrapped in response object
-            setPersonal(Array.isArray(personalData) ? personalData : (personalData?.data || []));
-            setSedes(Array.isArray(sedesData) ? sedesData : (sedesData?.data || []));
-            setDependencias(Array.isArray(dependenciasData) ? dependenciasData : (dependenciasData?.data || []));
+            const cleanPersonal = Array.isArray(personalData) ? personalData : (personalData?.objeto || personalData?.data || []);
+            console.log('Personal Data Loaded:', cleanPersonal);
+            setPersonal(cleanPersonal);
+
+            setSedes(Array.isArray(sedesData) ? sedesData : (sedesData?.objeto || sedesData?.data || []));
+            setDependencias(Array.isArray(dependenciasData) ? dependenciasData : (dependenciasData?.objeto || dependenciasData?.data || []));
         } catch (error) {
             console.error('Error loading dependencies:', error);
             Swal.fire('Error', 'No se pudieron cargar los datos necesarios', 'error');
         }
     };
+
+    // ... existing functions ...
 
     const fetchInventarioItems = async () => {
         try {
@@ -120,6 +145,7 @@ export default function EntregaActivosFijosForm() {
             setLoading(true);
             const response = await entregaActivosFijosService.getById(id);
             const entrega = response.objeto;
+            console.log('Entrega Loaded:', entrega);
 
             if (entrega) {
                 setFormData({
@@ -228,20 +254,13 @@ export default function EntregaActivosFijosForm() {
                     <h2 className="text-xl font-semibold mb-4 text-gray-700">Información General</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Personal (Quien Recibe) *
-                            </label>
-                            <select
+                            <SearchableSelect
+                                label="Personal (Quien Recibe)"
+                                options={personal}
                                 value={formData.personal_id}
-                                onChange={(e) => setFormData({ ...formData, personal_id: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            >
-                                <option value="">Seleccione personal</option>
-                                {personal.map((p) => (
-                                    <option key={p.id} value={p.id}>{p.nombre}</option>
-                                ))}
-                            </select>
+                                onChange={(value) => setFormData({ ...formData, personal_id: value })}
+                                placeholder="Buscar personal..."
+                            />
                         </div>
 
                         <div>
@@ -270,29 +289,23 @@ export default function EntregaActivosFijosForm() {
                                 onChange={(e) => setFormData({ ...formData, proceso_solicitante: e.target.value })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 required
+                                disabled={!formData.sede_id}
                             >
-                                <option value="">Seleccione proceso</option>
-                                {dependencias.map((d) => (
+                                <option value="">{formData.sede_id ? 'Seleccione proceso' : 'Seleccione sede primero'}</option>
+                                {filteredDependencias.map((d) => (
                                     <option key={d.id} value={d.id}>{d.nombre}</option>
                                 ))}
                             </select>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Coordinador *
-                            </label>
-                            <select
+                            <SearchableSelect
+                                label="Coordinador"
+                                options={personal}
                                 value={formData.coordinador_id}
-                                onChange={(e) => setFormData({ ...formData, coordinador_id: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            >
-                                <option value="">Seleccione coordinador</option>
-                                {personal.map((p) => (
-                                    <option key={p.id} value={p.id}>{p.nombre}</option>
-                                ))}
-                            </select>
+                                onChange={(value) => setFormData({ ...formData, coordinador_id: value })}
+                                placeholder="Buscar coordinador..."
+                            />
                         </div>
 
                         <div>

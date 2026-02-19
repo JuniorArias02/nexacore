@@ -3,7 +3,7 @@ import api from '../../../services/api';
 export const cpPedidoService = {
     getAll: async () => {
         const response = await api.get('/cp-pedidos');
-        return response.data;
+        return response.data.objeto;
     },
 
     getById: async (id) => {

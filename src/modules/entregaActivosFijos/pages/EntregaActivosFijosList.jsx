@@ -2,14 +2,25 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { entregaActivosFijosService } from '../services/entregaActivosFijosService';
-import { formatDate, formatDateTime } from '../../../utils/dateFormatter';
+import { formatDate } from '../../../utils/dateFormatter';
+import {
+    PlusIcon,
+    EyeIcon,
+    PencilSquareIcon,
+    TrashIcon,
+    MagnifyingGlassIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
+    CubeIcon
+} from '@heroicons/react/24/outline';
+import React from 'react'; // Added React import for Fragment
 
 export default function EntregaActivosFijosList() {
     const navigate = useNavigate();
     const [entregas, setEntregas] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedEntrega, setSelectedEntrega] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [expandedEntregaId, setExpandedEntregaId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         loadEntregas();
@@ -28,9 +39,12 @@ export default function EntregaActivosFijosList() {
         }
     };
 
-    const handleViewDetails = (entrega) => {
-        setSelectedEntrega(entrega);
-        setIsModalOpen(true);
+    const toggleRow = (id) => {
+        if (expandedEntregaId === id) {
+            setExpandedEntregaId(null);
+        } else {
+            setExpandedEntregaId(id);
+        }
     };
 
     const handleDelete = async (id) => {
@@ -57,6 +71,12 @@ export default function EntregaActivosFijosList() {
         }
     };
 
+    const filteredEntregas = entregas.filter(entrega =>
+        entrega.personal?.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entrega.sede?.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entrega.id?.toString().includes(searchTerm)
+    );
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -66,230 +86,229 @@ export default function EntregaActivosFijosList() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-6">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Entrega de Activos Fijos</h1>
-                <button
-                    onClick={() => navigate('/entrega-activos-fijos/nuevo')}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    Nueva Entrega
-                </button>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
+            {/* Hero Section */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm">
+                        GESTIÓN DE ACTIVOS
+                    </span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+                        Entrega de Activos Fijos
+                    </h1>
+                    <p className="text-indigo-100 max-w-2xl text-lg">
+                        Administra y controla las entregas de equipos y activos a colaboradores.
+                    </p>
+
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                        <button
+                            onClick={() => navigate('/entrega-activos-fijos/nuevo')}
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                        >
+                            <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                            Nueva Entrega
+                        </button>
+                    </div>
+                </div>
+                {/* Decorative Blobs */}
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-white/10 blur-3xl opacity-50 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
+            </div>
+
+            {/* Search and Filters */}
+            <div className="mb-6">
+                <div className="relative rounded-2xl shadow-sm max-w-md">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                    <input
+                        type="text"
+                        className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 shadow-sm"
+                        placeholder="Buscar por personal, sede o ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             {/* Table */}
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="bg-white shadow-xl rounded-2xl overflow-hidden ring-1 ring-gray-900/5">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gray-50/50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Entrega</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personal</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sede</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coordinador</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha Entrega</th>
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Asignado</th>
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sede</th>
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
+                                <th scope="col" className="relative px-6 py-4">
+                                    <span className="sr-only">Acciones</span>
+                                </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {entregas.length === 0 ? (
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                            {filteredEntregas.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
-                                        No hay entregas registradas
+                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <p className="text-lg font-medium text-gray-900">No se encontraron entregas</p>
+                                            <p className="text-sm text-gray-500 mt-1">Intenta ajustar tu búsqueda o crea una nueva entrega.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (
-                                entregas.map((entrega) => (
-                                    <tr key={entrega.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            #{entrega.id}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {formatDate(entrega.fecha_entrega)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {entrega.personal?.nombre || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {entrega.sede?.nombre || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {entrega.coordinador?.nombre || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {entrega.items?.length || 0} items
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                                            <button
-                                                onClick={() => handleViewDetails(entrega)}
-                                                className="text-indigo-600 hover:text-indigo-900"
-                                            >
-                                                Ver más
-                                            </button>
-                                            <button
-                                                onClick={() => navigate(`/entrega-activos-fijos/editar/${entrega.id}`)}
-                                                className="text-blue-600 hover:text-blue-900"
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(entrega.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </tr>
+                                filteredEntregas.map((entrega) => (
+                                    <React.Fragment key={entrega.id}>
+                                        <tr className="hover:bg-gray-50 transition-colors duration-150">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600 cursor-pointer" onClick={() => toggleRow(entrega.id)}>
+                                                <div className="flex items-center gap-2">
+                                                    #{entrega.id}
+                                                    {expandedEntregaId === entrega.id ? (
+                                                        <ChevronUpIcon className="h-4 w-4 text-gray-400" />
+                                                    ) : (
+                                                        <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {formatDate(entrega.fecha_entrega)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col space-y-1">
+                                                    <div className="flex items-center">
+                                                        <span className="text-xs font-semibold text-gray-500 w-20">Personal:</span>
+                                                        <span className="text-sm font-medium text-gray-900">{entrega.personal?.nombre || 'N/A'}</span>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        <span className="text-xs font-semibold text-gray-500 w-20">Coordinador:</span>
+                                                        <span className="text-sm text-gray-600">{entrega.coordinador?.nombre || 'N/A'}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                                    {entrega.sede?.nombre || 'N/A'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                                                    {entrega.items?.length || 0} items
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => navigate(`/entrega-activos-fijos/editar/${entrega.id}`)}
+                                                        className="p-2 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                                        title="Ver Detalle"
+                                                    >
+                                                        <EyeIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(entrega.id)}
+                                                        className="p-2 rounded-full text-red-600 hover:bg-red-50 transition-colors"
+                                                        title="Eliminar"
+                                                    >
+                                                        <TrashIcon className="h-5 w-5" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {/* Expanded Row Details */}
+                                        {expandedEntregaId === entrega.id && (
+                                            <tr className="bg-gray-50/50">
+                                                <td colSpan="6" className="px-6 py-4">
+                                                    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-900/5">
+                                                        <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                            <CubeIcon className="h-4 w-4 text-indigo-500" />
+                                                            Items Entregados
+                                                        </h4>
+                                                        <div className="overflow-hidden rounded-lg border border-gray-200">
+                                                            <table className="min-w-full divide-y divide-gray-200">
+                                                                <thead className="bg-gray-50">
+                                                                    <tr>
+                                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+                                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Marca/Modelo</th>
+                                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
+                                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Accesorio</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody className="divide-y divide-gray-200 bg-white">
+                                                                    {entrega.items?.map((item) => (
+                                                                        <tr key={item.id}>
+                                                                            <td className="px-3 py-2 text-xs text-gray-900 font-medium">
+                                                                                {item.inventario?.codigo || 'N/A'}
+                                                                            </td>
+                                                                            <td className="px-3 py-2 text-xs text-gray-500">
+                                                                                {item.inventario?.nombre || 'N/A'}
+                                                                            </td>
+                                                                            <td className="px-3 py-2 text-xs text-gray-500">
+                                                                                {item.inventario?.marca} {item.inventario?.modelo ? `/ ${item.inventario?.modelo} ` : ''}
+                                                                            </td>
+                                                                            <td className="px-3 py-2 text-xs text-gray-500">
+                                                                                {item.inventario?.serial || 'N/A'}
+                                                                            </td>
+                                                                            <td className="px-3 py-2 text-xs text-gray-500">
+                                                                                {item.es_accesorio ? (
+                                                                                    <span className="text-green-600 font-medium">Sí ({item.accesorio_descripcion})</span>
+                                                                                ) : (
+                                                                                    <span className="text-gray-400">No</span>
+                                                                                )}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                        {/* Signatures */}
+                                                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                            <div className="flex flex-col items-center">
+                                                                <p className="text-xs font-medium text-gray-500 uppercase mb-2">Firma Quien Entrega</p>
+                                                                {entrega.firma_quien_entrega ? (
+                                                                    <div className="p-2 border border-dashed border-gray-300 rounded bg-gray-50/50">
+                                                                        <img
+                                                                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${entrega.firma_quien_entrega}`}
+                                                                            alt="Firma Entrega"
+                                                                            className="h-24 object-contain mix-blend-multiply"
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="h-24 w-full flex items-center justify-center text-gray-400 text-sm italic border border-dashed border-gray-300 rounded bg-gray-50/50">
+                                                                        Sin firma
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-col items-center">
+                                                                <p className="text-xs font-medium text-gray-500 uppercase mb-2">Firma Quien Recibe</p>
+                                                                {entrega.firma_quien_recibe ? (
+                                                                    <div className="p-2 border border-dashed border-gray-300 rounded bg-gray-50/50">
+                                                                        <img
+                                                                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${entrega.firma_quien_recibe}`}
+                                                                            alt="Firma Recibe"
+                                                                            className="h-24 object-contain mix-blend-multiply"
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="h-24 w-full flex items-center justify-center text-gray-400 text-sm italic border border-dashed border-gray-300 rounded bg-gray-50/50">
+                                                                        Sin firma
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 ))
                             )}
                         </tbody>
                     </table>
                 </div>
             </div>
-
-            {/* Detail Modal */}
-            {isModalOpen && selectedEntrega && (
-                <div className="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                    <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-
-                        {/* Background overlay */}
-                        <div
-                            className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"
-                            aria-hidden="true"
-                            onClick={() => setIsModalOpen(false)}
-                        ></div>
-
-                        {/* Modal panel */}
-                        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
-                            {/* Header */}
-                            <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-semibold text-white flex items-center gap-2" id="modal-title">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                                        </svg>
-                                        Detalle de Entrega #{selectedEntrega.id}
-                                    </h3>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="text-white hover:text-gray-200 transition-colors"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Body */}
-                            <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
-                                {/* General Information */}
-                                <div className="mb-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Información General</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-sm text-gray-500">Fecha de Entrega</p>
-                                            <p className="text-base font-medium text-gray-900">{formatDate(selectedEntrega.fecha_entrega)}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">Personal (Quien Recibe)</p>
-                                            <p className="text-base font-medium text-gray-900">{selectedEntrega.personal?.nombre || 'N/A'}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">Sede</p>
-                                            <p className="text-base font-medium text-gray-900">{selectedEntrega.sede?.nombre || 'N/A'}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">Proceso Solicitante</p>
-                                            <p className="text-base font-medium text-gray-900">{selectedEntrega.procesoSolicitante?.nombre || 'N/A'}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">Coordinador</p>
-                                            <p className="text-base font-medium text-gray-900">{selectedEntrega.coordinador?.nombre || 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Items */}
-                                <div className="mb-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Items Entregados</h4>
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-50">
-                                                <tr>
-                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Activo</th>
-                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Es Accesorio</th>
-                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                {selectedEntrega.items?.map((item, index) => (
-                                                    <tr key={item.id}>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">{index + 1}</td>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.inventario?.nombre_activo || 'N/A'}</td>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.inventario?.serial_inventario || 'N/A'}</td>
-                                                        <td className="px-4 py-2 text-sm">
-                                                            {item.es_accesorio ? (
-                                                                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Sí</span>
-                                                            ) : (
-                                                                <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">No</span>
-                                                            )}
-                                                        </td>
-                                                        <td className="px-4 py-2 text-sm text-gray-500">{item.accesorio_descripcion || '-'}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                {/* Signatures */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {selectedEntrega.firma_quien_entrega && (
-                                        <div>
-                                            <h4 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Firma Quien Entrega</h4>
-                                            <img
-                                                src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${selectedEntrega.firma_quien_entrega}`}
-                                                alt="Firma Entrega"
-                                                className="h-32 border border-gray-200 rounded bg-white p-2"
-                                            />
-                                        </div>
-                                    )}
-                                    {selectedEntrega.firma_quien_recibe && (
-                                        <div>
-                                            <h4 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Firma Quien Recibe</h4>
-                                            <img
-                                                src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${selectedEntrega.firma_quien_recibe}`}
-                                                alt="Firma Recibe"
-                                                className="h-32 border border-gray-200 rounded bg-white p-2"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="bg-gray-50 px-6 py-4 flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="inline-flex justify-center items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all"
-                                >
-                                    Cerrar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
