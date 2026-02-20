@@ -1,28 +1,36 @@
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import menuConfig from '../config/menuConfig';
 import { useLocation, Link } from 'react-router-dom';
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'; // Imported icons
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
     const location = useLocation();
-    const { user } = useAuth(); // Get user from context
+    const { hasAnyPermission } = useAuth();
+    const [expandedItems, setExpandedItems] = useState({});
 
-    const userRole = user?.rol?.nombre?.toLowerCase() || '';
+    const toggleExpand = (key) => {
+        setExpandedItems(prev => ({ ...prev, [key]: !prev[key] }));
+    };
 
-    // Filter menu items based on user role
+    // Filter menu items based on user permissions
     const filteredNavigation = menuConfig.reduce((acc, group) => {
-        // Check if user has access to the group
-        if (group.roles.includes('all') || group.roles.some(r => userRole.includes(r))) {
-            // Filter items within the group
+        if (hasAnyPermission(group.permissions)) {
             const filteredItems = group.items.filter(item =>
-                item.roles.includes('all') || item.roles.some(r => userRole.includes(r))
-            );
+                hasAnyPermission(item.permissions)
+            ).map(item => {
+                // Also filter children by permission
+                if (item.children) {
+                    const filteredChildren = item.children.filter(child =>
+                        hasAnyPermission(child.permissions)
+                    );
+                    return { ...item, children: filteredChildren.length > 0 ? filteredChildren : undefined };
+                }
+                return item;
+            });
 
             if (filteredItems.length > 0) {
-                acc.push({
-                    ...group,
-                    items: filteredItems
-                });
+                acc.push({ ...group, items: filteredItems });
             }
         }
         return acc;
@@ -73,30 +81,72 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                             )}
                             <ul role="list" className="-mx-2 space-y-1">
                                 {group.items.map((item) => {
-                                    const active = location.pathname.startsWith(item.href);
+                                    const active = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+                                    const hasChildren = item.children && item.children.length > 0;
+                                    const isExpanded = expandedItems[item.href] || active;
+
                                     return (
                                         <li key={item.name}>
-                                            <Link
-                                                to={item.href}
-                                                className={`
-                                                    group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200
-                                                    ${active
-                                                        ? 'bg-indigo-50 text-indigo-600'
-                                                        : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
-                                                    }
-                                                    ${collapsed ? 'justify-center' : ''}
-                                                `}
-                                                onClick={() => window.innerWidth < 1024 && onClose()}
-                                                title={collapsed ? item.name : ''}
-                                            >
-                                                <item.icon
-                                                    className={`h-6 w-6 shrink-0 transition-colors ${active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}`}
-                                                    aria-hidden="true"
-                                                />
-                                                <span className={`whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${collapsed ? 'opacity-0 max-w-0' : 'opacity-100 max-w-[200px]'}`}>
-                                                    {item.name}
-                                                </span>
-                                            </Link>
+                                            <div className="flex items-center">
+                                                <Link
+                                                    to={item.href}
+                                                    className={`
+                                                        group flex-1 flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200
+                                                        ${active
+                                                            ? 'bg-indigo-50 text-indigo-600'
+                                                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                                                        }
+                                                        ${collapsed ? 'justify-center' : ''}
+                                                    `}
+                                                    onClick={() => window.innerWidth < 1024 && !hasChildren && onClose()}
+                                                    title={collapsed ? item.name : ''}
+                                                >
+                                                    <item.icon
+                                                        className={`h-6 w-6 shrink-0 transition-colors ${active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}`}
+                                                        aria-hidden="true"
+                                                    />
+                                                    <span className={`whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${collapsed ? 'opacity-0 max-w-0' : 'opacity-100 max-w-[200px]'}`}>
+                                                        {item.name}
+                                                    </span>
+                                                </Link>
+                                                {hasChildren && !collapsed && (
+                                                    <button
+                                                        onClick={() => toggleExpand(item.href)}
+                                                        className="p-1.5 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        <ChevronDownIcon className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {/* Sub-items */}
+                                            {hasChildren && !collapsed && isExpanded && (
+                                                <ul className="mt-1 ml-9 space-y-0.5">
+                                                    {item.children.map((child) => {
+                                                        const childActive = location.pathname === child.href;
+                                                        return (
+                                                            <li key={child.href}>
+                                                                <Link
+                                                                    to={child.href}
+                                                                    className={`
+                                                                        group flex items-center gap-x-2 rounded-md px-2 py-1.5 text-xs font-medium transition-all duration-200
+                                                                        ${childActive
+                                                                            ? 'text-indigo-600 bg-indigo-50'
+                                                                            : 'text-gray-500 hover:text-indigo-600 hover:bg-gray-50'
+                                                                        }
+                                                                    `}
+                                                                    onClick={() => window.innerWidth < 1024 && onClose()}
+                                                                >
+                                                                    {child.icon && (
+                                                                        <child.icon className={`h-4 w-4 shrink-0 ${childActive ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}`} />
+                                                                    )}
+                                                                    {child.name}
+                                                                </Link>
+                                                            </li>
+                                                        );
+                                                    })}
+                                                </ul>
+                                            )}
                                         </li>
                                     );
                                 })}

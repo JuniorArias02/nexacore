@@ -28,6 +28,7 @@ import UserFormPage from '../modules/users/pages/UserFormPage';
 import CpPedidoCreatePage from '../modules/cpPedidos/pages/CpPedidoCreatePage';
 import CpPedidoList from '../modules/cpPedidos/pages/CpPedidoList';
 import CpPedidoDetail from '../modules/cpPedidos/pages/CpPedidoDetail';
+import InformeConsolidadoPage from '../modules/cpPedidos/pages/InformeConsolidadoPage';
 import EntregaActivosFijosList from '../modules/entregaActivosFijos/pages/EntregaActivosFijosList';
 import EntregaActivosFijosForm from '../modules/entregaActivosFijos/pages/EntregaActivosFijosForm';
 import AreasList from '../modules/areas/pages/AreasList';
@@ -41,6 +42,11 @@ import PcDevueltoForm from '../modules/pcDevuelto/pages/PcDevueltoForm';
 import ProfilePage from '../modules/profile/pages/ProfilePage';
 import ConfigurationPage from '../modules/configuration/pages/ConfigurationPage';
 import PermisosPage from '../modules/configuration/pages/PermisosPage';
+import MantenimientoList from '../modules/mantenimiento/pages/MantenimientoList';
+import MantenimientoFormPage from '../modules/mantenimiento/pages/MantenimientoFormPage';
+import MantenimientoReceptorPage from '../modules/mantenimiento/pages/MantenimientoReceptorPage';
+import AgendaMantenimientoList from '../modules/agendaMantenimiento/pages/AgendaMantenimientoList';
+import AgendaMantenimientoFormPage from '../modules/agendaMantenimiento/pages/AgendaMantenimientoFormPage';
 import MainLayout from '../layout/MainLayout';
 
 // Componente para proteger rutas privadas
@@ -188,6 +194,7 @@ const AppRouter = () => {
                     <Route path="/cp-pedidos" element={<CpPedidoList />} />
                     <Route path="/cp-pedidos/nuevo" element={<CpPedidoCreatePage />} />
                     <Route path="/cp-pedidos/:id" element={<CpPedidoDetail />} />
+                    <Route path="/informe-consolidado-pedidos" element={<InformeConsolidadoPage />} />
 
                     {/* Entrega de Activos Fijos */}
                     <Route path="/entrega-activos-fijos" element={<EntregaActivosFijosList />} />
@@ -203,6 +210,17 @@ const AppRouter = () => {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/configuration" element={<ConfigurationPage />} />
                     <Route path="/permisos" element={<PermisosPage />} />
+
+                    {/* Mantenimientos */}
+                    <Route path="/mantenimientos" element={<MantenimientoList />} />
+                    <Route path="/mantenimientos/nuevo" element={<MantenimientoFormPage />} />
+                    <Route path="/mantenimientos/editar/:id" element={<MantenimientoFormPage />} />
+                    <Route path="/mis-mantenimientos" element={<MantenimientoReceptorPage />} />
+
+                    {/* Agenda Mantenimientos */}
+                    <Route path="/agenda-mantenimientos" element={<AgendaMantenimientoList />} />
+                    <Route path="/agenda-mantenimientos/nuevo" element={<AgendaMantenimientoFormPage />} />
+                    <Route path="/agenda-mantenimientos/editar/:id" element={<AgendaMantenimientoFormPage />} />
                 </Route>
 
                 {/* Redirecciones por defecto */}

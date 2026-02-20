@@ -93,5 +93,10 @@ export const cpPedidoService = {
     rechazarGerencia: async (id, observacion) => {
         const response = await api.post(`/cp-pedidos/${id}/rechazar-gerencia`, { observacion_gerencia: observacion });
         return response.data;
-    }
+    },
+
+    updateTracking: async (id, data) => {
+        const response = await api.patch(`/cp-pedidos/${id}/tracking`, data);
+        return response.data;
+    },
 };

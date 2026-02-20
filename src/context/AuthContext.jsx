@@ -12,8 +12,28 @@ export const useAuth = () => {
 // Proveedor del contexto
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [permissions, setPermissions] = useState([]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    // Extract permission names from user data
+    const extractPermissions = (userData) => {
+        const permisos = userData?.rol?.permisos || [];
+        return permisos.map((p) => p.nombre);
+    };
+
+    // Check if user has a specific permission
+    const hasPermission = (permName) => {
+        if (permName === 'all') return true;
+        return permissions.includes(permName);
+    };
+
+    // Check if user has ANY of the given permissions
+    const hasAnyPermission = (permNames) => {
+        if (!permNames || permNames.length === 0) return true;
+        if (permNames.includes('all')) return true;
+        return permNames.some((p) => permissions.includes(p));
+    };
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -27,8 +47,9 @@ export const AuthProvider = ({ children }) => {
                 // Verificar el token obteniendo los datos del usuario
                 const response = await api.post('/auth/me');
                 if (response.data.status === 'success' || response.data.objeto) {
-                    // Ajustar según la estructura real de ApiResponse (objeto contains user data)
-                    setUser(response.data.objeto);
+                    const userData = response.data.objeto;
+                    setUser(userData);
+                    setPermissions(extractPermissions(userData));
                     setIsAuthenticated(true);
                 } else {
                     logout();
@@ -55,7 +76,9 @@ export const AuthProvider = ({ children }) => {
 
                 // Obtener datos del usuario inmediatamente después del login
                 const userResponse = await api.post('/auth/me');
-                setUser(userResponse.data.objeto);
+                const userData = userResponse.data.objeto;
+                setUser(userData);
+                setPermissions(extractPermissions(userData));
 
                 return { success: true };
             } else {
@@ -78,6 +101,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             localStorage.removeItem('token');
             setUser(null);
+            setPermissions([]);
             setIsAuthenticated(false);
         }
     };
@@ -88,11 +112,14 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        permissions,
         isAuthenticated,
         loading,
         login,
         logout,
-        updateUser
+        updateUser,
+        hasPermission,
+        hasAnyPermission,
     };
 
     return (
