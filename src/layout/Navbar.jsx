@@ -16,8 +16,8 @@ const Navbar = ({ onOpenSidebar }) => {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
     };
 

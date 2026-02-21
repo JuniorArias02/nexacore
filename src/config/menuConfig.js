@@ -44,6 +44,7 @@ const menuConfig = [
                 permissions: ['pc_equipo.crear', 'pc_equipo.actualizar', 'pc_equipo.eliminar'],
                 children: [
                     { name: 'Crear', href: '/pc-equipos/nuevo', icon: PlusCircleIcon, permissions: ['pc_equipo.crear'] },
+                    { name: 'Hoja de Vida', href: '/pc-equipos', icon: DocumentChartBarIcon, permissions: ['pc_equipo.crear', 'pc_equipo.actualizar'] },
                 ]
             },
             {
@@ -59,14 +60,7 @@ const menuConfig = [
                 children: [
                     { name: 'Crear', href: '/pc-devueltos/crear', icon: PlusCircleIcon, permissions: ['pc_devuelto.crear'] },
                 ]
-            },
-            {
-                name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
-                permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
-                children: [
-                    { name: 'Crear', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
-                ]
-            },
+            }
         ]
     },
     {
@@ -128,6 +122,12 @@ const menuConfig = [
             {
                 name: 'Informe Consolidado', href: '/informe-consolidado-pedidos', icon: DocumentChartBarIcon,
                 permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras'],
+            }, {
+                name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
+                permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
+                children: [
+                    { name: 'Crear', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
+                ]
             },
         ]
     },

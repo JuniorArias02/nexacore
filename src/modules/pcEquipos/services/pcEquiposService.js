@@ -25,6 +25,11 @@ const pcEquiposService = {
         const response = await api.delete(`/pc-equipos/${id}`);
         return response.data;
     },
+
+    getHojaDeVida: async (id) => {
+        const response = await api.get(`/pc-equipos/${id}/hoja-de-vida`);
+        return response.data;
+    },
 };
 
 export default pcEquiposService;

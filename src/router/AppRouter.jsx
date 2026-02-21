@@ -35,6 +35,7 @@ import AreasList from '../modules/areas/pages/AreasList';
 import AreasForm from '../modules/areas/pages/AreasForm';
 import PcEquiposList from '../modules/pcEquipos/pages/PcEquiposList';
 import PcEquiposForm from '../modules/pcEquipos/pages/PcEquiposForm';
+import HojaDeVidaEquipoPage from '../modules/pcEquipos/pages/HojaDeVidaEquipoPage';
 import PcEntregasList from '../modules/pcEntregas/pages/PcEntregasList';
 import PcEntregasForm from '../modules/pcEntregas/pages/PcEntregasForm';
 import PcDevueltoList from '../modules/pcDevuelto/pages/PcDevueltoList';
@@ -139,6 +140,7 @@ const AppRouter = () => {
                     <Route path="/pc-equipos" element={<PcEquiposList />} />
                     <Route path="/pc-equipos/nuevo" element={<PcEquiposForm />} />
                     <Route path="/pc-equipos/editar/:id" element={<PcEquiposForm />} />
+                    <Route path="/pc-equipos/hoja-de-vida/:id" element={<HojaDeVidaEquipoPage />} />
 
                     {/* Dependencias Sedes */}
                     <Route path="/dependencias-sedes" element={<DependenciaSedeList />} />

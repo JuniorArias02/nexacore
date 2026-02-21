@@ -6,6 +6,15 @@ export const personalService = {
         return response.data.objeto || response.data;
     },
 
+    /**
+     * Search personal by name/cedula. Backend will fallback to Kubapp
+     * if no local results are found, auto-saving new entries.
+     */
+    search: async (query) => {
+        const response = await api.get('/personal', { params: { q: query } });
+        return response.data.objeto || response.data;
+    },
+
     getById: async (id) => {
         const response = await api.get(`/personal/${id}`);
         return response.data.objeto;

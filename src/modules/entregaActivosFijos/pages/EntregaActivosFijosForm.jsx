@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { entregaActivosFijosService } from '../services/entregaActivosFijosService';
@@ -88,6 +88,24 @@ export default function EntregaActivosFijosForm() {
             Swal.fire('Error', 'No se pudieron cargar los datos necesarios', 'error');
         }
     };
+
+    // Async search for personal — triggers Kubapp fallback on backend
+    const handleSearchPersonal = useCallback(async (query) => {
+        try {
+            const results = await personalService.search(query);
+            const arr = Array.isArray(results) ? results : [];
+            // Merge new results into the personal state so they persist in the dropdown
+            setPersonal(prev => {
+                const map = new Map(prev.map(p => [String(p.id), p]));
+                arr.forEach(p => map.set(String(p.id), p));
+                return [...map.values()];
+            });
+            return arr;
+        } catch (error) {
+            console.error('Error searching personal:', error);
+            return [];
+        }
+    }, []);
 
     // ... existing functions ...
 
@@ -259,7 +277,9 @@ export default function EntregaActivosFijosForm() {
                                 options={personal}
                                 value={formData.personal_id}
                                 onChange={(value) => setFormData({ ...formData, personal_id: value })}
-                                placeholder="Buscar personal..."
+                                placeholder="Buscar personal (APELLIDOS NOMBRE)..."
+                                onSearch={handleSearchPersonal}
+                                uppercase
                             />
                         </div>
 
@@ -304,7 +324,9 @@ export default function EntregaActivosFijosForm() {
                                 options={personal}
                                 value={formData.coordinador_id}
                                 onChange={(value) => setFormData({ ...formData, coordinador_id: value })}
-                                placeholder="Buscar coordinador..."
+                                placeholder="Buscar coordinador (APELLIDOS NOMBRE)..."
+                                onSearch={handleSearchPersonal}
+                                uppercase
                             />
                         </div>
 

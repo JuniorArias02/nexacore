@@ -111,13 +111,19 @@ export default function PcEquiposList() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.estado === 'operativo' ? 'bg-green-100 text-green-800' :
-                                                    item.estado === 'baja' ? 'bg-red-100 text-red-800' :
-                                                        'bg-yellow-100 text-yellow-800'
+                                                item.estado === 'baja' ? 'bg-red-100 text-red-800' :
+                                                    'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {item.estado}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button
+                                                onClick={() => navigate(`/pc-equipos/hoja-de-vida/${item.id}`)}
+                                                className="text-blue-600 hover:text-blue-900 mr-4"
+                                            >
+                                                Hoja de Vida
+                                            </button>
                                             <button
                                                 onClick={() => navigate(`/pc-equipos/editar/${item.id}`)}
                                                 className="text-indigo-600 hover:text-indigo-900 mr-4"
