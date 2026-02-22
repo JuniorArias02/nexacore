@@ -7,7 +7,8 @@ import {
     ArrowLeftIcon,
     ExclamationTriangleIcon,
     PencilIcon,
-    PhotoIcon
+    PhotoIcon,
+    TableCellsIcon
 } from '@heroicons/react/24/outline';
 import Swal from 'sweetalert2';
 import SignatureCanvas from 'react-signature-canvas';
@@ -269,6 +270,13 @@ export default function CpPedidoDetail() {
                             Guardar Cambios en Items
                         </button>
                     )}
+                    <button
+                        onClick={() => cpPedidoService.exportExcel(id)}
+                        className="inline-flex justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-600 shadow-sm ring-1 ring-inset ring-green-300 hover:bg-green-50"
+                    >
+                        <TableCellsIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                        Exportar Excel
+                    </button>
                 </div>
             </div>
 

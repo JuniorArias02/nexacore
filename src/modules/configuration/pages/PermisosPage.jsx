@@ -3,6 +3,7 @@ import { permisosService } from '../services/permisosService';
 import {
     PlusIcon,
     TrashIcon,
+    PencilSquareIcon,
     CheckCircleIcon,
     ShieldCheckIcon,
     MagnifyingGlassIcon,
@@ -13,7 +14,7 @@ import {
 import Swal from 'sweetalert2';
 
 export default function PermisosPage() {
-    const [activeTab, setActiveTab] = useState('permisos'); // 'permisos' or 'asignacion'
+    const [activeTab, setActiveTab] = useState('permisos');
     const [permisos, setPermisos] = useState([]);
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -86,6 +87,50 @@ export default function PermisosPage() {
             loadData();
         } catch (error) {
             Swal.fire('Error', 'No se pudo crear el permiso', 'error');
+        }
+    };
+
+    const handleEditPermiso = async (permiso) => {
+        const { value: formValues } = await Swal.fire({
+            title: 'Editar Permiso',
+            html:
+                `<div style="text-align:left;margin-bottom:8px;"><label style="font-size:14px;font-weight:600;">Slug del Permiso</label></div>` +
+                `<input id="swal-nombre" class="swal2-input" style="margin:0 0 16px 0;width:100%;box-sizing:border-box;" value="${permiso.nombre}" placeholder="ej: inventario.crear">` +
+                `<div style="text-align:left;margin-bottom:8px;"><label style="font-size:14px;font-weight:600;">Descripción</label></div>` +
+                `<textarea id="swal-descripcion" class="swal2-textarea" style="margin:0;width:100%;box-sizing:border-box;" placeholder="Describe qué permite hacer...">${permiso.descripcion || ''}</textarea>`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#4f46e5',
+            preConfirm: () => {
+                const nombre = document.getElementById('swal-nombre').value;
+                if (!nombre) {
+                    Swal.showValidationMessage('El nombre es obligatorio');
+                    return false;
+                }
+                return {
+                    nombre,
+                    descripcion: document.getElementById('swal-descripcion').value
+                };
+            }
+        });
+
+        if (formValues) {
+            try {
+                await permisosService.update(permiso.id, formValues);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Permiso actualizado',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                loadData();
+            } catch (error) {
+                Swal.fire('Error', 'No se pudo actualizar el permiso', 'error');
+            }
         }
     };
 
@@ -334,7 +379,14 @@ export default function PermisosPage() {
                                                                         <p>{permiso.descripcion || 'Sin descripción'}</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex flex-none items-center gap-x-4">
+                                                                <div className="flex flex-none items-center gap-x-2">
+                                                                    <button
+                                                                        onClick={() => handleEditPermiso(permiso)}
+                                                                        className="rounded-lg p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                                                                    >
+                                                                        <PencilSquareIcon className="h-5 w-5" />
+                                                                        <span className="sr-only">Editar</span>
+                                                                    </button>
                                                                     <button
                                                                         onClick={() => handleDeletePermiso(permiso.id)}
                                                                         className="rounded-lg p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"

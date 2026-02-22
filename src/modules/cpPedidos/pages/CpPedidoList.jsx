@@ -334,15 +334,15 @@ export default function CpPedidoList() {
                                                     >
                                                         <PencilSquareIcon className="h-5 w-5" />
                                                     </button>
-                                                    {/* Placeholder for Excel/PDF - functionality to be added */}
                                                     <button
+                                                        onClick={() => cpPedidoService.exportExcel(pedido.id)}
                                                         className="p-1 rounded-full text-green-600 hover:bg-green-50 transition-colors"
-                                                        title="Descargar Excel (Próximamente)"
+                                                        title="Descargar Excel"
                                                     >
                                                         <TableCellsIcon className="h-5 w-5" />
                                                     </button>
                                                     <button
-                                                        className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors"
+                                                        className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors opacity-50 cursor-not-allowed"
                                                         title="Descargar PDF (Próximamente)"
                                                     >
                                                         <DocumentArrowDownIcon className="h-5 w-5" />
