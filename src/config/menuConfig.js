@@ -23,14 +23,12 @@ import {
 const menuConfig = [
     {
         title: "Principal",
-        permissions: ['all'],
         items: [
             { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, permissions: ['all'] },
         ]
     },
     {
         title: "Gestión de Sistemas",
-        permissions: ['configuracion.dashboard_sistemas'],
         items: [
             {
                 name: 'Inventario', href: '/inventario', icon: ClipboardDocumentListIcon,
@@ -65,7 +63,6 @@ const menuConfig = [
     },
     {
         title: "Mantenimiento",
-        permissions: ['configuracion.dashboard_mantenimiento'],
         items: [
             {
                 name: 'Mantenimientos', href: '/mantenimientos', icon: WrenchScrewdriverIcon,
@@ -83,7 +80,6 @@ const menuConfig = [
     },
     {
         title: "Gestión de Compras",
-        permissions: ['configuracion.dashboard_compras'],
         items: [
             {
                 name: 'Pedidos de Compra', href: '/cp-pedidos', icon: ShoppingCartIcon,
@@ -133,7 +129,6 @@ const menuConfig = [
     },
     {
         title: "Administración General",
-        permissions: ['configuracion.dashboard_administrador'],
         items: [
             {
                 name: 'Usuarios', href: '/usuarios', icon: UserGroupIcon,

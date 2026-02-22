@@ -15,23 +15,21 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
 
     // Filter menu items based on user permissions
     const filteredNavigation = menuConfig.reduce((acc, group) => {
-        if (hasAnyPermission(group.permissions)) {
-            const filteredItems = group.items.filter(item =>
-                hasAnyPermission(item.permissions)
-            ).map(item => {
-                // Also filter children by permission
-                if (item.children) {
-                    const filteredChildren = item.children.filter(child =>
-                        hasAnyPermission(child.permissions)
-                    );
-                    return { ...item, children: filteredChildren.length > 0 ? filteredChildren : undefined };
-                }
-                return item;
-            });
-
-            if (filteredItems.length > 0) {
-                acc.push({ ...group, items: filteredItems });
+        const filteredItems = group.items.filter(item =>
+            hasAnyPermission(item.permissions)
+        ).map(item => {
+            // Also filter children by permission
+            if (item.children) {
+                const filteredChildren = item.children.filter(child =>
+                    hasAnyPermission(child.permissions)
+                );
+                return { ...item, children: filteredChildren.length > 0 ? filteredChildren : undefined };
             }
+            return item;
+        });
+
+        if (filteredItems.length > 0) {
+            acc.push({ ...group, items: filteredItems });
         }
         return acc;
     }, []);
