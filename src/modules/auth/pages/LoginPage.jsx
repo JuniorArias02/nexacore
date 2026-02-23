@@ -7,7 +7,8 @@ import {
     ShieldCheckIcon,
     CheckCircleIcon,
     EyeIcon,
-    EyeSlashIcon
+    EyeSlashIcon,
+    InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 const LoginPage = () => {
@@ -80,7 +81,18 @@ const LoginPage = () => {
             </div>
 
             {/* Right Side - Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative">
+                {/* Info Icon Link */}
+                <div className="absolute top-8 right-8">
+                    <Link
+                        to="/info-sistema"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold border border-blue-100"
+                    >
+                        <InformationCircleIcon className="h-5 w-5" />
+                        <span>Info Sistema</span>
+                    </Link>
+                </div>
+
                 <div className="w-full max-w-md space-y-8">
                     {/* Header Mobile */}
                     <div className="lg:hidden text-center mb-8">

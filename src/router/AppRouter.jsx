@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuth } from '../context/AuthContext';
 import LoginPage from '../modules/auth/pages/LoginPage';
 import ForgotPasswordPage from '../modules/auth/pages/ForgotPasswordPage';
+import InformacionWebPage from '../modules/informacionWeb/pages/InformacionWebPage';
 import DashboardPage from '../modules/dashboard/pages/DashboardPage';
 import InventoryFormPage from '../modules/inventario/pages/InventoryFormPage';
 import InventoryListPage from '../modules/inventario/pages/InventoryListPage';
@@ -106,6 +107,14 @@ const AppRouter = () => {
                     element={
                         <PublicRoute>
                             <ForgotPasswordPage />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/info-sistema"
+                    element={
+                        <PublicRoute>
+                            <InformacionWebPage />
                         </PublicRoute>
                     }
                 />
