@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import {
@@ -8,7 +8,9 @@ import {
     CheckCircleIcon,
     LockClosedIcon,
     EyeIcon,
-    EyeSlashIcon
+    EyeSlashIcon,
+    SparklesIcon,
+    KeyIcon
 } from '@heroicons/react/24/outline';
 
 const ForgotPasswordPage = () => {
@@ -24,23 +26,30 @@ const ForgotPasswordPage = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setError('');
+        setSuccess('');
     };
 
     const handleSendCode = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
             await authService.sendResetCode(formData.usuario);
-            setSuccess('Código enviado. Revisa tu correo (o logs).');
+            setSuccess('Código enviado. Revisa tu correo Institucional.');
             setView('forgot_code');
         } catch (err) {
-            setError(err.response?.data?.mensaje || 'Error al enviar código');
+            setError(err.response?.data?.mensaje || 'Error al enviar código. Verifica el usuario.');
         }
         setLoading(false);
     };
@@ -48,12 +57,13 @@ const ForgotPasswordPage = () => {
     const handleVerifyCode = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
             await authService.verifyResetCode(formData.usuario, formData.codigo);
             setSuccess('Código verificado correctamente.');
             setView('forgot_new_pass');
         } catch (err) {
-            setError(err.response?.data?.mensaje || 'Código inválido');
+            setError(err.response?.data?.mensaje || 'Código inválido o expirado.');
         }
         setLoading(false);
     };
@@ -61,227 +71,287 @@ const ForgotPasswordPage = () => {
     const handleResetPassword = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
             await authService.resetPassword(formData.usuario, formData.codigo, formData.password, formData.password_confirmation);
-            setSuccess('Contraseña actualizada. Inicia sesión.');
+            setSuccess('Contraseña actualizada con éxito.');
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
         } catch (err) {
-            setError(err.response?.data?.mensaje || 'Error al actualizar contraseña');
+            setError(err.response?.data?.mensaje || 'Error al actualizar contraseña. Intenta de nuevo.');
         }
         setLoading(false);
     };
 
     return (
-        <div className="flex min-h-screen bg-white">
-            {/* Left Side - Visual (Hidden on mobile) */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gray-900 text-white">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900"></div>
-
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                    <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="flex min-h-screen bg-slate-50 selection:bg-indigo-100 overflow-hidden font-sans">
+            {/* Left Side - Visual Focus */}
+            <div className="hidden lg:flex lg:w-3/5 relative overflow-hidden bg-slate-950">
+                {/* Immersive Background */}
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-600/20 rounded-full blur-[120px] -mr-96 -mt-96"></div>
+                    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[100px] -ml-48 -mb-48"></div>
                 </div>
 
-                <div className="relative z-10 w-full flex flex-col justify-center px-16">
-                    <div className="mb-8">
-                        <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg mb-8 border border-white/20">
-                            <span className="text-3xl font-bold">N</span>
+                {/* Animated Grid Pattern */}
+                <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50 contrast-150"></div>
+                <div className="absolute inset-0 z-0 bg-grid-slate-800/[0.1] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+
+                <div className="relative z-10 w-full flex flex-col justify-between p-16 h-full">
+                    <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+                            <span className="text-2xl font-black text-white">N</span>
                         </div>
-                        <h1 className="text-5xl font-extrabold tracking-tight mb-4">
-                            Recuperar <span className="text-indigo-400">Acceso</span>
+                        <span className="text-2xl font-bold tracking-tight text-white">NexaCore <span className="text-indigo-400 font-light italic">Recovery</span></span>
+                    </div>
+
+                    <div className={`transition-all duration-1000 delay-300 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold mb-6">
+                            <ShieldCheckIcon className="h-4 w-4" />
+                            SEGURIDAD GARANTIZADA
+                        </div>
+                        <h1 className="text-6xl font-black text-white leading-tight mb-6 tracking-tighter">
+                            Recupera tu <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400">
+                                acceso al panel.
+                            </span>
                         </h1>
-                        <p className="text-xl text-gray-300 font-light max-w-md">
-                            Sigue los pasos para restablecer tu contraseña de forma segura.
+                        <p className="text-xl text-slate-400 font-light max-w-xl leading-relaxed">
+                            Sigue el proceso de verificación de 3 pasos para restablecer tus credenciales de forma segura.
                         </p>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                        <div className={`p-4 rounded-2xl border transition-all duration-500 ${view === 'forgot_email' ? 'bg-white/10 border-white/20 scale-105' : 'bg-transparent border-white/5 opacity-40'}`}>
+                            <div className="text-white font-bold text-sm mb-1">01</div>
+                            <div className="text-xs text-slate-400">Identificación</div>
+                        </div>
+                        <div className="h-px w-8 bg-white/10"></div>
+                        <div className={`p-4 rounded-2xl border transition-all duration-500 ${view === 'forgot_code' ? 'bg-white/10 border-white/20 scale-105' : 'bg-transparent border-white/5 opacity-40'}`}>
+                            <div className="text-white font-bold text-sm mb-1">02</div>
+                            <div className="text-xs text-slate-400">Verificación</div>
+                        </div>
+                        <div className="h-px w-8 bg-white/10"></div>
+                        <div className={`p-4 rounded-2xl border transition-all duration-500 ${view === 'forgot_new_pass' ? 'bg-white/10 border-white/20 scale-105' : 'bg-transparent border-white/5 opacity-40'}`}>
+                            <div className="text-white font-bold text-sm mb-1">03</div>
+                            <div className="text-xs text-slate-400">Protección</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Right Side - Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-                <div className="w-full max-w-md space-y-8">
-                    {/* Header Mobile */}
-                    <div className="lg:hidden text-center mb-8">
-                        <h2 className="text-3xl font-extrabold text-gray-900">NexaCore</h2>
-                        <p className="text-gray-500">Recuperación</p>
+            {/* Right Side - Step Forms */}
+            <div className="w-full lg:w-2/5 flex flex-col relative bg-white lg:bg-slate-50">
+                {/* Floating Navigation/Info */}
+                <div className="absolute top-8 right-8 z-30">
+                    <Link
+                        to="/login"
+                        className="group flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-slate-200 hover:border-indigo-400 transition-all duration-300 active:scale-95"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                        <span className="text-xs font-black text-slate-600 group-hover:text-indigo-600 uppercase tracking-tight">Volver al Login</span>
+                    </Link>
+                </div>
+
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <div className={`w-full max-w-md transition-all duration-700 ${mounted ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+
+                        {/* Status Messaging */}
+                        {(error || success) && (
+                            <div className={`mb-10 p-4 rounded-2xl border animate-shake ${error ? 'bg-red-50/50 border-red-100' : 'bg-green-50/50 border-green-100'}`}>
+                                <div className="flex gap-3">
+                                    {error ? (
+                                        <ShieldCheckIcon className="h-5 w-5 text-red-500 shrink-0" />
+                                    ) : (
+                                        <CheckCircleIcon className="h-5 w-5 text-green-500 shrink-0" />
+                                    )}
+                                    <p className={`text-sm font-medium ${error ? 'text-red-700' : 'text-green-700'}`}>
+                                        {error || success}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 1: Identification */}
+                        {view === 'forgot_email' && (
+                            <div className="space-y-10 animate-fade-in-up">
+                                <div>
+                                    <h2 className="text-4xl font-black text-slate-900 tracking-tight">Recuperación</h2>
+                                    <p className="text-slate-500 mt-3 font-medium">Identifica tu cuenta para validar tu identidad.</p>
+                                </div>
+
+                                <form className="space-y-6" onSubmit={handleSendCode}>
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Usuario o Correo</label>
+                                        <div className="group relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <EnvelopeIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                name="usuario"
+                                                required
+                                                className="block w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-medium"
+                                                placeholder="Ej. usuario@house.com"
+                                                value={formData.usuario}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="relative w-full overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                                    >
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            {loading ? 'ENVIANDO...' : 'ENVIAR CÓDIGO SEGURO'}
+                                        </div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* STEP 2: Code Verification */}
+                        {view === 'forgot_code' && (
+                            <div className="space-y-10 animate-fade-in-up">
+                                <div>
+                                    <h2 className="text-4xl font-black text-slate-900 tracking-tight">Verificación</h2>
+                                    <p className="text-slate-500 mt-3 font-medium">Ingresa el código que acabamos de enviarte.</p>
+                                </div>
+
+                                <form className="space-y-8" onSubmit={handleVerifyCode}>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-center gap-2">
+                                            <input
+                                                type="text"
+                                                name="codigo"
+                                                required
+                                                maxLength={6}
+                                                className="block w-full text-center text-5xl font-black tracking-[0.5em] py-6 bg-white border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-indigo-600 placeholder:text-slate-100"
+                                                placeholder="000000"
+                                                value={formData.codigo}
+                                                onChange={handleChange}
+                                                autoFocus
+                                            />
+                                        </div>
+                                        <p className="text-center text-xs text-slate-400 font-bold uppercase tracking-widest">Código de 6 dígitos</p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="relative w-full overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                                        >
+                                            <div className="relative z-10">
+                                                {loading ? 'VERIFICANDO...' : 'VALIDAR CÓDIGO'}
+                                            </div>
+                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setView('forgot_email')}
+                                            className="w-full py-2 text-xs font-black text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest"
+                                        >
+                                            Solicitar otro código
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* STEP 3: New Password */}
+                        {view === 'forgot_new_pass' && (
+                            <div className="space-y-10 animate-fade-in-up">
+                                <div>
+                                    <KeyIcon className="h-10 w-10 text-indigo-600 mb-4" />
+                                    <h2 className="text-4xl font-black text-slate-900 tracking-tight">Nueva Clave</h2>
+                                    <p className="text-slate-500 mt-3 font-medium">Establece una contraseña más robusta.</p>
+                                </div>
+
+                                <form className="space-y-6" onSubmit={handleResetPassword}>
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Nueva Contraseña</label>
+                                        <div className="group relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <LockClosedIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                            </div>
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                name="password"
+                                                required
+                                                className="block w-full pl-12 pr-12 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-medium"
+                                                placeholder="••••••••"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? (
+                                                    <EyeSlashIcon className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors" />
+                                                ) : (
+                                                    <EyeIcon className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Confirmar Contraseña</label>
+                                        <div className="group relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <LockClosedIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                            </div>
+                                            <input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                name="password_confirmation"
+                                                required
+                                                className="block w-full pl-12 pr-12 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-medium"
+                                                placeholder="••••••••"
+                                                value={formData.password_confirmation}
+                                                onChange={handleChange}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            >
+                                                {showConfirmPassword ? (
+                                                    <EyeSlashIcon className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors" />
+                                                ) : (
+                                                    <EyeIcon className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="relative w-full overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                                    >
+                                        <div className="relative z-10">
+                                            {loading ? 'ACTUALIZANDO...' : 'REESTABLECER CREDENCIALES'}
+                                        </div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    </button>
+                                </form>
+                            </div>
+                        )}
                     </div>
+                </div>
 
-                    {/* Status Messages */}
-                    {error && (
-                        <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                    <ShieldCheckIcon className="h-5 w-5 text-red-500" />
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm text-red-700">{error}</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {success && (
-                        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-md">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                    <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm text-green-700">{success}</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* VIEW: FORGOT EMAIL */}
-                    {view === 'forgot_email' && (
-                        <div className="animate-fade-in-up">
-                            <div className="mb-8">
-                                <Link to="/login" className="mb-4 text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm">
-                                    <ArrowLeftIcon className="h-4 w-4" /> Volver al login
-                                </Link>
-                                <h2 className="text-3xl font-bold text-gray-900">Recuperar Contraseña</h2>
-                                <p className="text-sm text-gray-500 mt-2">Ingresa tu usuario o correo para recibir un código.</p>
-                            </div>
-                            <form className="space-y-6" onSubmit={handleSendCode}>
-                                <div>
-                                    <div className="relative rounded-md shadow-sm">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            name="usuario"
-                                            required
-                                            className="block w-full pl-10 pr-3 py-4 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50"
-                                            placeholder="Usuario o Correo"
-                                            value={formData.usuario}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/30 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:scale-[1.02]"
-                                >
-                                    {loading ? 'Enviando...' : 'Enviar Código'}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {/* VIEW: FORGOT CODE */}
-                    {view === 'forgot_code' && (
-                        <div className="animate-fade-in-up">
-                            <div className="mb-8">
-                                <button onClick={() => setView('forgot_email')} className="mb-4 text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm">
-                                    <ArrowLeftIcon className="h-4 w-4" /> Volver
-                                </button>
-                                <h2 className="text-3xl font-bold text-gray-900">Verificar Código</h2>
-                                <p className="text-sm text-gray-500 mt-2">Ingresa el código de 6 dígitos enviado.</p>
-                            </div>
-                            <form className="space-y-6" onSubmit={handleVerifyCode}>
-                                <div className="text-center">
-                                    <input
-                                        type="text"
-                                        name="codigo"
-                                        required
-                                        maxLength={6}
-                                        className="block w-full text-center text-4xl tracking-widest py-4 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
-                                        placeholder="000000"
-                                        value={formData.codigo}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/30 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:scale-[1.02]"
-                                >
-                                    {loading ? 'Verificando...' : 'Verificar Código'}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {/* VIEW: FORGOT NEW PASS */}
-                    {view === 'forgot_new_pass' && (
-                        <div className="animate-fade-in-up">
-                            <div className="mb-8">
-                                <h2 className="text-3xl font-bold text-gray-900">Nueva Contraseña</h2>
-                                <p className="text-sm text-gray-500 mt-2">Crea una contraseña segura.</p>
-                            </div>
-                            <form className="space-y-6" onSubmit={handleResetPassword}>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
-                                    <div className="relative rounded-md shadow-sm">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <LockClosedIcon className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            name="password"
-                                            required
-                                            className="block w-full pl-10 pr-10 py-4 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50"
-                                            placeholder="••••••••"
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                        />
-                                        <div
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? (
-                                                <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                            ) : (
-                                                <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
-                                    <div className="relative rounded-md shadow-sm">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <LockClosedIcon className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            name="password_confirmation"
-                                            required
-                                            className="block w-full pl-10 pr-10 py-4 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50"
-                                            placeholder="••••••••"
-                                            value={formData.password_confirmation}
-                                            onChange={handleChange}
-                                        />
-                                        <div
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        >
-                                            {showConfirmPassword ? (
-                                                <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                            ) : (
-                                                <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/30 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:scale-[1.02]"
-                                >
-                                    {loading ? 'Guardando...' : 'Cambiar Contraseña'}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    <p className="text-center text-xs text-gray-400 pt-8">
-                        &copy; 2026 NexaCore Systems. Todos los derechos reservados.
+                {/* Footer Brand */}
+                <div className="p-8 text-center mt-auto">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                        NexaCore Security Protocol &copy; 2026
                     </p>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -8,7 +8,8 @@ import {
     CheckCircleIcon,
     EyeIcon,
     EyeSlashIcon,
-    InformationCircleIcon
+    InformationCircleIcon,
+    SparklesIcon
 } from '@heroicons/react/24/outline';
 
 const LoginPage = () => {
@@ -19,9 +20,14 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,151 +47,174 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-white">
-            {/* Left Side - Visual (Hidden on mobile) */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gray-900 text-white">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900"></div>
-
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                    <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="flex min-h-screen bg-slate-50 selection:bg-indigo-100 overflow-hidden font-sans">
+            {/* Left Side - Visual Heritage/Future */}
+            <div className="hidden lg:flex lg:w-3/5 relative overflow-hidden bg-slate-950">
+                {/* Immersive Background */}
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-600/20 rounded-full blur-[120px] -mr-96 -mt-96"></div>
+                    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[100px] -ml-48 -mb-48"></div>
                 </div>
 
-                <div className="relative z-10 w-full flex flex-col justify-center px-16">
-                    <div className="mb-8">
-                        <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg mb-8 border border-white/20">
-                            <span className="text-3xl font-bold">N</span>
+                {/* Animated Grid Pattern */}
+                <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50 contrast-150"></div>
+                <div className="absolute inset-0 z-0 bg-grid-slate-800/[0.1] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+
+                <div className="relative z-10 w-full flex flex-col justify-between p-16 h-full">
+                    <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+                            <span className="text-2xl font-black text-white">N</span>
                         </div>
-                        <h1 className="text-5xl font-extrabold tracking-tight mb-4">
-                            NexaCore <span className="text-indigo-400">2026</span>
+                        <span className="text-2xl font-bold tracking-tight text-white">NexaCore <span className="text-indigo-400 font-light italic"></span></span>
+                    </div>
+
+                    <div className={`transition-all duration-1000 delay-300 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold mb-6">
+                            <SparklesIcon className="h-4 w-4" />
+                            ECOSISTEMA NEXA 2026
+                        </div>
+                        <h1 className="text-6xl font-black text-white leading-tight mb-6 tracking-tighter">
+                            Transformando la <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400">
+                                gestión operativa.
+                            </span>
                         </h1>
-                        <p className="text-xl text-gray-300 font-light max-w-md">
-                            Gestión integral inteligente para el Departamento de Sistemas y Compras.
+                        <p className="text-xl text-slate-400 font-light max-w-xl leading-relaxed">
+                            Integración inteligente de Sistemas y Compras en una plataforma unificada, rápida y segura.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6 mt-12">
-                        <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-                            <ShieldCheckIcon className="h-8 w-8 text-indigo-400 mb-2" />
-                            <h3 className="font-semibold">Seguridad Avanzada</h3>
-                            <p className="text-sm text-gray-400">Protección de datos empresariales.</p>
+                    <div className="flex items-center gap-8 border-t border-white/10 pt-8">
+                        <div>
+                            <div className="text-2xl font-bold text-white">100%</div>
+                            <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Cloud-Native</div>
                         </div>
-                        <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-                            <CheckCircleIcon className="h-8 w-8 text-purple-400 mb-2" />
-                            <h3 className="font-semibold">Gestión Eficiente</h3>
-                            <p className="text-sm text-gray-400">Optimización de recursos TI.</p>
+                        <div className="h-8 w-px bg-white/10"></div>
+                        <div>
+                            <div className="text-2xl font-bold text-white">2.0.x</div>
+                            <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Latest Alpha</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Right Side - Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative">
-                {/* Info Icon Link */}
-                <div className="absolute top-8 right-8">
+            {/* Right Side - Login Form Context */}
+            <div className="w-full lg:w-2/5 flex flex-col relative bg-white lg:bg-slate-50">
+                {/* Floating Navigation/Info */}
+                <div className="absolute top-8 right-8 z-20">
                     <Link
                         to="/info-sistema"
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold border border-blue-100"
+                        className="group flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-slate-200 hover:border-indigo-300 transition-all duration-300"
                     >
-                        <InformationCircleIcon className="h-5 w-5" />
-                        <span>Info Sistema</span>
+                        <InformationCircleIcon className="h-5 w-5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                        <span className="text-xs font-bold text-slate-600 group-hover:text-indigo-600">Info Sistema</span>
                     </Link>
                 </div>
 
-                <div className="w-full max-w-md space-y-8">
-                    {/* Header Mobile */}
-                    <div className="lg:hidden text-center mb-8">
-                        <h2 className="text-3xl font-extrabold text-gray-900">NexaCore</h2>
-                        <p className="text-gray-500">Sistema de Gestión</p>
-                    </div>
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <div className={`w-full max-w-md space-y-10 transition-all duration-700 ${mounted ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
 
-                    {/* Status Messages */}
-                    {error && (
-                        <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                    <ShieldCheckIcon className="h-5 w-5 text-red-500" />
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm text-red-700">{error}</p>
+                        {/* Logo for mobile */}
+                        <div className="lg:hidden flex items-center justify-center gap-3 mb-12">
+                            <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-200">N</div>
+                            <span className="text-xl font-bold tracking-tight text-slate-900">NexaCore</span>
+                        </div>
+
+                        <div>
+                            <h2 className="text-4xl font-black text-slate-900 tracking-tight">Bienvenido</h2>
+                            <p className="text-slate-500 mt-3 font-medium">Ingresa para administrar tu departamento.</p>
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-50/50 border border-red-100 p-4 rounded-2xl animate-shake">
+                                <div className="flex gap-3">
+                                    <ShieldCheckIcon className="h-5 w-5 text-red-500 shrink-0" />
+                                    <p className="text-sm font-medium text-red-700">{error}</p>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    <div className="animate-fade-in-up">
-                        <div className="mb-8">
-                            <h2 className="text-3xl font-bold text-gray-900">Bienvenido de nuevo</h2>
-                            <p className="text-sm text-gray-500 mt-2">Ingresa tus credenciales para acceder a tu panel de control.</p>
-                        </div>
                         <form className="space-y-6" onSubmit={handleLogin}>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Usuario o Correo</label>
-                                <div className="relative rounded-md shadow-sm">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <UserIcon className="h-5 w-5 text-gray-400" />
+                            <div className="space-y-2">
+                                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Cédula o Usuario</label>
+                                <div className="group relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <UserIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                                     </div>
                                     <input
                                         type="text"
                                         name="usuario"
                                         required
-                                        className="block w-full pl-10 pr-3 py-4 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50"
-                                        placeholder="Ej. junior_arias"
+                                        className="block w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-medium"
+                                        placeholder="Ej. usuario@house.com"
                                         value={formData.usuario}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                                <div className="relative rounded-md shadow-sm">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center ml-1">
+                                    <label className="block text-xs font-black uppercase tracking-widest text-slate-400">Contraseña</label>
+                                    <Link
+                                        to="/forgot-password"
+                                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+                                    >
+                                        ¿Nueva clave?
+                                    </Link>
+                                </div>
+                                <div className="group relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <LockClosedIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                                     </div>
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         name="contrasena"
                                         required
-                                        className="block w-full pl-10 pr-10 py-4 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50"
+                                        className="block w-full pl-12 pr-12 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-medium"
                                         placeholder="••••••••"
                                         value={formData.contrasena}
                                         onChange={handleChange}
                                     />
-                                    <div
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 pr-4 flex items-center"
                                         onClick={() => setShowPassword(!showPassword)}
                                     >
                                         {showPassword ? (
-                                            <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                                            <EyeSlashIcon className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors" />
                                         ) : (
-                                            <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                                            <EyeIcon className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors" />
                                         )}
-                                    </div>
-                                </div>
-                                <div className="flex justify-end mt-2">
-                                    <Link
-                                        to="/forgot-password"
-                                        className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                                    >
-                                        ¿Olvidaste tu contraseña?
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/30 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-[1.02]"
+                                className="relative w-full overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none"
                             >
-                                {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+                                <div className="relative z-10 flex items-center justify-center gap-2">
+                                    {loading ? (
+                                        <>
+                                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            <span>PROCESANDO...</span>
+                                        </>
+                                    ) : (
+                                        <span>ACCEDER AL PANEL</span>
+                                    )}
+                                </div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             </button>
                         </form>
                     </div>
+                </div>
 
-                    <p className="text-center text-xs text-gray-400 pt-8">
-                        &copy; 2026 NexaCore Systems. Todos los derechos reservados.
+                {/* Footer Brand */}
+                <div className="p-8 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                        Powered by NexaCore Ecosystem &copy; 2026
                     </p>
                 </div>
             </div>
