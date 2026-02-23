@@ -1,71 +1,52 @@
-# NexaCore Design System (2026 Edition)
+# NexaCore Premium Design System (v2.0 - 2026)
 
-Use this guide for all future UI implementation to ensure consistency with the new "Ecosistema NEXA" aesthetic.
+Este sistema de diseño define la estética "Ultra-Premium" para el ecosistema NexaCore, enfocándose en la jerarquía visual, tipografía moderna y una experiencia de usuario fluida.
 
-## Core Philosophy
-- **Modern & Vibrant**: Use gradients and "glassmorphism" to create depth.
-- **Friendly & Human**: Applications should greet the user (e.g., "Buenos días, Junior").
-- **Clean & Spacious**: Increase padding (`p-6`, `p-8`), use rounded corners (`rounded-2xl`, `rounded-3xl`), and light backgrounds (`bg-gray-50/50`).
+## 🎨 Principios de Diseño
+- **Estética Vibrante**: Uso de gradientes profundos (`violet-indigo-blue`) y sombras pesadas (`shadow-2xl`).
+- **Tipografía "High-End"**: Uso exclusivo de la fuente **Outfit** con tracking variado según el nivel.
+- **Micro-interacciones**: Efectos de escala (`hover:scale-105`), animaciones de entrada (`animate-fade-in-up`) y pulses en indicadores de estado.
 
-## Color Palettes (Role-Based)
+## 💎 Identidad Visual (Brand Colors)
 
-### **Sistemas (Tech)**
-- **Primary**: Blue (`text-blue-600`, `bg-blue-500`) & Cyan (`text-cyan-600`).
-- **Gradient**: `from-blue-600 to-cyan-500`.
-- **Vibe**: Clean, technical, precise.
+### **Paleta Maestra (Seguridad & Core)**
+- **Gradiente Principal**: `bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700`.
+- **Accentos**: Indigo-600 para acciones principales, Slate-900 para textos base, Slate-400 para metadatos.
 
-### **Compras (Business)**
-- **Primary**: Orange (`text-orange-600`) & Indigo (`text-indigo-600`).
-- **Secondary**: Teal (for products), Purple (for providers).
-- **Vibe**: Energetic, distinct, transactional.
+## 🏗️ Patrones de Componentes
 
-### **Admin (Executive)**
-- **Primary**: Purple (`text-purple-600`) & Pink (`text-pink-500`).
-- **Gradient**: `from-indigo-600 via-purple-600 to-pink-500`.
-- **Vibe**: Premium, authoritative, global.
-
-## Component Patterns
-
-### 1. Page Layout (Hero Section)
-Every major module page should start with a Hero section:
+### 1. Hero Header (Listas)
+Todas las vistas de catálogo deben iniciar con una sección Hero expansiva:
 ```jsx
-<div className="relative overflow-hidden rounded-3xl bg-gradient-to-r [ROLE_GRADIENT] p-8 md:p-12 text-white shadow-2xl">
+<div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
     <div className="relative z-10">
-        <span className="badge-glass">MODULE NAME</span>
-        <h1 className="text-4xl font-extrabold">{Greeting}, {User Name}</h1>
-        <p className="text-white/90">Description...</p>
+        <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
+            [CATEGORÍA]
+        </span>
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
+            [Título del Módulo]
+        </h1>
+        <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
+            [Descripción descriptiva...]
+        </p>
     </div>
-    {/* Decorative Blobs */}
-    <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
+    {/* Icono Decorativo Flotante */}
+    <Icon className="absolute right-12 bottom-0 h-64 w-64 text-white/5 -mb-20 pointer-events-none transform -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
 </div>
 ```
 
-### 2. Action Cards (Navigation/Stats)
-Use for dashboard items or main menu entries.
-```jsx
-<Link className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm hover:shadow-md transition-all border border-gray-100">
-    {/* Hover Hover Blob */}
-    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-[COLOR]-50 group-hover:bg-[COLOR]-100 transition-colors"></div>
-    
-    <div className="relative z-10">
-        <div className="icon-container bg-[COLOR]-50 text-[COLOR]-600 group-hover:bg-[COLOR]-600 group-hover:text-white">
-            <Icon />
-        </div>
-        <h3 className="font-bold text-gray-900">Title</h3>
-        <p className="text-gray-500">Description</p>
-    </div>
-</Link>
-```
+### 2. Form Cards (Centradas)
+Los formularios deben presentarse en contenedores centrados con cabeceras de icono:
+- **Max-Width**: `max-w-4xl` para formularios estándar, `max-w-5xl` para usuarios/personal.
+- **Header**: Div blanco con sombra, bordes redondeados `rounded-3xl`, icono en caja `bg-indigo-100`.
+- **Inputs**: Background `bg-slate-50`, bordes `border-slate-100`, focus con ring `focus:ring-indigo-500/10`.
 
-### 3. Stat Cards (Data Display)
-Simple, clean cards for numbers.
-```jsx
-<div className="rounded-lg bg-white p-6 shadow-md border-l-4 border-[COLOR]-500">
-    <h3>Title</h3>
-    <p className="text-3xl font-bold">{value}</p>
-</div>
-```
+### 3. Tablas NEXA
+- **Header**: Background `bg-slate-50/50`, texto `text-[10px]`, `font-black`, `tracking-[0.2em]`.
+- **Rows**: Hover con `hover:bg-indigo-50/30`, transiciones suaves.
+- **Badges**: Bordes redondeados `rounded-full`, colores pastel con texto fuerte y bordes sutiles.
 
-## Typography
-- **Headings**: `font-extrabold`, `tracking-tight`, `text-gray-900`.
-- **Body**: `text-gray-600` or `text-gray-500` for secondary text.
+## 🖋️ Tipografía & Estilo
+- **Títulos de Formulario**: `text-3xl font-extrabold tracking-tight`.
+- **Labels de Input**: `text-[10px] font-black uppercase tracking-[0.2em] text-slate-400`.
+- **Botones**: `rounded-2xl`, `font-black`, `tracking-widest`, sombras de color (`shadow-indigo-200`).
