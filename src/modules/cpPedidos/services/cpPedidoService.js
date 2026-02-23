@@ -1,8 +1,8 @@
 import api from '../../../services/api';
 
 export const cpPedidoService = {
-    getAll: async () => {
-        const response = await api.get('/cp-pedidos');
+    getAll: async (params = {}) => {
+        const response = await api.get('/cp-pedidos', { params });
         return response.data.objeto;
     },
 

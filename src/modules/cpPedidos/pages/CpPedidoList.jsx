@@ -24,24 +24,75 @@ export default function CpPedidoList() {
     const [expandedOrderId, setExpandedOrderId] = useState(null);
 
     // Filters & Pagination
-    const [filterMonth, setFilterMonth] = useState(new Date().toISOString().slice(0, 7));
-    const [filterEstado, setFilterEstado] = useState('');
-    const [searchCreator, setSearchCreator] = useState('');
+    // Raw Filter Inputs
+    const [monthInput, setMonthInput] = useState(new Date().toISOString().slice(0, 7));
+    const [estadoInput, setEstadoInput] = useState('');
+    const [creatorInput, setCreatorInput] = useState('');
+    const [consecutivoInput, setConsecutivoInput] = useState('');
+
+    // Debounced Filter State
+    const [debouncedFilters, setDebouncedFilters] = useState({
+        month: new Date().toISOString().slice(0, 7),
+        estado: '',
+        creator: '',
+        consecutivo: ''
+    });
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(30);
 
+    // Debounce Handler
     useEffect(() => {
-        loadPedidos();
+        const handler = setTimeout(() => {
+            setDebouncedFilters({
+                month: monthInput,
+                estado: estadoInput,
+                creator: creatorInput,
+                consecutivo: consecutivoInput
+            });
+        }, 1000); // 1s as requested
+
+        return () => clearTimeout(handler);
+    }, [monthInput, estadoInput, creatorInput, consecutivoInput]);
+
+    useEffect(() => {
+        // Initial load with current month
+        loadPedidos({ month: monthInput });
     }, []);
 
-    const loadPedidos = async () => {
+    // Fetch data from backend on month or consecutive change
+    useEffect(() => {
+        loadPedidos({
+            month: debouncedFilters.month,
+            consecutivo: debouncedFilters.consecutivo
+        });
+    }, [debouncedFilters.month, debouncedFilters.consecutivo]);
+
+    const loadPedidos = async (filters = {}) => {
         try {
             setLoading(true);
-            const data = await cpPedidoService.getAll();
-            console.log(data);
-            const sortedData = (data || []).sort((a, b) => b.id - a.id);
+            const data = await cpPedidoService.getAll(filters);
+
+            // Pre-process data for faster filtering
+            const processedData = (data || []).map(pedido => {
+                let pedidoDate;
+                if (typeof pedido.fecha_solicitud === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(pedido.fecha_solicitud)) {
+                    const [year, month, day] = pedido.fecha_solicitud.split('-').map(Number);
+                    pedidoDate = new Date(year, month - 1, day);
+                } else {
+                    pedidoDate = new Date(pedido.fecha_solicitud);
+                }
+
+                return {
+                    ...pedido,
+                    _searchMonth: `${pedidoDate.getFullYear()}-${String(pedidoDate.getMonth() + 1).padStart(2, '0')}`,
+                    _searchCreator: ((pedido.elaborado_por?.nombre_completo || '') + ' ' + (pedido.elaborado_por?.usuario || '')).toLowerCase(),
+                    _searchConsecutivo: pedido.consecutivo?.toString() || ''
+                };
+            });
+
+            const sortedData = processedData.sort((a, b) => b.id - a.id);
             setPedidos(sortedData);
         } catch (error) {
             console.error('Error loading pedidos:', error);
@@ -93,39 +144,27 @@ export default function CpPedidoList() {
         }
     };
 
-    // Filter Logic
+    // Filter Logic - Using Debounced State
     const filteredPedidos = useMemo(() => {
-        return pedidos.filter(pedido => {
-            // Filter by Month
-            if (filterMonth) {
-                let pedidoDate;
-                if (typeof pedido.fecha_solicitud === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(pedido.fecha_solicitud)) {
-                    const [year, month, day] = pedido.fecha_solicitud.split('-').map(Number);
-                    pedidoDate = new Date(year, month - 1, day);
-                } else {
-                    pedidoDate = new Date(pedido.fecha_solicitud);
-                }
+        const { month, estado, creator, consecutivo } = debouncedFilters;
+        const term = creator.toLowerCase();
 
-                const pedidoMonth = `${pedidoDate.getFullYear()}-${String(pedidoDate.getMonth() + 1).padStart(2, '0')}`;
-                if (pedidoMonth !== filterMonth) return false;
-            }
+        return pedidos.filter(pedido => {
+            // Filter by Month - Ignore if searching by consecutive
+            if (month && !consecutivo && pedido._searchMonth !== month) return false;
 
             // Filter by Estado Compras
-            if (filterEstado && pedido.estado_compras !== filterEstado) {
-                return false;
-            }
+            if (estado && pedido.estado_compras !== estado) return false;
 
             // Filter by Creator
-            if (searchCreator) {
-                const creatorName = pedido.elaborado_por?.nombre_completo?.toLowerCase() || '';
-                const creatorUser = pedido.elaborado_por?.usuario?.toLowerCase() || '';
-                const term = searchCreator.toLowerCase();
-                if (!creatorName.includes(term) && !creatorUser.includes(term)) return false;
-            }
+            if (creator && !pedido._searchCreator.includes(term)) return false;
+
+            // Filter by Consecutivo - Exact Match
+            if (consecutivo && pedido._searchConsecutivo !== consecutivo) return false;
 
             return true;
         });
-    }, [pedidos, filterMonth, searchCreator, filterEstado]);
+    }, [pedidos, debouncedFilters]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredPedidos.length / itemsPerPage);
@@ -137,7 +176,7 @@ export default function CpPedidoList() {
     // Reset page when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [filterMonth, searchCreator, filterEstado, itemsPerPage]);
+    }, [debouncedFilters, itemsPerPage]);
 
 
     const getEstadoBadge = (estado) => {
@@ -156,13 +195,6 @@ export default function CpPedidoList() {
         );
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            </div>
-        );
-    }
 
     return (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
@@ -212,8 +244,8 @@ export default function CpPedidoList() {
                             <input
                                 id="filterMonth"
                                 type="month"
-                                value={filterMonth}
-                                onChange={(e) => setFilterMonth(e.target.value)}
+                                value={monthInput}
+                                onChange={(e) => setMonthInput(e.target.value)}
                                 className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
                             />
                         </div>
@@ -224,16 +256,16 @@ export default function CpPedidoList() {
                         <label htmlFor="filterEstado" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Estado</label>
                         <div className="relative">
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <div className={`h-2.5 w-2.5 rounded-full ${!filterEstado ? 'bg-gray-400' :
-                                    filterEstado === 'pendiente' ? 'bg-yellow-400' :
-                                        filterEstado === 'aprobado' ? 'bg-green-400' :
+                                <div className={`h-2.5 w-2.5 rounded-full ${!estadoInput ? 'bg-gray-400' :
+                                    estadoInput === 'pendiente' ? 'bg-yellow-400' :
+                                        estadoInput === 'aprobado' ? 'bg-green-400' :
                                             'bg-red-400'
                                     }`}></div>
                             </div>
                             <select
                                 id="filterEstado"
-                                value={filterEstado}
-                                onChange={(e) => setFilterEstado(e.target.value)}
+                                value={estadoInput}
+                                onChange={(e) => setEstadoInput(e.target.value)}
                                 className="block w-full rounded-2xl border-0 py-3 pl-9 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white appearance-none"
                             >
                                 <option value="">Todos los Estados</option>
@@ -248,8 +280,8 @@ export default function CpPedidoList() {
                     </div>
 
                     {/* Search Creator */}
-                    <div className="relative group lg:col-span-2">
-                        <label htmlFor="searchCreator" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Buscar</label>
+                    <div className="relative group">
+                        <label htmlFor="searchCreator" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Buscar Solicitante</label>
                         <div className="relative">
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" aria-hidden="true" />
@@ -257,9 +289,31 @@ export default function CpPedidoList() {
                             <input
                                 id="searchCreator"
                                 type="text"
-                                placeholder="Buscar por nombre de solicitante..."
-                                value={searchCreator}
-                                onChange={(e) => setSearchCreator(e.target.value)}
+                                placeholder="Nombre..."
+                                value={creatorInput}
+                                onChange={(e) => setCreatorInput(e.target.value)}
+                                className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Search Consecutivo */}
+                    <div className="relative group">
+                        <label htmlFor="searchConsecutivo" className="block text-xs font-medium text-gray-500 mb-1 ml-1">Buscar Consecutivo</label>
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" aria-hidden="true" />
+                            </div>
+                            <input
+                                id="searchConsecutivo"
+                                type="text"
+                                placeholder="Pedido #..."
+                                value={consecutivoInput}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setConsecutivoInput(val);
+                                    if (val) setMonthInput('');
+                                }}
                                 className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
                             />
                         </div>
@@ -283,8 +337,17 @@ export default function CpPedidoList() {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
-                            {paginatedPedidos.length === 0 ? (
+                        <tbody className="divide-y divide-gray-200 bg-white relative">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-24 text-center">
+                                        <div className="flex justify-center items-center">
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                                            <span className="ml-3 text-gray-500 font-medium italic">Actualizando listado...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : paginatedPedidos.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-12 text-center text-gray-500 text-sm">
                                         No se encontraron pedidos
