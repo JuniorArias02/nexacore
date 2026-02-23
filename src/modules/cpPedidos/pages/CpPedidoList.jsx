@@ -13,7 +13,8 @@ import {
     DocumentArrowDownIcon,
     TableCellsIcon,
     ChevronDownIcon,
-    ChevronUpIcon
+    ChevronUpIcon,
+    LinkIcon
 } from '@heroicons/react/24/outline';
 
 export default function CpPedidoList() {
