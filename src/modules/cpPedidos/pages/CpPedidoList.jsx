@@ -440,6 +440,7 @@ export default function CpPedidoList() {
                                                                     <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
                                                                     <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
                                                                     <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referencia</th>
+                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="bg-white divide-y divide-gray-200">
@@ -464,11 +465,22 @@ export default function CpPedidoList() {
                                                                                     </a>
                                                                                 ) : '-'}
                                                                             </td>
+                                                                            <td className="px-4 py-2 text-sm">
+                                                                                {item.comprado === 1 ? (
+                                                                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                                                        Comprado
+                                                                                    </span>
+                                                                                ) : (
+                                                                                    <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                                                                        Pendiente
+                                                                                    </span>
+                                                                                )}
+                                                                            </td>
                                                                         </tr>
                                                                     ))
                                                                 ) : (
                                                                     <tr>
-                                                                        <td colSpan="5" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
+                                                                        <td colSpan="6" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
                                                                     </tr>
                                                                 )}
                                                             </tbody>
