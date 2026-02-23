@@ -97,7 +97,7 @@ export default function UserList() {
                         Gestión de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">Usuarios</span>
                     </h1>
                     <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
-                        Control centralizado de identidades, privilegios y accesos para el ecosistema NEXA v2.0.
+                        Control centralizado de identidades, privilegios y accesos para el ecosistema NEXA
                     </p>
 
                     <div className="mt-10 flex flex-wrap gap-4">
