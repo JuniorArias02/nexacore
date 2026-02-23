@@ -372,6 +372,7 @@ export default function CpPedidoList() {
                                                         <table className="min-w-full divide-y divide-gray-200">
                                                             <thead className="bg-gray-100">
                                                                 <tr>
+                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
                                                                     <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Item</th>
                                                                     <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
                                                                     <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
@@ -382,6 +383,7 @@ export default function CpPedidoList() {
                                                                 {pedido.items && pedido.items.length > 0 ? (
                                                                     pedido.items.map((item) => (
                                                                         <tr key={item.id}>
+                                                                            <td className="px-4 py-2 text-sm font-medium text-indigo-600">{item.producto?.codigo || 'N/A'}</td>
                                                                             <td className="px-4 py-2 text-sm text-gray-900">{item.nombre}</td>
                                                                             <td className="px-4 py-2 text-sm text-gray-500">{item.cantidad}</td>
                                                                             <td className="px-4 py-2 text-sm text-gray-500">{item.unidad_medida}</td>
@@ -403,7 +405,7 @@ export default function CpPedidoList() {
                                                                     ))
                                                                 ) : (
                                                                     <tr>
-                                                                        <td colSpan="4" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
+                                                                        <td colSpan="5" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
                                                                     </tr>
                                                                 )}
                                                             </tbody>

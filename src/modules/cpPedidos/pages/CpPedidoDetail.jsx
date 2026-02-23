@@ -298,6 +298,7 @@ export default function CpPedidoDetail() {
                                                 <span className="sr-only">Seleccionar</span>
                                             </th>
                                         )}
+                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Código</th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Producto</th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cant.</th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Und.</th>
@@ -323,6 +324,7 @@ export default function CpPedidoDetail() {
                                                         />
                                                     </td>
                                                 )}
+                                                <td className="px-3 py-4 text-sm font-medium text-indigo-600">{item.producto?.codigo || 'N/A'}</td>
                                                 <td className="px-3 py-4 text-sm text-gray-900">
                                                     <div className="font-medium">{item.nombre}</div>
                                                     <div className="text-xs text-gray-500">{item.referencia_items}</div>
