@@ -123,4 +123,19 @@ export const cpPedidoService = {
         link.remove();
         window.URL.revokeObjectURL(url);
     },
+
+    exportConsolidadoExcel: async (filters) => {
+        const response = await api.post(`/cp-pedidos/exportar-consolidado`, filters, {
+            responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'consolidado_pedidos.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    },
 };

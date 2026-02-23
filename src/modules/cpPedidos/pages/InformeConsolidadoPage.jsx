@@ -176,7 +176,21 @@ const InformeConsolidadoPage = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-sm px-4 py-2">
+                        <button
+                            onClick={() => cpPedidoService.exportConsolidadoExcel({
+                                fecha_desde: filterFechaDesde,
+                                fecha_hasta: filterFechaHasta,
+                                sede_id: filterSede,
+                                proceso: filterProceso,
+                                elaborado_por: filterElaborado,
+                                search: search
+                            })}
+                            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-indigo-600 shadow-lg hover:bg-indigo-50 transition-all transform hover:-translate-y-0.5 active:scale-95"
+                        >
+                            <DocumentChartBarIcon className="h-5 w-5" />
+                            Exportar Excel
+                        </button>
+                        <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-sm px-4 py-2 border border-white/10">
                             <span className="text-sm font-bold text-white">{filtered.length}</span>
                             <span className="text-xs text-indigo-100">pedidos</span>
                         </div>
