@@ -6,7 +6,8 @@ import {
     RocketLaunchIcon,
     ShieldCheckIcon,
     ExclamationTriangleIcon,
-    ChatBubbleLeftRightIcon
+    ChatBubbleLeftRightIcon,
+    DocumentDuplicateIcon
 } from '@heroicons/react/24/outline';
 
 const InformacionWebPage = () => {
@@ -141,6 +142,16 @@ const InformacionWebPage = () => {
                         <h3 className="text-xl font-bold text-gray-900 mb-4">¿Cómo funciona?</h3>
                         <p className="text-gray-500 leading-relaxed font-light">
                             Usa tu panel de control para gestionar pedidos, inventario o personal según tu rol asignado.
+                        </p>
+                    </div>
+
+                    <div className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300">
+                        <div className="h-12 w-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-6">
+                            <DocumentDuplicateIcon className="h-7 w-7" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Migración en curso</h3>
+                        <p className="text-gray-500 leading-relaxed font-light">
+                            Aún estamos trasladando los archivos restantes y archivos multimedia desde el servidor antiguo. Próximamente estarán disponibles.
                         </p>
                     </div>
                 </div>
