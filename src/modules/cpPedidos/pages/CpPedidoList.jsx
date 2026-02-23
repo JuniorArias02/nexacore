@@ -97,7 +97,14 @@ export default function CpPedidoList() {
         return pedidos.filter(pedido => {
             // Filter by Month
             if (filterMonth) {
-                const pedidoDate = new Date(pedido.fecha_solicitud);
+                let pedidoDate;
+                if (typeof pedido.fecha_solicitud === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(pedido.fecha_solicitud)) {
+                    const [year, month, day] = pedido.fecha_solicitud.split('-').map(Number);
+                    pedidoDate = new Date(year, month - 1, day);
+                } else {
+                    pedidoDate = new Date(pedido.fecha_solicitud);
+                }
+
                 const pedidoMonth = `${pedidoDate.getFullYear()}-${String(pedidoDate.getMonth() + 1).padStart(2, '0')}`;
                 if (pedidoMonth !== filterMonth) return false;
             }

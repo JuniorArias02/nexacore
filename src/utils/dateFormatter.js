@@ -6,14 +6,24 @@
 
 /**
  * Format a UTC date string to local date
- * @param {string} utcDateString - ISO 8601 date string from backend
+ * @param {string} utcDateString - ISO 8601 date string from backend (often just YYYY-MM-DD)
  * @param {string} locale - Locale for formatting (default: 'es-CO')
  * @returns {string} Formatted date in local timezone
  */
 export const formatDate = (utcDateString, locale = 'es-CO') => {
     if (!utcDateString) return 'N/A';
 
-    const date = new Date(utcDateString);
+    let date;
+    // Check if it's a date-only string (YYYY-MM-DD)
+    // JS parses YYYY-MM-DD as UTC, which causes shifts in local display.
+    // By splitting and using the Date(y, m, d) constructor, it's treated as local.
+    if (typeof utcDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(utcDateString)) {
+        const [year, month, day] = utcDateString.split('-').map(Number);
+        date = new Date(year, month - 1, day);
+    } else {
+        date = new Date(utcDateString);
+    }
+
     return date.toLocaleDateString(locale, {
         year: 'numeric',
         month: '2-digit',
