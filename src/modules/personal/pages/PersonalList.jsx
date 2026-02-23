@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { personalService } from '../services/personalService';
 import Swal from 'sweetalert2';
-import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, UserGroupIcon, IdentificationIcon, PhoneIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
 
 export default function PersonalList() {
     const [items, setItems] = useState([]);
@@ -57,104 +57,144 @@ export default function PersonalList() {
     };
 
     return (
-        <div className="px-4 sm:px-6 lg:px-8 py-6">
-            <div className="sm:flex sm:items-center">
-                <div className="sm:flex-auto">
-                    <h1 className="text-base font-semibold leading-6 text-gray-900">Personal</h1>
-                    <p className="mt-2 text-sm text-gray-700">
-                        Lista de personal.
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up font-sans">
+
+            {/* Hero Section - Nexa Purple Theme (Matching CpPedidoList) */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm">
+                        RECURSOS HUMANOS
+                    </span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+                        Control de Personal
+                    </h1>
+                    <p className="text-indigo-50 max-w-2xl text-lg">
+                        Gestiona la base de datos de empleados, contratistas y colaboradores de la organización.
                     </p>
-                </div>
-                <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <Link
-                        to="/personal/nuevo"
-                        className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                        <span className="flex items-center justify-center gap-2">
-                            <PlusIcon className="h-4 w-4" />
+
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                        <Link
+                            to="/personal/nuevo"
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                        >
+                            <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
                             Nuevo Registro
-                        </span>
-                    </Link>
+                        </Link>
+                    </div>
                 </div>
+                {/* Decorative Blobs */}
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-white/10 blur-3xl opacity-50 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
             </div>
 
-            <div className="mt-8 flow-root">
-                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-300">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                            ID
-                                        </th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                            Nombre
-                                        </th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                            Cédula
-                                        </th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                            Teléfono
-                                        </th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                            Cargo
-                                        </th>
-                                        <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                            <span className="sr-only">Acciones</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 bg-white">
-                                    {loading ? (
-                                        <tr>
-                                            <td colSpan="6" className="text-center py-4 text-sm text-gray-500">Cargando...</td>
-                                        </tr>
-                                    ) : items.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="6" className="text-center py-4 text-sm text-gray-500">No hay registros encontrados</td>
-                                        </tr>
-                                    ) : (
-                                        items.map((item) => (
-                                            <tr key={item.id}>
-                                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                                                    {item.id}
-                                                </td>
-                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+            {/* Table Content */}
+            <div className="bg-white shadow-2xl rounded-3xl overflow-hidden ring-1 ring-gray-900/5 transition-all">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-100">
+                        <thead className="bg-gray-50/50">
+                            <tr>
+                                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">ID</th>
+                                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Información Personal</th>
+                                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Cédula</th>
+                                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Contacto</th>
+                                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Cargo</th>
+                                <th scope="col" className="relative px-6 py-5">
+                                    <span className="sr-only">Acciones</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 bg-white">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-10 text-center">
+                                        <div className="flex justify-center flex-col items-center gap-2">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                                            <span className="text-xs font-bold text-slate-400">Cargando base de datos...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : items.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-20 text-center">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <div className="h-20 w-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-4">
+                                                <UserGroupIcon className="h-10 w-10 text-slate-200" />
+                                            </div>
+                                            <p className="text-slate-500 text-sm font-bold tracking-tight">No se encontraron colaboradores</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                items.map((item) => (
+                                    <tr key={item.id} className="hover:bg-indigo-50/30 transition-all duration-200 group">
+                                        <td className="px-6 py-5 whitespace-nowrap">
+                                            <span className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-xs font-black text-slate-500 tracking-tight">
+                                                #{item.id}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                                                    <UserGroupIcon className="h-5 w-5" />
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                     {item.nombre}
-                                                </td>
-                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                    {item.cedula || '-'}
-                                                </td>
-                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                    {item.telefono || '-'}
-                                                </td>
-                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                    {item.cargo ? item.cargo.nombre : '-'}
-                                                </td>
-                                                <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                    <Link
-                                                        to={`/personal/editar/${item.id}`}
-                                                        className="text-indigo-600 hover:text-indigo-900 mr-4 inline-block"
-                                                        title="Editar"
-                                                    >
-                                                        <PencilIcon className="h-5 w-5" />
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => handleDelete(item.id)}
-                                                        className="text-red-600 hover:text-red-900 inline-block"
-                                                        title="Eliminar"
-                                                    >
-                                                        <TrashIcon className="h-5 w-5" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <IdentificationIcon className="h-4 w-4 text-slate-400" />
+                                                <span className="text-xs font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                    {item.cedula || 'SIN DOC'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <PhoneIcon className="h-4 w-4 text-slate-400" />
+                                                <span className="text-xs font-bold text-slate-600">
+                                                    {item.telefono || 'N/A'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <BriefcaseIcon className="h-4 w-4 text-indigo-400" />
+                                                <span className="text-xs font-black uppercase text-indigo-600 tracking-tighter bg-indigo-50 px-2 py-1 rounded-md">
+                                                    {item.cargo ? item.cargo.nombre : 'SIN ASIGNAR'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
+                                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Link
+                                                    to={`/personal/editar/${item.id}`}
+                                                    className="p-2 rounded-xl text-indigo-600 hover:bg-indigo-100 transition-all shadow-sm bg-white ring-1 ring-slate-100"
+                                                    title="Editar"
+                                                >
+                                                    <PencilIcon className="h-5 w-5" />
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDelete(item.id)}
+                                                    className="p-2 rounded-xl text-red-600 hover:bg-red-100 transition-all shadow-sm bg-white ring-1 ring-slate-100"
+                                                    title="Eliminar"
+                                                >
+                                                    <TrashIcon className="h-5 w-5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                {/* Footer Brand */}
+                <div className="bg-gray-50/50 px-6 py-4 border-t border-gray-100">
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] text-center">
+                        Ecosistema NEXA &copy; {new Date().getFullYear()} - Gestión de Talento Humano
+                    </p>
                 </div>
             </div>
         </div>

@@ -9,7 +9,7 @@ import {
     MagnifyingGlassIcon,
     FunnelIcon,
     TableCellsIcon,
-    BoxOpenIcon,
+    ArchiveBoxIcon,
     TagIcon
 } from '@heroicons/react/24/outline';
 
@@ -105,32 +105,32 @@ export default function CpProductoServicioList() {
     return (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up font-sans">
 
-            {/* Header Section - Modern Gradient Design */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 to-blue-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+            {/* Hero Section - Nexa Purple Theme (Matching CpPedidoList) */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl mb-8">
                 <div className="relative z-10">
-                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-black text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm uppercase tracking-widest">
-                        Catálogo Maestro
+                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm">
+                        CATÁLOGO MAESTRO
                     </span>
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-2">
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
                         Productos y Servicios
                     </h1>
-                    <p className="text-indigo-50 max-w-2xl text-lg font-medium opacity-90">
+                    <p className="text-indigo-50 max-w-2xl text-lg">
                         Gestiona el inventario de bienes y servicios disponibles para las órdenes de compra.
                     </p>
 
                     <div className="mt-8 flex flex-col sm:flex-row gap-4">
                         <Link
                             to="/cp-productos-servicios/nuevo"
-                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-black text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
                         >
                             <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
                             Nuevo Registro
                         </Link>
                     </div>
                 </div>
-                {/* Decorative Elements */}
+                {/* Decorative Blobs */}
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-white/10 blur-3xl opacity-50 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-blue-400/30 blur-3xl opacity-50 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
             </div>
 
             {/* Filters Card */}
@@ -183,7 +183,7 @@ export default function CpProductoServicioList() {
                                     <td colSpan="4" className="px-6 py-20 text-center">
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="h-20 w-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-4">
-                                                <BoxOpenIcon className="h-10 w-10 text-slate-200" />
+                                                <ArchiveBoxIcon className="h-10 w-10 text-slate-200" />
                                             </div>
                                             <p className="text-slate-500 text-sm font-bold tracking-tight">No se encontraron productos o servicios</p>
                                             <p className="text-slate-400 text-xs mt-1">Prueba con otro término de búsqueda.</p>

@@ -7,7 +7,8 @@ import {
     IdentificationIcon,
     ArrowLeftIcon,
     CheckCircleIcon,
-    RocketLaunchIcon
+    RocketLaunchIcon,
+    ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 
 export default function CpProductoServicioForm() {
@@ -117,8 +118,21 @@ export default function CpProductoServicioForm() {
     return (
         <div className="mx-auto max-w-4xl px-4 py-8 animate-fade-in font-sans">
 
-            {/* Header Navigation */}
-            <div className="mb-8 flex items-center justify-between">
+            {/* Header Section - Matching CpPedidoForm Style */}
+            <div className="bg-white shadow-lg rounded-3xl p-6 mb-8 border border-slate-100 flex items-center">
+                <div className="p-3 bg-indigo-100 rounded-2xl mr-4 shadow-sm">
+                    <ClipboardDocumentListIcon className="h-8 w-8 text-indigo-600" />
+                </div>
+                <div>
+                    <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                        {isEditing ? 'Editar Producto/Servicio' : 'Crear Producto/Servicio'}
+                    </h1>
+                    <p className="text-slate-400 text-sm font-medium">Gestión de catálogo maestro NexaCore</p>
+                </div>
+            </div>
+
+            {/* Sub-Header Navigation */}
+            <div className="mb-8 flex items-center justify-between px-2">
                 <Link
                     to="/cp-productos-servicios"
                     className="group flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-all font-bold text-sm"
@@ -130,7 +144,7 @@ export default function CpProductoServicioForm() {
                 </Link>
                 <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocolo Maestros v2.0</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest tracking-widest">Protocolo Maestros v2.0</span>
                 </div>
             </div>
 
