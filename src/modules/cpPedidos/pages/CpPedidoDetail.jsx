@@ -93,8 +93,7 @@ export default function CpPedidoDetail() {
     };
 
     const handleItemCheck = (itemId) => {
-        // Allow check ONLY if approved
-        if (pedido.estado_compras !== 'aprobado') return;
+        // Management is now allowed regardless of status
 
         setLocalItems(prev => {
             const newItems = prev.map(item =>
@@ -275,7 +274,7 @@ export default function CpPedidoDetail() {
                             </button>
                         </>
                     )}
-                    {pedido.estado_compras === 'aprobado' && hasItemChanges && (
+                    {hasItemChanges && (
                         <button
                             onClick={saveItemChanges}
                             className="inline-flex justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 animate-pulse"
@@ -311,11 +310,9 @@ export default function CpPedidoDetail() {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        {pedido.estado_compras === 'aprobado' && (
-                                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-10">
-                                                <span className="sr-only">Seleccionar</span>
-                                            </th>
-                                        )}
+                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-10">
+                                            <span className="sr-only">Seleccionar</span>
+                                        </th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Código</th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Producto</th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cant.</th>
@@ -329,19 +326,17 @@ export default function CpPedidoDetail() {
                                         return (
                                             <tr
                                                 key={item.id}
-                                                className={pedido.estado_compras === 'aprobado' ? "cursor-pointer hover:bg-indigo-50/50 transition-colors" : ""}
+                                                className="cursor-pointer hover:bg-indigo-50/50 transition-colors"
                                                 onClick={() => handleItemCheck(item.id)}
                                             >
-                                                {pedido.estado_compras === 'aprobado' && (
-                                                    <td className="px-3 py-4 text-sm text-gray-500">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isChecked}
-                                                            readOnly
-                                                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer pointer-events-none"
-                                                        />
-                                                    </td>
-                                                )}
+                                                <td className="px-3 py-4 text-sm text-gray-500">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        readOnly
+                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer pointer-events-none"
+                                                    />
+                                                </td>
                                                 <td className="px-3 py-4 text-sm font-medium text-indigo-600">{item.producto?.codigo || 'N/A'}</td>
                                                 <td className="px-3 py-4 text-sm text-gray-900">
                                                     <div className="font-medium">{item.nombre}</div>
@@ -366,14 +361,12 @@ export default function CpPedidoDetail() {
                                 </tbody>
                             </table>
                         </div>
-                        {pedido.estado_compras === 'aprobado' && (
-                            <div className="bg-blue-50 px-4 py-3 border-t border-blue-100 flex items-start gap-3">
-                                <ExclamationTriangleIcon className="h-5 w-5 text-blue-600 mt-0.5" />
-                                <p className="text-sm text-blue-700">
-                                    Marque los items que ya han sido comprados y haga clic en "Guardar Cambios".
-                                </p>
-                            </div>
-                        )}
+                        <div className="bg-blue-50 px-4 py-3 border-t border-blue-100 flex items-start gap-3">
+                            <ExclamationTriangleIcon className="h-5 w-5 text-blue-600 mt-0.5" />
+                            <p className="text-sm text-blue-700">
+                                Marque los items que ya han sido comprados y haga clic en "Guardar Cambios".
+                            </p>
+                        </div>
                     </div>
 
                     {/* Approval Action Area */}
