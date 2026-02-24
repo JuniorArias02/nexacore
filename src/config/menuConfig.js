@@ -31,13 +31,6 @@ const menuConfig = [
         title: "Gestión de Sistemas",
         items: [
             {
-                name: 'Inventario', href: '/inventario', icon: ClipboardDocumentListIcon,
-                permissions: ['inventario.crear', 'inventario.actualizar', 'inventario.eliminar'],
-                children: [
-                    { name: 'Crear', href: '/inventario/nuevo', icon: PlusCircleIcon, permissions: ['inventario.crear'] },
-                ]
-            },
-            {
                 name: 'Equipos PC', href: '/pc-equipos', icon: ComputerDesktopIcon,
                 permissions: ['pc_equipo.crear', 'pc_equipo.actualizar', 'pc_equipo.eliminar'],
                 children: [
@@ -82,10 +75,27 @@ const menuConfig = [
         title: "Gestión de Compras",
         items: [
             {
+                name: 'Inventario', href: '/inventario', icon: ClipboardDocumentListIcon,
+                permissions: ['inventario.crear', 'inventario.actualizar', 'inventario.eliminar'],
+                children: [
+                    { name: 'Crear', href: '/inventario/nuevo', icon: PlusCircleIcon, permissions: ['inventario.crear'] },
+                ]
+            },
+            {
                 name: 'Pedidos de Compra', href: '/cp-pedidos', icon: ShoppingCartIcon,
                 permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras', 'cp_pedido.listar.responsable', 'cp_pedido.crear'],
                 children: [
                     { name: 'Crear', href: '/cp-pedidos/nuevo', icon: PlusCircleIcon, permissions: ['cp_pedido.crear'] },
+                ]
+            },
+            {
+                name: 'Informe Consolidado', href: '/informe-consolidado-pedidos', icon: DocumentChartBarIcon,
+                permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras'],
+            }, {
+                name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
+                permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
+                children: [
+                    { name: 'Crear', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
                 ]
             },
             {
@@ -114,17 +124,7 @@ const menuConfig = [
             {
                 name: 'Servicios', href: '/cp-productos-servicios', icon: WrenchScrewdriverIcon,
                 permissions: ['cp_producto_servicio.crear', 'cp_producto_servicio.actualizar', 'cp_producto_servicio.eliminar'],
-            },
-            {
-                name: 'Informe Consolidado', href: '/informe-consolidado-pedidos', icon: DocumentChartBarIcon,
-                permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras'],
-            }, {
-                name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
-                permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
-                children: [
-                    { name: 'Crear', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
-                ]
-            },
+            }
         ]
     },
     {
