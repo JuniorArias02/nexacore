@@ -12,7 +12,7 @@ const SearchableProductSelect = ({ options, value, onChange }) => {
         ? options
         : options.filter((product) => {
             const nameMatch = product.nombre.toLowerCase().includes(query.toLowerCase());
-            const codeMatch = product.codigo_interno ? product.codigo_interno.toLowerCase().includes(query.toLowerCase()) : false;
+            const codeMatch = product.codigo ? product.codigo.toLowerCase().includes(query.toLowerCase()) : false;
             return nameMatch || codeMatch;
         });
 
@@ -60,7 +60,7 @@ const SearchableProductSelect = ({ options, value, onChange }) => {
                                 }}
                             >
                                 <span className={`block truncate ${product.id == value ? 'font-medium' : 'font-normal'}`}>
-                                    {product.codigo_interno ? <span className="text-gray-500 mr-2 text-xs">[{product.codigo_interno}]</span> : null}
+                                    {product.codigo ? <span className="text-gray-500 mr-2 text-xs">[{product.codigo}]</span> : null}
                                     {product.nombre}
                                 </span>
                                 {product.id == value ? (
@@ -81,7 +81,7 @@ const SearchableProductSelect = ({ options, value, onChange }) => {
     );
 };
 
-export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem }) {
+export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem, isFarmacia }) {
     const [productos, setProductos] = useState([]);
     const [currentItem, setCurrentItem] = useState({
         nombre: '',
@@ -122,13 +122,12 @@ export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem }) {
         setCurrentItem(prev => ({
             ...prev,
             productos_id: product.id,
-            nombre: product.nombre || '',
-            referencia_items: product.codigo_interno || ''
+            nombre: product.nombre || ''
         }));
     };
 
     const handleAdd = () => {
-        if (!currentItem.productos_id || !currentItem.cantidad || !currentItem.unidad_medida) {
+        if ((isFarmacia && !currentItem.productos_id) || !currentItem.nombre || !currentItem.cantidad || !currentItem.unidad_medida) {
             Swal.fire('Error', 'Complete los campos obligatorios del ítem', 'warning');
             return;
         }
@@ -150,7 +149,7 @@ export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem }) {
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6 mb-4 bg-gray-50 p-4 rounded-md">
                 <div className="sm:col-span-2 relative">
                     <label className="block text-sm font-medium leading-6 text-gray-900">
-                        Producto *
+                        {isFarmacia ? 'Producto (Farmacia) *' : 'Producto (Opcional)'}
                     </label>
                     <SearchableProductSelect
                         options={productos}
@@ -161,7 +160,7 @@ export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem }) {
 
                 <div className="sm:col-span-2">
                     <label className="block text-sm font-medium leading-6 text-gray-900">
-                        Nombre (Auto/Manual) *
+                        Nombre Solicitado *
                     </label>
                     <input
                         type="text"

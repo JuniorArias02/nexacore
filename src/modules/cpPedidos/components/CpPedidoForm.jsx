@@ -311,6 +311,7 @@ export default function CpPedidoForm() {
                     items={items}
                     onAddItem={handleAddItem}
                     onRemoveItem={handleRemoveItem}
+                    isFarmacia={dependencias.find(d => d.id == headerData.proceso_solicitante)?.nombre?.toUpperCase().includes('FARMACIA')}
                 />
 
                 {/* Signature Section */}
