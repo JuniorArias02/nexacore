@@ -24,7 +24,14 @@ const EditTrackingModal = ({ isOpen, onClose, pedido, onSave, saving }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave(pedido.id, form);
+
+        // Map empty strings to null for better backend compatibility (especially for dates)
+        const cleanedForm = Object.keys(form).reduce((acc, key) => {
+            acc[key] = form[key] === '' ? null : form[key];
+            return acc;
+        }, {});
+
+        onSave(pedido.id, cleanedForm);
     };
 
     if (!isOpen || !pedido) return null;
