@@ -9,6 +9,7 @@ import {
     PencilSquareIcon,
     TrashIcon,
     MagnifyingGlassIcon,
+    TableCellsIcon,
     ChevronDownIcon,
     ChevronUpIcon,
     CubeIcon
@@ -21,6 +22,7 @@ export default function EntregaActivosFijosList() {
     const [loading, setLoading] = useState(true);
     const [expandedEntregaId, setExpandedEntregaId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [exportingId, setExportingId] = useState(null);
 
     useEffect(() => {
         loadEntregas();
@@ -68,6 +70,19 @@ export default function EntregaActivosFijosList() {
                 console.error('Error deleting entrega:', error);
                 Swal.fire('Error', 'No se pudo eliminar la entrega', 'error');
             }
+        }
+    };
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingId(id);
+            await entregaActivosFijosService.exportExcel(id);
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            // Error handling is already inside the service or we can add it here if needed
+            // But usually, since it's a blob, we might need specific error parsing
+        } finally {
+            setExportingId(null);
         }
     };
 
@@ -204,6 +219,18 @@ export default function EntregaActivosFijosList() {
                                                         title="Ver Detalle"
                                                     >
                                                         <EyeIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleExportExcel(entrega.id)}
+                                                        disabled={exportingId === entrega.id}
+                                                        className={`p-2 rounded-full transition-colors ${exportingId === entrega.id ? 'text-gray-400 bg-gray-100' : 'text-green-600 hover:bg-green-50'}`}
+                                                        title="Exportar a Excel"
+                                                    >
+                                                        {exportingId === entrega.id ? (
+                                                            <div className="h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <TableCellsIcon className="h-5 w-5" />
+                                                        )}
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(entrega.id)}

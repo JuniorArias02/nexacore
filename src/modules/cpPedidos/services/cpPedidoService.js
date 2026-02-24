@@ -12,7 +12,6 @@ export const cpPedidoService = {
     },
 
     create: async (data) => {
-        // Need to use FormData for file upload
         const formData = new FormData();
 
         Object.keys(data).forEach(key => {

@@ -74,5 +74,20 @@ export const entregaActivosFijosService = {
     delete: async (id) => {
         const response = await api.delete(`/cp-entrega-activos-fijos/${id}`);
         return response.data;
-    }
+    },
+
+    exportExcel: async (id) => {
+        const response = await api.get(`/cp-entrega-activos-fijos/${id}/exportar-excel`, {
+            responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `entrega_activos_${id}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    },
 };
