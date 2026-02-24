@@ -27,6 +27,7 @@ import RoleFormPage from '../modules/roles/pages/RoleFormPage';
 import UserList from '../modules/users/pages/UserList';
 import UserFormPage from '../modules/users/pages/UserFormPage';
 import CpPedidoCreatePage from '../modules/cpPedidos/pages/CpPedidoCreatePage';
+import CpPedidoEditPage from '../modules/cpPedidos/pages/CpPedidoEditPage';
 import CpPedidoList from '../modules/cpPedidos/pages/CpPedidoList';
 import CpPedidoDetail from '../modules/cpPedidos/pages/CpPedidoDetail';
 import InformeConsolidadoPage from '../modules/cpPedidos/pages/InformeConsolidadoPage';
@@ -205,6 +206,7 @@ const AppRouter = () => {
                     <Route path="/cp-pedidos" element={<CpPedidoList />} />
                     <Route path="/cp-pedidos/nuevo" element={<CpPedidoCreatePage />} />
                     <Route path="/cp-pedidos/:id" element={<CpPedidoDetail />} />
+                    <Route path="/cp-pedidos/:id/editar" element={<CpPedidoEditPage />} />
                     <Route path="/informe-consolidado-pedidos" element={<InformeConsolidadoPage />} />
 
                     {/* Entrega de Activos Fijos */}

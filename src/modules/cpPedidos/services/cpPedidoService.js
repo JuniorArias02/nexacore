@@ -40,6 +40,36 @@ export const cpPedidoService = {
         return response.data;
     },
 
+    update: async (id, data) => {
+        const formData = new FormData();
+
+        Object.keys(data).forEach(key => {
+            if (key === 'items') {
+                data[key].forEach((item, index) => {
+                    formData.append(`items[${index}][nombre]`, item.nombre);
+                    formData.append(`items[${index}][cantidad]`, item.cantidad);
+                    formData.append(`items[${index}][unidad_medida]`, item.unidad_medida);
+                    if (item.referencia_items) formData.append(`items[${index}][referencia_items]`, item.referencia_items);
+                    formData.append(`items[${index}][productos_id]`, item.productos_id || '');
+                });
+            } else if (key === 'elaborado_por_firma' && data[key] instanceof File) {
+                formData.append(key, data[key]);
+            } else if (key === 'use_stored_signature') {
+                formData.append(key, data[key] ? '1' : '0');
+            } else if (data[key] !== null && data[key] !== undefined) {
+                formData.append(key, data[key]);
+            }
+        });
+
+        // Use POST with Spoofing or direct POST if route matches
+        const response = await api.post(`/cp-pedidos/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
     delete: async (id) => {
         const response = await api.delete(`/cp-pedidos/${id}`);
         return response.data;

@@ -36,7 +36,7 @@ function dataURLtoFile(dataurl, filename) {
     return new File([u8arr], filename, { type: mime });
 }
 
-export default function CpPedidoForm() {
+export default function CpPedidoForm({ initialData = null }) {
     const navigate = useNavigate();
     const [headerData, setHeaderData] = useState({
         proceso_solicitante: '',
@@ -65,6 +65,22 @@ export default function CpPedidoForm() {
         loadCurrentUser();
     }, []);
 
+    // Load initial data for editing
+    useEffect(() => {
+        if (initialData) {
+            setHeaderData({
+                proceso_solicitante: initialData.proceso_solicitante || '',
+                tipo_solicitud: initialData.tipo_solicitud || '',
+                observacion: initialData.observacion || '',
+                sede_id: initialData.sede_id || '',
+                elaborado_por: initialData.elaborado_por || '',
+            });
+            setItems(initialData.items || []);
+            // For editing, we might want to default to drawing signature if they want to change it,
+            // or we just don't touch signatureData unless they draw/upload a new one.
+        }
+    }, [initialData]);
+
     const loadCurrentUser = async () => {
         try {
             const response = await authService.me();
@@ -72,8 +88,8 @@ export default function CpPedidoForm() {
             const user = response.objeto || response;
             setCurrentUser(user);
 
-            // Auto-set elaborado_por
-            if (user && user.id) {
+            // Auto-set elaborado_por only if not editing
+            if (!initialData && user && user.id) {
                 setHeaderData(prev => ({
                     ...prev,
                     elaborado_por: user.id
@@ -122,8 +138,8 @@ export default function CpPedidoForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!headerData.proceso_solicitante || !headerData.tipo_solicitud || !headerData.sede_id) {
-            Swal.fire('Error', 'Por favor complete los campos obligatorios del encabezado', 'warning');
+        if (!headerData.proceso_solicitante || !headerData.tipo_solicitud || !headerData.sede_id || !headerData.observacion) {
+            Swal.fire('Error', 'Por favor complete los campos obligatorios del encabezado (incluyendo observación)', 'warning');
             return;
         }
 
@@ -132,14 +148,17 @@ export default function CpPedidoForm() {
             return;
         }
 
-        if (!useStoredSignature && !signatureData) {
-            Swal.fire('Error', 'Debe firmar el pedido o usar su firma guardada', 'warning');
-            return;
-        }
+        // Signature validation: mandatory for create, optional for edit if keeping existing
+        if (!initialData) {
+            if (!useStoredSignature && !signatureData) {
+                Swal.fire('Error', 'Debe firmar el pedido o usar su firma guardada', 'warning');
+                return;
+            }
 
-        if (useStoredSignature && !currentUser?.firma_digital) {
-            Swal.fire('Error', 'No tiene una firma guardada en su perfil', 'error');
-            return;
+            if (useStoredSignature && !currentUser?.firma_digital) {
+                Swal.fire('Error', 'No tiene una firma guardada en su perfil', 'error');
+                return;
+            }
         }
 
         try {
@@ -159,24 +178,32 @@ export default function CpPedidoForm() {
                 use_stored_signature: useStoredSignature
             };
 
-            await cpPedidoService.create(payload);
-            Swal.fire('Éxito', 'Pedido creado correctamente', 'success');
+            if (initialData) {
+                await cpPedidoService.update(initialData.id, payload);
+                Swal.fire('Éxito', 'Pedido actualizado correctamente', 'success');
+            } else {
+                await cpPedidoService.create(payload);
+                Swal.fire('Éxito', 'Pedido creado correctamente', 'success');
+            }
+
             navigate('/cp-pedidos');
 
-            setHeaderData({
-                proceso_solicitante: '',
-                tipo_solicitud: '',
-                observacion: '',
-                sede_id: '',
-                elaborado_por: '',
-            });
-            setItems([]);
-            setSignatureData(null);
-            setUseStoredSignature(false);
+            if (!initialData) {
+                setHeaderData({
+                    proceso_solicitante: '',
+                    tipo_solicitud: '',
+                    observacion: '',
+                    sede_id: '',
+                    elaborado_por: '',
+                });
+                setItems([]);
+                setSignatureData(null);
+                setUseStoredSignature(false);
+            }
 
         } catch (error) {
-            console.error("Error creating pedido:", error);
-            const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error al crear el pedido';
+            console.error("Error saving pedido:", error);
+            const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error al guardar el pedido';
             Swal.fire('Error', errorMessage, 'error');
         } finally {
             setLoading(false);
@@ -293,7 +320,7 @@ export default function CpPedidoForm() {
                         <div className="md:col-span-3">
                             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                                 <DocumentTextIcon className="h-4 w-4 mr-1 text-gray-400" />
-                                Observación
+                                Observación *
                             </label>
                             <textarea
                                 name="observacion"
