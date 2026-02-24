@@ -337,22 +337,22 @@ const InventoryFormPage = () => {
 
                             <div>
                                 <label htmlFor="marca" className="block text-sm font-medium leading-6 text-gray-900">Marca</label>
-                                <input type="text" name="marca" id="marca" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="marca" id="marca" value={formData.marca} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label htmlFor="modelo" className="block text-sm font-medium leading-6 text-gray-900">Modelo</label>
-                                <input type="text" name="modelo" id="modelo" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="modelo" id="modelo" value={formData.modelo} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label htmlFor="serial" className="block text-sm font-medium leading-6 text-gray-900">Serial</label>
-                                <input type="text" name="serial" id="serial" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="serial" id="serial" value={formData.serial} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label htmlFor="grupo" className="block text-sm font-medium leading-6 text-gray-900">Grupo</label>
-                                <select name="grupo" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <select name="grupo" value={formData.grupo} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                                     <option value="">Seleccionar...</option>
                                     <option value="EC">EC</option>
                                     <option value="ME">ME</option>
@@ -431,7 +431,7 @@ const InventoryFormPage = () => {
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Ubicación Física</label>
-                                <input type="text" name="ubicacion" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="ubicacion" value={formData.ubicacion} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -460,17 +460,17 @@ const InventoryFormPage = () => {
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Número Factura</label>
-                                <input type="text" name="num_factu" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="num_factu" value={formData.num_factu} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Fecha Compra</label>
-                                <input type="date" name="fecha_compra" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="date" name="fecha_compra" value={formData.fecha_compra} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Proveedor</label>
-                                <input type="text" name="proveedor" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="proveedor" value={formData.proveedor} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
@@ -479,7 +479,7 @@ const InventoryFormPage = () => {
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <span className="text-gray-500 sm:text-sm">$</span>
                                     </div>
-                                    <input type="number" name="valor_compra" onChange={handleChange} className="block w-full rounded-md border-0 py-2.5 pl-7 pr-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="0.00" />
+                                    <input type="number" name="valor_compra" value={formData.valor_compra} onChange={handleChange} className="block w-full rounded-md border-0 py-2.5 pl-7 pr-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="0.00" />
                                 </div>
                             </div>
 
@@ -489,18 +489,18 @@ const InventoryFormPage = () => {
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <span className="text-gray-500 sm:text-sm">$</span>
                                     </div>
-                                    <input type="number" name="valor_actual" onChange={handleChange} className="block w-full rounded-md border-0 py-2.5 pl-7 pr-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="0.00" />
+                                    <input type="number" name="valor_actual" value={formData.valor_actual} onChange={handleChange} className="block w-full rounded-md border-0 py-2.5 pl-7 pr-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="0.00" />
                                 </div>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Salvamento</label>
-                                <input type="text" name="salvamenta" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="salvamenta" value={formData.salvamenta} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Vida Útil</label>
-                                <select name="vida_util" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <select name="vida_util" value={formData.vida_util} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                                     <option value="">Seleccionar...</option>
                                     <option value="12">12 Meses</option>
                                     <option value="60">60 Meses</option>
@@ -510,7 +510,7 @@ const InventoryFormPage = () => {
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Vida Útil NIIF</label>
-                                <select name="vida_util_niff" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <select name="vida_util_niff" value={formData.vida_util_niff} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                                     <option value="">Seleccionar...</option>
                                     <option value="12">12 Meses</option>
                                     <option value="60">60 Meses</option>
@@ -520,27 +520,27 @@ const InventoryFormPage = () => {
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Meses Depreciación</label>
-                                <input type="number" name="meses" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="meses" value={formData.meses} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Meses Depr. NIIF</label>
-                                <input type="number" name="meses_niif" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="meses_niif" value={formData.meses_niif} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Depreciación</label>
-                                <input type="number" name="depreciacion" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="depreciacion" value={formData.depreciacion} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Depreciación NIIF</label>
-                                <input type="number" name="depreciacion_niif" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="depreciacion_niif" value={formData.depreciacion_niif} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Depreciación Acumulada</label>
-                                <input type="number" name="depreciacion_acumulada" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="depreciacion_acumulada" value={formData.depreciacion_acumulada} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -554,23 +554,23 @@ const InventoryFormPage = () => {
                         <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Cuenta Inventario</label>
-                                <input type="number" name="cuenta_inventario" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="cuenta_inventario" value={formData.cuenta_inventario} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Cuenta Gasto</label>
-                                <input type="number" name="cuenta_gasto" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="cuenta_gasto" value={formData.cuenta_gasto} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Cuenta Salida</label>
-                                <input type="number" name="cuenta_salida" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="number" name="cuenta_salida" value={formData.cuenta_salida} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Grupo Activos</label>
-                                <input type="text" name="grupo_activos" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="grupo_activos" value={formData.grupo_activos} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Tipo Bien</label>
-                                <input type="text" name="tipo_bien" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="tipo_bien" value={formData.tipo_bien} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -584,31 +584,31 @@ const InventoryFormPage = () => {
                         <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Escritura</label>
-                                <input type="text" name="escritura" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="escritura" value={formData.escritura} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Matrícula</label>
-                                <input type="text" name="matricula" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="matricula" value={formData.matricula} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Soporte (Texto/Link)</label>
-                                <input type="text" name="soporte" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="Ref. soporte físico o enlace" />
+                                <input type="text" name="soporte" value={formData.soporte} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="Ref. soporte físico o enlace" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Código Barras</label>
-                                <input type="text" name="codigo_barras" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="text" name="codigo_barras" value={formData.codigo_barras} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Calibrado (Fecha)</label>
-                                <input type="date" name="calibrado" onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <input type="date" name="calibrado" value={formData.calibrado} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div className="col-span-full">
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Observaciones</label>
-                                <textarea name="observaciones" rows={3} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <textarea name="observaciones" value={formData.observaciones} rows={3} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                             <div className="col-span-full">
                                 <label className="block text-sm font-medium leading-6 text-gray-900">Descripción General</label>
-                                <textarea name="descripcion" rows={3} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
+                                <textarea name="descripcion" value={formData.descripcion} rows={3} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -626,6 +626,7 @@ const InventoryFormPage = () => {
                                     <input
                                         type="checkbox"
                                         name="tiene_accesorio"
+                                        checked={formData.tiene_accesorio === 'Si'}
                                         onChange={handleChange}
                                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                     />
@@ -638,6 +639,7 @@ const InventoryFormPage = () => {
                                     <label className="block text-sm font-medium leading-6 text-gray-900">Descripción de Accesorios</label>
                                     <textarea
                                         name="descripcion_accesorio"
+                                        value={formData.descripcion_accesorio}
                                         rows={3}
                                         onChange={handleChange}
                                         className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
