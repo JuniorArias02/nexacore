@@ -16,6 +16,7 @@ import {
     ChevronUpIcon,
     LinkIcon
 } from '@heroicons/react/24/outline';
+import Can from '../../../components/common/Can';
 
 export default function CpPedidoList() {
     const navigate = useNavigate();
@@ -226,13 +227,15 @@ export default function CpPedidoList() {
                     </p>
 
                     <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                        <button
-                            onClick={() => navigate('/cp-pedidos/nuevo')}
-                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
-                        >
-                            <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
-                            Nuevo Pedido
-                        </button>
+                        <Can permission="cp_pedido.crear">
+                            <button
+                                onClick={() => navigate('/cp-pedidos/nuevo')}
+                                className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                            >
+                                <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                                Nuevo Pedido
+                            </button>
+                        </Can>
                     </div>
                 </div>
                 {/* Decorative Blobs */}
@@ -404,20 +407,24 @@ export default function CpPedidoList() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() => handleViewDetails(pedido.id)}
-                                                        className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
-                                                        title="Ver Detalles"
-                                                    >
-                                                        <EyeIcon className="h-5 w-5" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => navigate(`/cp-pedidos/${pedido.id}/editar`)}
-                                                        className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
-                                                        title="Editar"
-                                                    >
-                                                        <PencilSquareIcon className="h-5 w-5" />
-                                                    </button>
+                                                    <Can permission="cp_pedido.listar">
+                                                        <button
+                                                            onClick={() => handleViewDetails(pedido.id)}
+                                                            className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                                            title="Ver Detalles"
+                                                        >
+                                                            <EyeIcon className="h-5 w-5" />
+                                                        </button>
+                                                    </Can>
+                                                    <Can permission="cp_pedido.actualizar">
+                                                        <button
+                                                            onClick={() => navigate(`/cp-pedidos/${pedido.id}/editar`)}
+                                                            className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
+                                                            title="Editar"
+                                                        >
+                                                            <PencilSquareIcon className="h-5 w-5" />
+                                                        </button>
+                                                    </Can>
                                                     <button
                                                         onClick={() => handleExportExcel(pedido.id)}
                                                         disabled={exportingId === pedido.id}
@@ -436,13 +443,15 @@ export default function CpPedidoList() {
                                                     >
                                                         <DocumentArrowDownIcon className="h-5 w-5" />
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleDelete(pedido.id)}
-                                                        className="p-1 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                                        title="Eliminar"
-                                                    >
-                                                        <TrashIcon className="h-5 w-5" />
-                                                    </button>
+                                                    <Can permission="cp_pedido.eliminar">
+                                                        <button
+                                                            onClick={() => handleDelete(pedido.id)}
+                                                            className="p-1 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                            title="Eliminar"
+                                                        >
+                                                            <TrashIcon className="h-5 w-5" />
+                                                        </button>
+                                                    </Can>
                                                 </div>
                                             </td>
                                         </tr>

@@ -110,6 +110,25 @@ export const AuthProvider = ({ children }) => {
         setUser(prevUser => ({ ...prevUser, ...userData }));
     };
 
+    const refreshPermissions = async () => {
+        try {
+            const userResponse = await api.post('/auth/me');
+            if (userResponse.data.objeto) {
+                const userData = userResponse.data.objeto;
+                setUser(userData);
+                setPermissions(extractPermissions(userData));
+                return { success: true };
+            }
+            return { success: false, message: 'No se pudo obtener la información del usuario' };
+        } catch (error) {
+            console.error("Error refreshing permissions:", error);
+            return {
+                success: false,
+                message: error.response?.data?.mensaje || 'Error al sincronizar permisos'
+            };
+        }
+    };
+
     const value = {
         user,
         permissions,
@@ -118,6 +137,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        refreshPermissions,
         hasPermission,
         hasAnyPermission,
     };
