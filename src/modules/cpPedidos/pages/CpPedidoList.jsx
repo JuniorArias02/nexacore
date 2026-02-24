@@ -22,6 +22,7 @@ export default function CpPedidoList() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedOrderId, setExpandedOrderId] = useState(null);
+    const [exportingId, setExportingId] = useState(null);
 
     // Filters & Pagination
     // Raw Filter Inputs
@@ -133,6 +134,18 @@ export default function CpPedidoList() {
             } catch (error) {
                 Swal.fire('Error', 'No se pudo eliminar el pedido', 'error');
             }
+        }
+    };
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingId(id);
+            await cpPedidoService.exportExcel(id);
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
+        } finally {
+            setExportingId(null);
         }
     };
 
@@ -406,11 +419,16 @@ export default function CpPedidoList() {
                                                         <PencilSquareIcon className="h-5 w-5" />
                                                     </button>
                                                     <button
-                                                        onClick={() => cpPedidoService.exportExcel(pedido.id)}
-                                                        className="p-1 rounded-full text-green-600 hover:bg-green-50 transition-colors"
+                                                        onClick={() => handleExportExcel(pedido.id)}
+                                                        disabled={exportingId === pedido.id}
+                                                        className={`p-1 rounded-full transition-colors ${exportingId === pedido.id ? 'text-gray-400 bg-gray-100' : 'text-green-600 hover:bg-green-50'}`}
                                                         title="Descargar Excel"
                                                     >
-                                                        <TableCellsIcon className="h-5 w-5" />
+                                                        {exportingId === pedido.id ? (
+                                                            <div className="h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <TableCellsIcon className="h-5 w-5" />
+                                                        )}
                                                     </button>
                                                     <button
                                                         className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors opacity-50 cursor-not-allowed"

@@ -37,6 +37,7 @@ const InformeConsolidadoPage = () => {
     // Modal state
     const [editingPedido, setEditingPedido] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         loadPedidos();
@@ -145,6 +146,25 @@ const InformeConsolidadoPage = () => {
         }
     };
 
+    const handleExportExcel = async () => {
+        try {
+            setExporting(true);
+            await cpPedidoService.exportConsolidadoExcel({
+                fecha_desde: filterFechaDesde,
+                fecha_hasta: filterFechaHasta,
+                sede_id: filterSede,
+                proceso: filterProceso,
+                elaborado_por: filterElaborado,
+                search: search
+            });
+        } catch (error) {
+            console.error('Error exporting consolidated Excel:', error);
+            alert('Error al exportar el informe consolidado');
+        } finally {
+            setExporting(false);
+        }
+    };
+
     const clearFilters = () => {
         setFilterProceso('');
         setFilterSede('');
@@ -177,18 +197,16 @@ const InformeConsolidadoPage = () => {
                     </div>
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => cpPedidoService.exportConsolidadoExcel({
-                                fecha_desde: filterFechaDesde,
-                                fecha_hasta: filterFechaHasta,
-                                sede_id: filterSede,
-                                proceso: filterProceso,
-                                elaborado_por: filterElaborado,
-                                search: search
-                            })}
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-indigo-600 shadow-lg hover:bg-indigo-50 transition-all transform hover:-translate-y-0.5 active:scale-95"
+                            onClick={handleExportExcel}
+                            disabled={exporting}
+                            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold shadow-lg transition-all transform hover:-translate-y-0.5 active:scale-95 ${exporting ? 'bg-gray-100 text-gray-400' : 'bg-white text-indigo-600 hover:bg-indigo-50'}`}
                         >
-                            <DocumentChartBarIcon className="h-5 w-5" />
-                            Exportar Excel
+                            {exporting ? (
+                                <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                                <DocumentChartBarIcon className="h-5 w-5" />
+                            )}
+                            {exporting ? 'Exportando...' : 'Exportar Excel'}
                         </button>
                         <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-sm px-4 py-2 border border-white/10">
                             <span className="text-sm font-bold text-white">{filtered.length}</span>

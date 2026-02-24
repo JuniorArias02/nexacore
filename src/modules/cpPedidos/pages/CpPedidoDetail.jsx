@@ -19,6 +19,7 @@ export default function CpPedidoDetail() {
     const [pedido, setPedido] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Approval Mode State
     const [isApprovalMode, setIsApprovalMode] = useState(false);
@@ -213,6 +214,18 @@ export default function CpPedidoDetail() {
         }
     };
 
+    const handleExportExcel = async () => {
+        try {
+            setIsExporting(true);
+            await cpPedidoService.exportExcel(id);
+        } catch (error) {
+            console.error('Error exporting order to Excel:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -271,11 +284,16 @@ export default function CpPedidoDetail() {
                         </button>
                     )}
                     <button
-                        onClick={() => cpPedidoService.exportExcel(id)}
-                        className="inline-flex justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-600 shadow-sm ring-1 ring-inset ring-green-300 hover:bg-green-50"
+                        onClick={handleExportExcel}
+                        disabled={isExporting}
+                        className={`inline-flex justify-center rounded-lg px-4 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset transition-all ${isExporting ? 'bg-gray-100 text-gray-400 ring-gray-200' : 'bg-white text-green-600 ring-green-300 hover:bg-green-50'}`}
                     >
-                        <TableCellsIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
-                        Exportar Excel
+                        {isExporting ? (
+                            <div className="h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                        ) : (
+                            <TableCellsIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                        )}
+                        {isExporting ? 'Exportando...' : 'Exportar Excel'}
                     </button>
                 </div>
             </div>
