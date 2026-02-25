@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     EyeIcon,
     PencilSquareIcon,
@@ -7,11 +7,15 @@ import {
     PlusIcon,
     MagnifyingGlassIcon,
     FunnelIcon,
-    ChevronDownIcon
+    ChevronDownIcon,
+    ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { inventoryService } from '../services/inventoryService';
 import { sedeService } from '../../users/services/sedeService';
 import { personalService } from '../../personal/services/personalService';
+import { useAuth } from '../../../context/AuthContext';
+import ContextMenu from '../../../components/common/ContextMenu';
+import Swal from 'sweetalert2';
 
 // Internal Component for Searchable Select
 const SearchableSelect = ({ label, options, value, onChange, placeholder = "Seleccionar..." }) => {
@@ -113,10 +117,28 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder = "Sele
 };
 
 export default function InventoryListPage() {
+    const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
+
+    // Pagination State
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 100,
+        total: 0
+    });
+
+    // Context Menu State
+    const [contextMenu, setContextMenu] = useState({
+        visible: false,
+        x: 0,
+        y: 0,
+        item: null
+    });
 
     // Filters State
     const [filterSede, setFilterSede] = useState('');
@@ -128,19 +150,26 @@ export default function InventoryListPage() {
     const [personal, setPersonal] = useState([]);
 
     useEffect(() => {
-        loadInitialData();
-    }, []);
+        loadInitialData(pagination.current_page);
+    }, [pagination.current_page]);
 
-    const loadInitialData = async () => {
+    const loadInitialData = async (page = 1) => {
         setLoading(true);
         try {
             const [invData, sedesData, personalData] = await Promise.all([
-                inventoryService.getAllInventario(),
+                inventoryService.getAllInventario({ page, per_page: pagination.per_page, search: searchTerm }),
                 sedeService.getAll(),
                 personalService.getAll()
             ]);
 
-            setInventory(invData.objeto || []);
+            const paginatedData = invData.objeto;
+            setInventory(paginatedData.data || []);
+            setPagination({
+                current_page: paginatedData.current_page,
+                last_page: paginatedData.last_page,
+                per_page: paginatedData.per_page,
+                total: paginatedData.total
+            });
             setSedes(Array.isArray(sedesData) ? sedesData : (sedesData.objeto || []));
             setPersonal(Array.isArray(personalData) ? personalData : (personalData.objeto || []));
 
@@ -153,39 +182,97 @@ export default function InventoryListPage() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('¿Está seguro de eliminar este item?')) {
+        const result = await Swal.fire({
+            title: '¿Está seguro?',
+            text: "No podrá revertir esta acción.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
             try {
                 await inventoryService.deleteInventario(id);
                 setInventory(prev => prev.filter(item => item.id !== id));
+                Swal.fire(
+                    'Eliminado',
+                    'El item ha sido eliminado.',
+                    'success'
+                );
             } catch (err) {
                 console.error("Error deleting item:", err);
-                alert("Error al eliminar el item.");
+                Swal.fire('Error', 'No se pudo eliminar el item.', 'error');
             }
         }
     };
 
-    const filteredInventory = useMemo(() => {
-        return inventory.filter(item => {
-            // Text Search
-            const matchesSearch =
-                item.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.codigo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.serial?.toLowerCase().includes(searchTerm.toLowerCase());
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            setPagination(prev => ({ ...prev, current_page: newPage }));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
-            if (!matchesSearch) return false;
-
-            // Filter Sede
-            if (filterSede && String(item.sede_id) !== String(filterSede)) return false;
-
-            // Filter Responsable
-            if (filterResponsable && String(item.responsable_id) !== String(filterResponsable)) return false;
-
-            // Filter Coordinador
-            if (filterCoordinador && String(item.coordinador_id) !== String(filterCoordinador)) return false;
-
-            return true;
+    const handleContextMenu = (e, item) => {
+        e.preventDefault();
+        setContextMenu({
+            visible: true,
+            x: e.clientX,
+            y: e.clientY,
+            item
         });
-    }, [inventory, searchTerm, filterSede, filterResponsable, filterCoordinador]);
+    };
+
+    const closeContextMenu = () => {
+        setContextMenu(prev => ({ ...prev, visible: false }));
+    };
+
+    const menuItems = [
+        {
+            label: 'Ver detalle',
+            icon: EyeIcon,
+            onClick: () => navigate(`/inventario/detalle/${contextMenu.item?.id}`),
+        },
+        {
+            label: 'Editar registro',
+            icon: PencilSquareIcon,
+            onClick: () => navigate(`/inventario/editar/${contextMenu.item?.id}`),
+            permission: 'inventario.actualizar'
+        },
+        {
+            label: 'Eliminar ítem',
+            icon: TrashIcon,
+            onClick: () => handleDelete(contextMenu.item?.id),
+            permission: 'inventario.eliminar',
+            className: 'text-red-600 hover:bg-red-50'
+        },
+    ];
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        // Reset to first page when searching
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+    };
+
+    // Debounced search
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchTerm !== undefined) {
+                loadInitialData(1);
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
+
+    const filteredInventory = useMemo(() => {
+        // Backend handles filtering and pagination
+        return inventory;
+    }, [inventory]);
 
     return (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
@@ -276,7 +363,7 @@ export default function InventoryListPage() {
                                 className="block w-full rounded-2xl border-0 py-3 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
                                 placeholder="Código, Nombre, Serial..."
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={handleSearch}
                             />
                         </div>
                     </div>
@@ -315,7 +402,11 @@ export default function InventoryListPage() {
                                 </tr>
                             ) : (
                                 filteredInventory.map((item) => (
-                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr
+                                        key={item.id}
+                                        className="hover:bg-gray-50 transition-colors cursor-context-menu"
+                                        onContextMenu={(e) => handleContextMenu(e, item)}
+                                    >
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                             {item.codigo}
                                         </td>
@@ -367,6 +458,75 @@ export default function InventoryListPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Pagination Controls */}
+            {!loading && inventory.length > 0 && (
+                <div className="mt-8 flex items-center justify-between bg-white px-6 py-4 rounded-[2rem] shadow-lg border border-slate-100">
+                    <div className="flex flex-1 justify-between sm:hidden">
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page - 1)}
+                            disabled={pagination.current_page === 1}
+                            className={`relative inline-flex items-center rounded-xl px-4 py-2 text-sm font-bold tracking-tight uppercase transition-all ${pagination.current_page === 1
+                                ? 'bg-slate-50 text-slate-300'
+                                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 shadow-sm'
+                                }`}
+                        >
+                            Anterior
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page + 1)}
+                            disabled={pagination.current_page === pagination.last_page}
+                            className={`relative ml-3 inline-flex items-center rounded-xl px-4 py-2 text-sm font-bold tracking-tight uppercase transition-all ${pagination.current_page === pagination.last_page
+                                ? 'bg-slate-50 text-slate-300'
+                                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 shadow-sm'
+                                }`}
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                    <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">
+                                Mostrando <span className="font-black text-indigo-600">{(pagination.current_page - 1) * pagination.per_page + 1}</span> a <span className="font-black text-indigo-600">{Math.min(pagination.current_page * pagination.per_page, pagination.total)}</span> de <span className="font-black text-indigo-600">{pagination.total}</span> resultados
+                            </p>
+                        </div>
+                        <div>
+                            <nav className="isolate inline-flex -space-x-px rounded-xl shadow-sm" aria-label="Pagination">
+                                <button
+                                    onClick={() => handlePageChange(pagination.current_page - 1)}
+                                    disabled={pagination.current_page === 1}
+                                    className={`relative inline-flex items-center rounded-l-xl px-3 py-2 text-slate-400 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 transition-all ${pagination.current_page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <span className="sr-only">Anterior</span>
+                                    <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
+                                </button>
+
+                                <div className="relative inline-flex items-center px-6 py-2 text-xs font-black uppercase tracking-[0.2em] text-indigo-600 ring-1 ring-inset ring-slate-200 bg-indigo-50/50">
+                                    Página {pagination.current_page} de {pagination.last_page}
+                                </div>
+
+                                <button
+                                    onClick={() => handlePageChange(pagination.current_page + 1)}
+                                    disabled={pagination.current_page === pagination.last_page}
+                                    className={`relative inline-flex items-center rounded-r-xl px-3 py-2 text-slate-400 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 transition-all ${pagination.current_page === pagination.last_page ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <span className="sr-only">Siguiente</span>
+                                    <ArrowLeftIcon className="h-5 w-5 rotate-180" aria-hidden="true" />
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Context Menu */}
+            {contextMenu.visible && (
+                <ContextMenu
+                    items={menuItems}
+                    position={{ x: contextMenu.x, y: contextMenu.y }}
+                    onClose={closeContextMenu}
+                />
+            )}
         </div>
     );
 }

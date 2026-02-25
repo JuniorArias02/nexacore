@@ -15,8 +15,11 @@ import {
     ArrowLeftIcon,
     IdentificationIcon,
     HashtagIcon,
-    PowerIcon
+    PowerIcon,
+    PencilIcon,
+    PhotoIcon
 } from '@heroicons/react/24/outline';
+import SignatureCropModal from '../../../components/common/SignatureCropModal';
 
 export default function UserForm() {
     const { id } = useParams();
@@ -36,6 +39,12 @@ export default function UserForm() {
     const [roles, setRoles] = useState([]);
     const [sedes, setSedes] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    // Signature handling states
+    const [signatureImage, setSignatureImage] = useState(null);
+    const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [signaturePreview, setSignaturePreview] = useState(null);
 
     useEffect(() => {
         loadDependencies();
@@ -75,7 +84,8 @@ export default function UserForm() {
                 telefono: data.telefono || '',
                 rol_id: data.rol_id || '',
                 sede_id: data.sede_id || '',
-                estado: data.estado !== undefined ? data.estado : true
+                estado: data.estado !== undefined ? data.estado : true,
+                firma_digital: data.firma_digital || null
             });
         } catch (error) {
             console.error("Error loading user:", error);
@@ -84,6 +94,24 @@ export default function UserForm() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSignatureImage(reader.result);
+                setIsCropModalOpen(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = (croppedBlob) => {
+        setSelectedFile(croppedBlob);
+        setSignaturePreview(URL.createObjectURL(croppedBlob));
+        setIsCropModalOpen(false);
     };
 
     const handleChange = (e) => {
@@ -109,13 +137,25 @@ export default function UserForm() {
 
         try {
             setLoading(true);
-            const dataToSend = { ...formData };
-            if (isEditing && !dataToSend.contrasena) {
-                delete dataToSend.contrasena;
+
+            // Use FormData for file upload support
+            const dataToSubmit = new FormData();
+            Object.keys(formData).forEach(key => {
+                if (formData[key] !== null && formData[key] !== undefined) {
+                    dataToSubmit.append(key, formData[key]);
+                }
+            });
+
+            if (selectedFile) {
+                dataToSubmit.append('firma_digital', selectedFile, 'signature.png');
+            }
+
+            if (isEditing && !formData.contrasena) {
+                dataToSubmit.delete('contrasena');
             }
 
             if (isEditing) {
-                await userService.update(id, dataToSend);
+                await userService.update(id, dataToSubmit);
                 Swal.fire({
                     title: '¡Actualizado!',
                     text: 'Perfil de usuario modificado con éxito.',
@@ -125,7 +165,7 @@ export default function UserForm() {
                     customClass: { popup: 'rounded-[2rem]' }
                 });
             } else {
-                await userService.create(dataToSend);
+                await userService.create(dataToSubmit);
                 Swal.fire({
                     title: '¡Creado!',
                     text: 'Nuevo usuario registrado en el sistema.',
@@ -388,6 +428,64 @@ export default function UserForm() {
                             </div>
                         </div>
 
+                        {/* Section: Firma Digital */}
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                                <div className="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                                    <PencilIcon className="h-5 w-5 text-indigo-600" />
+                                </div>
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800">4. Firma Digital Autorizada</h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="md:col-span-2">
+                                    <div className="relative group">
+                                        <input
+                                            type="file"
+                                            id="signature-upload"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
+                                        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center transition-all group-hover:border-indigo-300 group-hover:bg-indigo-50/30">
+                                            {(signaturePreview || formData.firma_digital) ? (
+                                                <div className="relative flex flex-col items-center">
+                                                    <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-sm overflow-hidden mb-6">
+                                                        <img
+                                                            src={signaturePreview || formData.firma_digital}
+                                                            alt="Firma Digital"
+                                                            className="h-32 object-contain"
+                                                        />
+                                                    </div>
+                                                    <label
+                                                        htmlFor="signature-upload"
+                                                        className="inline-flex items-center px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold text-xs uppercase tracking-widest shadow-sm border border-slate-100 hover:bg-slate-50 cursor-pointer transition-all gap-2"
+                                                    >
+                                                        <PencilIcon className="h-4 w-4" />
+                                                        Cambiar Firma
+                                                    </label>
+                                                </div>
+                                            ) : (
+                                                <div className="text-center flex flex-col items-center">
+                                                    <div className="h-20 w-20 rounded-2xl bg-white shadow-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                                                        <PhotoIcon className="h-10 w-10 text-slate-300" />
+                                                    </div>
+                                                    <p className="text-xs font-black text-slate-800 uppercase tracking-widest mb-2">No se ha detectado firma</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 max-w-[200px]">Sube un archivo PNG para autorizar al usuario</p>
+                                                    <label
+                                                        htmlFor="signature-upload"
+                                                        className="inline-flex items-center px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:shadow-indigo-300 cursor-pointer transition-all transform hover:-translate-y-1 active:translate-y-0"
+                                                    >
+                                                        Seleccionar Archivo
+                                                    </label>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Actions */}
                         <div className="pt-10 flex flex-col sm:flex-row gap-4 border-t border-slate-50">
                             <button
@@ -422,11 +520,13 @@ export default function UserForm() {
             </div>
 
             {/* Footer Brand */}
-            <div className="mt-12 text-center pb-8 border-t border-slate-100 pt-8 opacity-40">
-                <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-400">
-                    NexaCore Terminal Platform &copy; 2026
-                </p>
-            </div>
+            {/* Crop Modal */}
+            <SignatureCropModal
+                isOpen={isCropModalOpen}
+                image={signatureImage}
+                onCropComplete={handleCropComplete}
+                onCancel={() => setIsCropModalOpen(false)}
+            />
         </div>
     );
 }
