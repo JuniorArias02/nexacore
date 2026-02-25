@@ -194,8 +194,8 @@ export default function InventoryDetailPage() {
                             <InfoField label="Proceso / Dependencia" value={item.dependencia} />
                             <InfoField label="Ubicación" value={item.ubicacion} />
                             <div className="border-t border-slate-50 pt-4">
-                                <InfoField label="Responsable" value={item.responsablePersonal?.nombre || item.responsable} />
-                                <InfoField label="Coordinador" value={item.coordinadorPersonal?.nombre} />
+                                <InfoField label="Responsable" value={item.responsable_personal?.nombre || item.responsable} />
+                                <InfoField label="Coordinador" value={item.coordinador_personal?.nombre || item.coordinador_nombre} />
                             </div>
                         </div>
                     </div>

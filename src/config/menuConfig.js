@@ -64,7 +64,7 @@ const menuConfig = [
                     { name: 'Crear', href: '/mantenimientos/nuevo', icon: PlusCircleIcon, permissions: ['mantenimiento.crear'] },
                 ]
             },
-            { name: 'Mis Mantenimientos', href: '/mis-mantenimientos', icon: ClipboardDocumentListIcon, permissions: ['all'] },
+            { name: 'Mis Mantenimientos', href: '/mis-mantenimientos', icon: ClipboardDocumentListIcon, permissions: ['mantenimiento.receptor'] },
             {
                 name: 'Agenda', href: '/agenda-mantenimientos', icon: CalendarDaysIcon,
                 permissions: ['agenda_mantenimiento.listar', 'agenda_mantenimiento.crear'],

@@ -1,23 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { inventoryService } from '../services/inventoryService';
 import Swal from 'sweetalert2';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import {
-    PhotoIcon,
-    DocumentArrowUpIcon,
     CheckCircleIcon,
     XCircleIcon,
-    BuildingOfficeIcon,
-    TagIcon,
+    ArrowLeftIcon,
+    InformationCircleIcon,
     CurrencyDollarIcon,
-    ClipboardDocumentListIcon
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
-import ProductSearch from '../components/search/ProductSearch';
-import PersonalSearch from '../components/search/PersonalSearch';
-import SedeSelect from '../components/search/SedeSelect';
-import DependenciaProcesoSelect from '../components/search/DependenciaProcesoSelect';
+
+import BasicInfoTab from '../components/tabs/BasicInfoTab';
+import FinancialInfoTab from '../components/tabs/FinancialInfoTab';
+import AdditionalInfoTab from '../components/tabs/AdditionalInfoTab';
 
 const InventoryFormPage = () => {
     const { user } = useAuth();
@@ -26,6 +24,7 @@ const InventoryFormPage = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState('basic');
 
     // Catalog Data
     const [centrosCosto, setCentrosCosto] = useState([]);
@@ -34,10 +33,11 @@ const InventoryFormPage = () => {
     const [formData, setFormData] = useState({
         codigo: '',
         nombre: '',
-        dependencia: '', // Text fallback or name
-        responsable: '', // Text fallback
+        dependencia: '',
+        responsable: '',
         responsable_id: '',
         coordinador_id: '',
+        coordinador_nombre: '', // For UI persistence
         marca: '',
         modelo: '',
         serial: '',
@@ -56,7 +56,7 @@ const InventoryFormPage = () => {
         soporte: '',
         soporte_adjunto: null,
         descripcion: '',
-        estado: 'Nuevo', // Default
+        estado: 'Nuevo',
         escritura: '',
         matricula: '',
         valor_compra: '',
@@ -65,7 +65,7 @@ const InventoryFormPage = () => {
         depreciacion_niif: '',
         meses: '',
         meses_niif: '',
-        tipo_adquisicion: '03', // Fixed as requested
+        tipo_adquisicion: '03',
         calibrado: '',
         observaciones: '',
         cuenta_inventario: '',
@@ -75,7 +75,7 @@ const InventoryFormPage = () => {
         valor_actual: '',
         depreciacion_acumulada: '',
         tipo_bien: '',
-        tiene_accesorio: 'No', // Default
+        tiene_accesorio: 'No',
         descripcion_accesorio: ''
     });
 
@@ -86,8 +86,6 @@ const InventoryFormPage = () => {
         loadCatalogs();
     }, []);
 
-
-    // Load Inventory Data if ID exists
     useEffect(() => {
         if (id) {
             loadInventory(id);
@@ -99,16 +97,13 @@ const InventoryFormPage = () => {
         try {
             const data = await inventoryService.getInventarioById(inventoryId);
             if (data) {
-                // Populate form data
                 setFormData(prev => ({
                     ...prev,
                     ...data,
-                    // Ensure selects match values
                     estado: data.estado || 'Nuevo',
                     tipo_adquisicion: data.tipo_adquisicion || '03',
                     tiene_accesorio: data.tiene_accesorio || 'No'
                 }));
-                // If there's a file, we can't easily preview it as a File object, but we can show the name/link
                 if (data.soporte_adjunto) {
                     setFilePreview({ name: 'Archivo Adjunto Existente', size: 'N/A' });
                 }
@@ -117,13 +112,12 @@ const InventoryFormPage = () => {
             console.error("Error loading inventory:", err);
             setError("Error al cargar los datos del inventario.");
             Swal.fire('Error', 'No se pudo cargar la información del inventario.', 'error');
-            navigate('/inventario'); // Redirect back if error
+            navigate('/inventario');
         } finally {
             setLoading(false);
         }
     };
 
-    // Load Centros Costo on mount
     const loadCatalogs = async () => {
         try {
             const centrosData = await inventoryService.getCentrosCosto();
@@ -134,7 +128,6 @@ const InventoryFormPage = () => {
         }
     };
 
-    // Update creado_por when user is loaded, ONLY if creating new
     useEffect(() => {
         if (user?.id && !id) {
             setFormData(prev => ({ ...prev, creado_por: user.id }));
@@ -143,7 +136,6 @@ const InventoryFormPage = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
-
         if (type === 'file') {
             const file = files[0];
             setFormData(prev => ({ ...prev, [name]: file }));
@@ -165,22 +157,13 @@ const InventoryFormPage = () => {
         setError(null);
         setSuccess(false);
 
-        // Debug: Log user and formData
-        console.log('User object:', user);
-        console.log('FormData before submit:', formData);
-        console.log('creado_por value:', formData.creado_por);
-
-        // Ensure creado_por is set
         const dataToSend = {
             ...formData,
             creado_por: formData.creado_por || user?.id
         };
 
-        console.log('Data to send:', dataToSend);
-
         try {
             if (id) {
-                // Update
                 await inventoryService.updateInventario(id, dataToSend);
                 setSuccess(true);
                 Swal.fire({
@@ -189,12 +172,10 @@ const InventoryFormPage = () => {
                     text: 'El item se ha actualizado correctamente.',
                     timer: 2000
                 });
-                // Navigate back or stay? Maybe stay to keep editing
             } else {
-                // Create
                 await inventoryService.createInventario(dataToSend);
                 setSuccess(true);
-                setFormData(prev => ({ // Reset critical fields
+                setFormData(prev => ({
                     ...prev,
                     codigo: '',
                     nombre: '',
@@ -208,22 +189,14 @@ const InventoryFormPage = () => {
                     text: 'El item se ha registrado correctamente.',
                     timer: 2000
                 });
+                setActiveTab('basic');
             }
-
         } catch (err) {
             console.error('Error completo:', err);
-            console.error('Response data:', err.response?.data);
-
-            // Extraer mensaje de error detallado
             let errorMessage = id ? 'Error al actualizar el inventario.' : 'Error al crear el inventario. Verifique los campos.';
-
             if (err.response?.data) {
                 const data = err.response.data;
-                // Si hay un mensaje específico
-                if (data.mensaje || data.message) {
-                    errorMessage = data.mensaje || data.message;
-                }
-                // Si hay errores de validación
+                if (data.mensaje || data.message) errorMessage = data.mensaje || data.message;
                 if (data.errors) {
                     const errorList = Object.entries(data.errors)
                         .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
@@ -231,15 +204,12 @@ const InventoryFormPage = () => {
                     errorMessage = `Errores de validación:\n${errorList}`;
                 }
             }
-
-            // Mostrar en SweetAlert
             Swal.fire({
                 icon: 'error',
                 title: id ? 'Error al actualizar' : 'Error al crear',
                 text: errorMessage,
                 confirmButtonColor: '#d33'
             });
-
             setError(errorMessage);
             window.scrollTo(0, 0);
         } finally {
@@ -247,448 +217,118 @@ const InventoryFormPage = () => {
         }
     };
 
+    const tabs = [
+        { id: 'basic', name: 'Información Básica', icon: InformationCircleIcon },
+        { id: 'financial', name: 'Información Financiera', icon: CurrencyDollarIcon },
+        { id: 'additional', name: 'Información Adicional', icon: DocumentTextIcon },
+    ];
+
     return (
-        <div className="min-h-screen bg-gray-50/50 py-3 px-4 sm:px-6 lg:px-8 font-sans">
-            <div className="max-w-7xl mx-auto">
-                <div className="md:flex md:items-center md:justify-between mb-8">
-                    <div className="min-w-0 flex-1">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent">
-                            Crear Nuevo Inventario
-                        </h2>
-                        <p className="mt-1 text-sm text-gray-500">
-                            Complete el formulario para registrar un nuevo activo en el sistema NexaCore.
+        <div className="min-h-screen bg-gray-50/50 py-8 px-4 sm:px-6 lg:px-8 font-sans animate-fade-in-up">
+            <div className="max-w-6xl mx-auto">
+                {/* Hero Header Pattern */}
+                <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
+                    <div className="relative z-10">
+                        <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
+                            INVENTARIO
+                        </span>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
+                            {id ? 'Editar Activo' : 'Nuevo Registro'}
+                        </h1>
+                        <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
+                            {id ? `Modificando detalles del activo "${formData.nombre}"` : 'Complete los campos para registrar un nuevo activo en el sistema.'}
                         </p>
                     </div>
                 </div>
 
-                {success && (
-                    <div className="mb-6 rounded-md bg-green-50 p-4 shadow-sm border border-green-100 animate-fade-in">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
-                            </div>
-                            <div className="ml-3">
-                                <h3 className="text-sm font-medium text-green-800">Operación exitosa</h3>
-                                <div className="mt-2 text-sm text-green-700">
-                                    <p>El item de inventario se ha creado correctamente.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <div className="flex justify-start mb-8">
+                    <button
+                        onClick={() => navigate('/inventario')}
+                        className="group flex items-center px-4 py-2 text-slate-500 hover:text-indigo-600 transition-colors"
+                    >
+                        <ArrowLeftIcon className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-xs font-black uppercase tracking-widest">Regresar al Listado</span>
+                    </button>
+                </div>
 
                 {error && (
-                    <div className="mb-6 rounded-md bg-red-50 p-4 shadow-sm border border-red-100 animate-fade-in">
+                    <div className="mb-8 rounded-[2rem] bg-red-50 p-6 shadow-xl border border-red-100 animate-fade-in">
                         <div className="flex">
-                            <div className="flex-shrink-0">
-                                <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
-                            </div>
-                            <div className="ml-3">
-                                <h3 className="text-sm font-medium text-red-800">Error en el registro</h3>
-                                <div className="mt-2 text-sm text-red-700">
-                                    <p>{error}</p>
-                                </div>
+                            <XCircleIcon className="h-6 w-6 text-red-400 mr-3" aria-hidden="true" />
+                            <div>
+                                <h3 className="text-sm font-black uppercase tracking-widest text-red-800">Error detectado</h3>
+                                <p className="mt-1 text-sm text-red-700 whitespace-pre-wrap">{error}</p>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-8 bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+                {/* Main Form Container */}
+                <div className="bg-white shadow-2xl rounded-[3rem] border border-slate-100 overflow-hidden transition-all hover:shadow-indigo-100/50">
+                    {/* Tab Navigation */}
+                    <div className="flex flex-wrap border-b border-slate-100 bg-slate-50/50 p-4 gap-2">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all transform hover:scale-105 ${activeTab === tab.id
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 ring-1 ring-indigo-500'
+                                    : 'bg-white text-slate-400 hover:text-indigo-600 shadow-sm border border-slate-100'
+                                    }`}
+                            >
+                                <tab.icon className="h-4 w-4" />
+                                {tab.name}
+                            </button>
+                        ))}
+                    </div>
 
-                    {/* Sección 1: Información Básica */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 border-b pb-2 border-gray-100">
-                            <TagIcon className="h-6 w-6 text-indigo-500" />
-                            <h3 className="text-lg font-semibold leading-6 text-gray-900">Información del Producto</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-                            <div className="col-span-full sm:col-span-2">
-                                <ProductSearch
-                                    value={formData.codigo}
-                                    initialOption={formData.codigo && formData.nombre ? { codigo_producto: formData.codigo, nombre: formData.nombre } : null}
-                                    onChange={(option) => {
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            nombre: option.nombre,
-                                            codigo: option.codigo_producto
-                                        }));
-                                    }}
+                    <form onSubmit={handleSubmit} className="p-8 md:p-12">
+                        {/* Tab Content */}
+                        <div className="min-h-[400px]">
+                            {activeTab === 'basic' && (
+                                <BasicInfoTab
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    handleSelectChange={handleSelectChange}
+                                    setFormData={setFormData}
                                 />
-                                <input type="hidden" name="nombre" value={formData.nombre} />
-                            </div>
-
-                            <div>
-                                <label htmlFor="codigo" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Código Activo
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        name="codigo"
-                                        id="codigo"
-                                        value={formData.codigo}
-                                        onChange={handleChange}
-                                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 bg-gray-50"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label htmlFor="marca" className="block text-sm font-medium leading-6 text-gray-900">Marca</label>
-                                <input type="text" name="marca" id="marca" value={formData.marca} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="modelo" className="block text-sm font-medium leading-6 text-gray-900">Modelo</label>
-                                <input type="text" name="modelo" id="modelo" value={formData.modelo} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="serial" className="block text-sm font-medium leading-6 text-gray-900">Serial</label>
-                                <input type="text" name="serial" id="serial" value={formData.serial} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="grupo" className="block text-sm font-medium leading-6 text-gray-900">Grupo</label>
-                                <select name="grupo" value={formData.grupo} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="EC">EC</option>
-                                    <option value="ME">ME</option>
-                                    <option value="MAQ">MAQ</option>
-                                    <option value="IMC">IMC</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label htmlFor="estado" className="block text-sm font-medium leading-6 text-gray-900">Estado</label>
-                                <select name="estado" value={formData.estado} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
-                                    <option value="Nuevo">Nuevo</option>
-                                    <option value="Buen Estado">Buen Estado</option>
-                                    <option value="Regular">Regular</option>
-                                    <option value="Malo">Malo</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sección 2: Ubicación y Responsables */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 border-b pb-2 border-gray-100">
-                            <BuildingOfficeIcon className="h-6 w-6 text-indigo-500" />
-                            <h3 className="text-lg font-semibold leading-6 text-gray-900">Ubicación y Responsables</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-                            <div className="sm:col-span-1">
-                                <PersonalSearch
-                                    label="Responsable *"
-                                    value={formData.responsable_id}
-                                    initialOption={formData.responsable_personal ? { id: formData.responsable_personal.id, nombre: formData.responsable_personal.nombre } : null}
-                                    onChange={(opt) => setFormData(prev => ({ ...prev, responsable_id: opt.id, responsable: opt.nombre }))}
-                                />
-                            </div>
-
-                            <div className="sm:col-span-1">
-                                <PersonalSearch
-                                    label="Coordinador"
-                                    placeholder="Buscar coordinador..."
-                                    value={formData.coordinador_id}
-                                    initialOption={formData.coordinador_personal ? { id: formData.coordinador_personal.id, nombre: formData.coordinador_personal.nombre } : null}
-                                    onChange={(opt) => setFormData(prev => ({ ...prev, coordinador_id: opt.id }))}
-                                />
-                            </div>
-
-                            <div>
-                                <SedeSelect
-                                    value={formData.sede_id}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <DependenciaProcesoSelect
-                                sedeId={formData.sede_id}
-                                dependenciaValue={formData.dependencia}
-                                procesoValue={formData.proceso_id}
-                                onDependenciaChange={(text) => setFormData(prev => ({ ...prev, dependencia: text }))}
-                                onProcesoChange={handleChange}
-                            />
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Centro de Costo</label>
-                                <select
-                                    name="centro_costo"
-                                    onChange={handleChange}
-                                    className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
-                                >
-                                    <option value="">Seleccionar...</option>
-                                    {centrosCosto.map(c => (
-                                        <option key={c.id} value={c.codigo}>{c.codigo} - {c.nombre}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Ubicación Física</label>
-                                <input type="text" name="ubicacion" value={formData.ubicacion} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sección 3: Datos Financieros y Adquisición */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 border-b pb-2 border-gray-100">
-                            <CurrencyDollarIcon className="h-6 w-6 text-indigo-500" />
-                            <h3 className="text-lg font-semibold leading-6 text-gray-900">Financiero y Adquisición</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Tipo Adquisición</label>
-                                <select
-                                    name="tipo_adquisicion"
-                                    value={formData.tipo_adquisicion}
-                                    onChange={handleChange}
-                                    className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm bg-gray-50"
-                                >
-                                    <option value="03">03 - Compra</option>
-                                    <option value="01">01 - Donación</option>
-                                    <option value="02">02 - Comodato</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Número Factura</label>
-                                <input type="text" name="num_factu" value={formData.num_factu} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Fecha Compra</label>
-                                <input type="date" name="fecha_compra" value={formData.fecha_compra} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Proveedor</label>
-                                <input type="text" name="proveedor" value={formData.proveedor} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Valor Compra</label>
-                                <div className="relative mt-2 rounded-md shadow-sm">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <input type="number" name="valor_compra" value={formData.valor_compra} onChange={handleChange} className="block w-full rounded-md border-0 py-2.5 pl-7 pr-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="0.00" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Valor Actual</label>
-                                <div className="relative mt-2 rounded-md shadow-sm">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <input type="number" name="valor_actual" value={formData.valor_actual} onChange={handleChange} className="block w-full rounded-md border-0 py-2.5 pl-7 pr-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="0.00" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Salvamento</label>
-                                <input type="text" name="salvamenta" value={formData.salvamenta} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Vida Útil</label>
-                                <select name="vida_util" value={formData.vida_util} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="12">12 Meses</option>
-                                    <option value="60">60 Meses</option>
-                                    <option value="120">120 Meses</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Vida Útil NIIF</label>
-                                <select name="vida_util_niff" value={formData.vida_util_niff} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="12">12 Meses</option>
-                                    <option value="60">60 Meses</option>
-                                    <option value="120">120 Meses</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Meses Depreciación</label>
-                                <input type="number" name="meses" value={formData.meses} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Meses Depr. NIIF</label>
-                                <input type="number" name="meses_niif" value={formData.meses_niif} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Depreciación</label>
-                                <input type="number" name="depreciacion" value={formData.depreciacion} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Depreciación NIIF</label>
-                                <input type="number" name="depreciacion_niif" value={formData.depreciacion_niif} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Depreciación Acumulada</label>
-                                <input type="number" name="depreciacion_acumulada" value={formData.depreciacion_acumulada} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sección 4: Contabilidad */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 border-b pb-2 border-gray-100">
-                            <ClipboardDocumentListIcon className="h-6 w-6 text-indigo-500" />
-                            <h3 className="text-lg font-semibold leading-6 text-gray-900">Información Contable</h3>
-                        </div>
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Cuenta Inventario</label>
-                                <input type="number" name="cuenta_inventario" value={formData.cuenta_inventario} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Cuenta Gasto</label>
-                                <input type="number" name="cuenta_gasto" value={formData.cuenta_gasto} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Cuenta Salida</label>
-                                <input type="number" name="cuenta_salida" value={formData.cuenta_salida} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Grupo Activos</label>
-                                <input type="text" name="grupo_activos" value={formData.grupo_activos} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Tipo Bien</label>
-                                <input type="text" name="tipo_bien" value={formData.tipo_bien} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sección 5: Detalles Legales y Otros */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 border-b pb-2 border-gray-100">
-                            <DocumentArrowUpIcon className="h-6 w-6 text-indigo-500" />
-                            <h3 className="text-lg font-semibold leading-6 text-gray-900">Legal y Otros</h3>
-                        </div>
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Escritura</label>
-                                <input type="text" name="escritura" value={formData.escritura} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Matrícula</label>
-                                <input type="text" name="matricula" value={formData.matricula} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Soporte (Texto/Link)</label>
-                                <input type="text" name="soporte" value={formData.soporte} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" placeholder="Ref. soporte físico o enlace" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Código Barras</label>
-                                <input type="text" name="codigo_barras" value={formData.codigo_barras} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Calibrado (Fecha)</label>
-                                <input type="date" name="calibrado" value={formData.calibrado} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div className="col-span-full">
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Observaciones</label>
-                                <textarea name="observaciones" value={formData.observaciones} rows={3} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                            <div className="col-span-full">
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Descripción General</label>
-                                <textarea name="descripcion" value={formData.descripcion} rows={3} onChange={handleChange} className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sección 4: Accesorios y Adjuntos */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 border-b pb-2 border-gray-100">
-                            <ClipboardDocumentListIcon className="h-6 w-6 text-indigo-500" />
-                            <h3 className="text-lg font-semibold leading-6 text-gray-900">Detalles Adicionales</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
-                            <div className="flex items-center gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm hover:bg-gray-100 transition-colors">
-                                    <input
-                                        type="checkbox"
-                                        name="tiene_accesorio"
-                                        checked={formData.tiene_accesorio === 'Si'}
-                                        onChange={handleChange}
-                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                    />
-                                    <span className="text-sm font-medium text-gray-900">¿Tiene Accesorios?</span>
-                                </label>
-                            </div>
-
-                            {formData.tiene_accesorio === 'Si' && (
-                                <div className="col-span-full sm:col-span-2 animate-fade-in-down">
-                                    <label className="block text-sm font-medium leading-6 text-gray-900">Descripción de Accesorios</label>
-                                    <textarea
-                                        name="descripcion_accesorio"
-                                        value={formData.descripcion_accesorio}
-                                        rows={3}
-                                        onChange={handleChange}
-                                        className="mt-2 block w-full rounded-md border-0 py-2.5 px-3 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
-                                        placeholder="Liste los accesorios incluidos..."
-                                    />
-                                </div>
                             )}
-
-                            <div className="col-span-full">
-                                <label className="block text-sm font-medium leading-6 text-gray-900">Soporte Adjunto (PDF)</label>
-                                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-300 px-6 py-10 bg-gray-50 hover:bg-indigo-50/50 transition-colors">
-                                    <div className="text-center">
-                                        <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-                                        <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
-                                            <label
-                                                htmlFor="file-upload"
-                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500 px-2"
-                                            >
-                                                <span>Subir un archivo</span>
-                                                <input id="file-upload" name="soporte_adjunto" type="file" className="sr-only" accept="application/pdf" onChange={handleChange} />
-                                            </label>
-                                            <p className="pl-1">o arrastrar y soltar</p>
-                                        </div>
-                                        <p className="text-xs leading-5 text-gray-600">PDF hasta 10MB</p>
-                                        {filePreview && (
-                                            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-indigo-600 bg-indigo-50 py-1 px-3 rounded-full">
-                                                <CheckCircleIcon className="h-4 w-4" />
-                                                <span>{filePreview.name} ({filePreview.size})</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+                            {activeTab === 'financial' && (
+                                <FinancialInfoTab
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    centrosCosto={centrosCosto}
+                                />
+                            )}
+                            {activeTab === 'additional' && (
+                                <AdditionalInfoTab
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    filePreview={filePreview}
+                                />
+                            )}
                         </div>
-                    </div>
 
-                    <div className="pt-6 border-t border-gray-100 flex items-center justify-end gap-x-6">
-                        <button type="button" className="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`rounded-md bg-indigo-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all ${loading ? 'opacity-70 cursor-wait' : ''}`}
-                        >
-                            {loading ? 'Guardando...' : 'Crear Inventario'}
-                        </button>
-                    </div>
-                </form>
+                        {/* Form Footer Actions */}
+                        <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-end gap-x-6">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/inventario')}
+                                className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className={`flex items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-10 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-indigo-200 hover:translate-y-[-2px] transition-all hover:shadow-2xl active:scale-95 ${loading ? 'opacity-70 cursor-wait' : ''
+                                    }`}
+                            >
+                                {loading ? 'Procesando...' : (id ? 'Actualizar Activo' : 'Registrar Inventario')}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

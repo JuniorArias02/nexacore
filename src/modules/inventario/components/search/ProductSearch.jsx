@@ -17,7 +17,7 @@ export default function ProductSearch({ value, onChange, label = "Nombre del Pro
             value={value}
             options={initialOption ? [initialOption] : []}
             displayKey="nombre"
-            valueKey="codigo_producto"
+            valueKey="nombre"
             className="block"
         />
     );

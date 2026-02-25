@@ -353,8 +353,9 @@ export default function CpPedidoList() {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white relative">
-                            {loading ? (
+
+                        {loading ? (
+                            <tbody className="bg-white">
                                 <tr>
                                     <td colSpan="6" className="px-6 py-24 text-center">
                                         <div className="flex justify-center items-center">
@@ -363,163 +364,165 @@ export default function CpPedidoList() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : paginatedPedidos.length === 0 ? (
+                            </tbody>
+                        ) : paginatedPedidos.length === 0 ? (
+                            <tbody className="bg-white">
                                 <tr>
                                     <td colSpan="6" className="px-6 py-12 text-center text-gray-500 text-sm">
                                         No se encontraron pedidos
                                     </td>
                                 </tr>
-                            ) : (
-                                paginatedPedidos.map((pedido) => (
-                                    <React.Fragment key={pedido.id}>
-                                        <tr className={`hover:bg-gray-50 transition-colors duration-150 ${expandedOrderId === pedido.id ? 'bg-indigo-50/30' : ''}`}>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
+                            </tbody>
+                        ) : (
+                            paginatedPedidos.map((pedido) => (
+                                <tbody key={pedido.id} className="divide-y divide-gray-200 bg-white">
+                                    <tr className={`hover:bg-gray-50 transition-colors duration-150 ${expandedOrderId === pedido.id ? 'bg-indigo-50/30' : ''}`}>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <button
+                                                    onClick={() => toggleRow(pedido.id)}
+                                                    className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 focus:outline-none transition-colors"
+                                                >
+                                                    {expandedOrderId === pedido.id ? (
+                                                        <ChevronUpIcon className="h-4 w-4" />
+                                                    ) : (
+                                                        <ChevronDownIcon className="h-4 w-4" />
+                                                    )}
+                                                    #{pedido.consecutivo}
+                                                </button>
+                                                <span className="text-xs text-gray-500 ml-5">{formatDate(pedido.fecha_solicitud)}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-gray-900 font-medium">{pedido.solicitante?.nombre || 'N/A'}</span>
+                                                <span className="text-xs text-gray-500">Sede: {pedido.sede?.nombre || 'N/A'}</span>
+                                                <span className="text-xs text-gray-400 mt-1">Por: {pedido.elaborado_por?.nombre_completo || 'N/A'}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {getEstadoBadge(pedido.estado_compras)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {getEstadoBadge(pedido.estado_gerencia)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {pedido.items?.length || 0} items
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex justify-end gap-2">
+                                                <Can permission="cp_pedido.listar">
                                                     <button
-                                                        onClick={() => toggleRow(pedido.id)}
-                                                        className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 focus:outline-none transition-colors"
+                                                        onClick={() => handleViewDetails(pedido.id)}
+                                                        className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                                        title="Ver Detalles"
                                                     >
-                                                        {expandedOrderId === pedido.id ? (
-                                                            <ChevronUpIcon className="h-4 w-4" />
-                                                        ) : (
-                                                            <ChevronDownIcon className="h-4 w-4" />
-                                                        )}
-                                                        #{pedido.consecutivo}
+                                                        <EyeIcon className="h-5 w-5" />
                                                     </button>
-                                                    <span className="text-xs text-gray-500 ml-5">{formatDate(pedido.fecha_solicitud)}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm text-gray-900 font-medium">{pedido.solicitante?.nombre || 'N/A'}</span>
-                                                    <span className="text-xs text-gray-500">Sede: {pedido.sede?.nombre || 'N/A'}</span>
-                                                    <span className="text-xs text-gray-400 mt-1">Por: {pedido.elaborado_por?.nombre_completo || 'N/A'}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {getEstadoBadge(pedido.estado_compras)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {getEstadoBadge(pedido.estado_gerencia)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {pedido.items?.length || 0} items
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="flex justify-end gap-2">
-                                                    <Can permission="cp_pedido.listar">
-                                                        <button
-                                                            onClick={() => handleViewDetails(pedido.id)}
-                                                            className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
-                                                            title="Ver Detalles"
-                                                        >
-                                                            <EyeIcon className="h-5 w-5" />
-                                                        </button>
-                                                    </Can>
-                                                    <Can permission="cp_pedido.actualizar">
-                                                        <button
-                                                            onClick={() => navigate(`/cp-pedidos/${pedido.id}/editar`)}
-                                                            className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
-                                                            title="Editar"
-                                                        >
-                                                            <PencilSquareIcon className="h-5 w-5" />
-                                                        </button>
-                                                    </Can>
+                                                </Can>
+                                                <Can permission="cp_pedido.actualizar">
                                                     <button
-                                                        onClick={() => handleExportExcel(pedido.id)}
-                                                        disabled={exportingId === pedido.id}
-                                                        className={`p-1 rounded-full transition-colors ${exportingId === pedido.id ? 'text-gray-400 bg-gray-100' : 'text-green-600 hover:bg-green-50'}`}
-                                                        title="Descargar Excel"
+                                                        onClick={() => navigate(`/cp-pedidos/${pedido.id}/editar`)}
+                                                        className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
+                                                        title="Editar"
                                                     >
-                                                        {exportingId === pedido.id ? (
-                                                            <div className="h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
-                                                        ) : (
-                                                            <TableCellsIcon className="h-5 w-5" />
-                                                        )}
+                                                        <PencilSquareIcon className="h-5 w-5" />
                                                     </button>
+                                                </Can>
+                                                <button
+                                                    onClick={() => handleExportExcel(pedido.id)}
+                                                    disabled={exportingId === pedido.id}
+                                                    className={`p-1 rounded-full transition-colors ${exportingId === pedido.id ? 'text-gray-400 bg-gray-100' : 'text-green-600 hover:bg-green-50'}`}
+                                                    title="Descargar Excel"
+                                                >
+                                                    {exportingId === pedido.id ? (
+                                                        <div className="h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <TableCellsIcon className="h-5 w-5" />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors opacity-50 cursor-not-allowed"
+                                                    title="Descargar PDF (Próximamente)"
+                                                >
+                                                    <DocumentArrowDownIcon className="h-5 w-5" />
+                                                </button>
+                                                <Can permission="cp_pedido.eliminar">
                                                     <button
-                                                        className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors opacity-50 cursor-not-allowed"
-                                                        title="Descargar PDF (Próximamente)"
+                                                        onClick={() => handleDelete(pedido.id)}
+                                                        className="p-1 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                        title="Eliminar"
                                                     >
-                                                        <DocumentArrowDownIcon className="h-5 w-5" />
+                                                        <TrashIcon className="h-5 w-5" />
                                                     </button>
-                                                    <Can permission="cp_pedido.eliminar">
-                                                        <button
-                                                            onClick={() => handleDelete(pedido.id)}
-                                                            className="p-1 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                                            title="Eliminar"
-                                                        >
-                                                            <TrashIcon className="h-5 w-5" />
-                                                        </button>
-                                                    </Can>
+                                                </Can>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {expandedOrderId === pedido.id && (
+                                        <tr key={`expanded-${pedido.id}`} className="bg-gray-50 animate-fade-in">
+                                            <td colSpan="6" className="px-6 py-4 border-t border-gray-100 shadow-inner">
+                                                <div className="rounded-lg overflow-hidden border border-gray-200">
+                                                    <table className="min-w-full divide-y divide-gray-200">
+                                                        <thead className="bg-gray-100">
+                                                            <tr>
+                                                                <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
+                                                                <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Item</th>
+                                                                <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                                                <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
+                                                                <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referencia</th>
+                                                                <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="bg-white divide-y divide-gray-200">
+                                                            {pedido.items && pedido.items.length > 0 ? (
+                                                                pedido.items.map((item) => (
+                                                                    <tr key={item.id}>
+                                                                        <td className="px-4 py-2 text-sm font-medium text-indigo-600">{item.producto?.codigo || 'N/A'}</td>
+                                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.nombre}</td>
+                                                                        <td className="px-3 py-2 text-sm text-gray-500">{item.cantidad}</td>
+                                                                        <td className="px-4 py-2 text-sm text-gray-500">{item.unidad_medida}</td>
+                                                                        <td className="px-4 py-2 text-sm text-gray-500">
+                                                                            {item.referencia_items ? (
+                                                                                <a
+                                                                                    href={item.referencia_items}
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    className="text-indigo-600 hover:text-indigo-800 transition-colors inline-flex items-center gap-1"
+                                                                                    title="Ver referencia"
+                                                                                >
+                                                                                    <LinkIcon className="h-4 w-4" />
+                                                                                    <span className="text-xs underline">Ver enlace</span>
+                                                                                </a>
+                                                                            ) : '-'}
+                                                                        </td>
+                                                                        <td className="px-4 py-2 text-sm">
+                                                                            {item.comprado === 1 ? (
+                                                                                <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                                                    Comprado
+                                                                                </span>
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                                                                    Pendiente
+                                                                                </span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            ) : (
+                                                                <tr>
+                                                                    <td colSpan="6" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </td>
                                         </tr>
-                                        {expandedOrderId === pedido.id && (
-                                            <tr className="bg-gray-50 animate-fade-in">
-                                                <td colSpan="6" className="px-6 py-4 border-t border-gray-100 shadow-inner">
-                                                    <div className="rounded-lg overflow-hidden border border-gray-200">
-                                                        <table className="min-w-full divide-y divide-gray-200">
-                                                            <thead className="bg-gray-100">
-                                                                <tr>
-                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
-                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Item</th>
-                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
-                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referencia</th>
-                                                                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                                {pedido.items && pedido.items.length > 0 ? (
-                                                                    pedido.items.map((item) => (
-                                                                        <tr key={item.id}>
-                                                                            <td className="px-4 py-2 text-sm font-medium text-indigo-600">{item.producto?.codigo || 'N/A'}</td>
-                                                                            <td className="px-4 py-2 text-sm text-gray-900">{item.nombre}</td>
-                                                                            <td className="px-4 py-2 text-sm text-gray-500">{item.cantidad}</td>
-                                                                            <td className="px-4 py-2 text-sm text-gray-500">{item.unidad_medida}</td>
-                                                                            <td className="px-4 py-2 text-sm text-gray-500">
-                                                                                {item.referencia_items ? (
-                                                                                    <a
-                                                                                        href={item.referencia_items}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                        className="text-indigo-600 hover:text-indigo-800 transition-colors inline-flex items-center gap-1"
-                                                                                        title="Ver referencia"
-                                                                                    >
-                                                                                        <LinkIcon className="h-4 w-4" />
-                                                                                        <span className="text-xs underline">Ver enlace</span>
-                                                                                    </a>
-                                                                                ) : '-'}
-                                                                            </td>
-                                                                            <td className="px-4 py-2 text-sm">
-                                                                                {item.comprado === 1 ? (
-                                                                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                                                        Comprado
-                                                                                    </span>
-                                                                                ) : (
-                                                                                    <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                                                                        Pendiente
-                                                                                    </span>
-                                                                                )}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))
-                                                                ) : (
-                                                                    <tr>
-                                                                        <td colSpan="6" className="px-4 py-2 text-sm text-gray-500 text-center">No hay items en este pedido.</td>
-                                                                    </tr>
-                                                                )}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </React.Fragment>
-                                ))
-                            )}
-                        </tbody>
+                                    )}
+                                </tbody>
+                            ))
+                        )}
                     </table>
                 </div>
 
