@@ -12,7 +12,7 @@ const getStorageUrl = (path) => {
 };
 
 const ProfileSignature = ({ user, onSubmit, loading }) => {
-    const [activeTab, setActiveTab] = useState('draw'); // 'draw' | 'upload'
+    const [activeTab, setActiveTab] = useState('draw'); 
     const [signatureFile, setSignatureFile] = useState(null);
     const [signaturePreview, setSignaturePreview] = useState(null);
     const [drawingBlob, setDrawingBlob] = useState(null);

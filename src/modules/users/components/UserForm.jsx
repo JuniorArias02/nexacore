@@ -141,17 +141,21 @@ export default function UserForm() {
             // Use FormData for file upload support
             const dataToSubmit = new FormData();
             Object.keys(formData).forEach(key => {
+                // Skip firma_digital from formData (it contains the string URL)
+                // Skip contrasena if editing and empty
+                if (key === 'firma_digital') return;
+                if (isEditing && key === 'contrasena' && !formData[key]) return;
+
                 if (formData[key] !== null && formData[key] !== undefined) {
-                    dataToSubmit.append(key, formData[key]);
+                    // Convert boolean state to 1/0 for backend compatibility if needed, 
+                    // though Laravel handles 'true'/'false' as strings sometimes.
+                    const value = key === 'estado' ? (formData[key] ? '1' : '0') : formData[key];
+                    dataToSubmit.append(key, value);
                 }
             });
 
             if (selectedFile) {
                 dataToSubmit.append('firma_digital', selectedFile, 'signature.png');
-            }
-
-            if (isEditing && !formData.contrasena) {
-                dataToSubmit.delete('contrasena');
             }
 
             if (isEditing) {

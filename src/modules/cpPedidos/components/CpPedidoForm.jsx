@@ -101,23 +101,51 @@ export default function CpPedidoForm({ initialData = null }) {
     };
 
     const loadDependencies = async () => {
-        // ... (existing loadDependencies logic) ...
         try {
-            const [tipos, sed, deps] = await Promise.all([
+            const [tipos, sed] = await Promise.all([
                 cpTipoSolicitudService.getAll(),
                 sedeService.getAll(),
-                dependenciaSedeService.getAll()
+                // dependenciaSedeService.getAll() // No longer load all on mount
             ]);
             if (tipos && tipos.objeto) setTipoSolicitudes(tipos.objeto);
-            if (sed && sed) setSedes(sed);
-            if (deps && deps.objeto) setDependencias(deps.objeto);
-            else if (Array.isArray(deps)) setDependencias(deps);
+            if (sed) setSedes(sed);
+            // if (deps && deps.objeto) setDependencias(deps.objeto);
+            // else if (Array.isArray(deps)) setDependencias(deps);
 
         } catch (error) {
             console.error("Error loading dependencies:", error);
-            Swal.fire('Error', 'No se pudieron cargar las dependencias', 'error');
+            Swal.fire('Error', 'No se pudieron cargar las dependencias iniciales', 'error');
         }
     };
+
+    // Effect to load dependencies when sede changes
+    useEffect(() => {
+        const loadDependenciasPorSede = async () => {
+            if (!headerData.sede_id) {
+                setDependencias([]);
+                return;
+            }
+
+            try {
+                const deps = await dependenciaSedeService.getAll({ sede_id: headerData.sede_id });
+                if (deps && deps.objeto) setDependencias(deps.objeto);
+                else if (Array.isArray(deps)) setDependencias(deps);
+            } catch (error) {
+                console.error("Error loading dependencias for sede:", error);
+                setDependencias([]);
+            }
+        };
+
+        loadDependenciasPorSede();
+
+        // If not initial data loading, reset proceso_solicitante when sede changes
+        if (!initialData || (initialData && initialData.sede_id !== headerData.sede_id)) {
+            setHeaderData(prev => ({
+                ...prev,
+                proceso_solicitante: ''
+            }));
+        }
+    }, [headerData.sede_id]);
 
     const handleHeaderChange = (e) => {
         const { name, value } = e.target;
@@ -148,7 +176,6 @@ export default function CpPedidoForm({ initialData = null }) {
             return;
         }
 
-        // Signature validation: mandatory for create, optional for edit if keeping existing
         if (!initialData) {
             if (!useStoredSignature && !signatureData) {
                 Swal.fire('Error', 'Debe firmar el pedido o usar su firma guardada', 'warning');
@@ -219,46 +246,10 @@ export default function CpPedidoForm({ initialData = null }) {
                 <h1 className="text-3xl font-bold text-gray-800">Crear Pedido de Compra</h1>
             </div>
 
-            {/* Information Guide */}
             {/* Information Guide - NexaCore Style */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-sm">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Información sobre solicitudes</h3>
 
-                <div className="space-y-6">
-                    <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Unidad de medida:</h4>
-                        <p className="text-gray-600 text-sm">Puede representarse en <span className="font-semibold text-gray-800">unidad</span> o <span className="font-semibold text-gray-800">paquete</span> según aplique.</p>
-                    </div>
-
-                    <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Tipo de solicitud:</h4>
-
-                        <div className="mb-4">
-                            <span className="inline-block bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded border border-green-200 mb-2">Prioritaria</span>
-                            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
-                                <li>Para el proceso de farmacia se recibe la solicitud del pedido y se dará respuesta en un tiempo no mayor a 5 horas.</li>
-                                <li>En los casos que requiera compra en otra ciudad se dará respuesta en un tiempo de 3 a 4 días hábiles.</li>
-                                <li>Para los demás procesos se dará respuesta en 2 días hábiles.</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded border border-orange-200 mb-2">Recurrente</span>
-                            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
-                                <li>Para el proceso de farmacia el pedido mensual se recibe la solicitud del pedido y se dará respuesta de 1 a 5 días.</li>
-                                <li>Para los demás procesos se reciben los 5 primeros días del mes para dar respuesta en un tiempo de 1 a 4 días hábiles.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="bg-yellow-50 border border-yellow-100 rounded-md p-4 text-sm text-yellow-800">
-                        <p><strong>Nota:</strong> En caso que el pedido requiera elaboración se dará respuesta en el tiempo que se determine con el proveedor para entrega de la compra previamente informado al proceso solicitante.</p>
-                    </div>
-                </div>
-            </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Header Section */}
                 {/* Header Section */}
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                     <div className="flex items-center mb-4">
@@ -292,9 +283,10 @@ export default function CpPedidoForm({ initialData = null }) {
                                 name="proceso_solicitante"
                                 value={headerData.proceso_solicitante}
                                 onChange={handleHeaderChange}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                disabled={!headerData.sede_id}
+                                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${!headerData.sede_id ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             >
-                                <option value="">Seleccione...</option>
+                                <option value="">{headerData.sede_id ? 'Seleccione...' : 'Primero seleccione una sede'}</option>
                                 {dependencias.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
                             </select>
                         </div>
@@ -315,21 +307,7 @@ export default function CpPedidoForm({ initialData = null }) {
                             </select>
                         </div>
 
-                        {/* Elaborado Por field removed as per request - auto-filled from current user */}
 
-                        <div className="md:col-span-3">
-                            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                <DocumentTextIcon className="h-4 w-4 mr-1 text-gray-400" />
-                                Observación *
-                            </label>
-                            <textarea
-                                name="observacion"
-                                value={headerData.observacion}
-                                onChange={handleHeaderChange}
-                                rows={3}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            />
-                        </div>
                     </div>
                 </div>
 
@@ -340,6 +318,101 @@ export default function CpPedidoForm({ initialData = null }) {
                     onRemoveItem={handleRemoveItem}
                     isFarmacia={dependencias.find(d => d.id == headerData.proceso_solicitante)?.nombre?.toUpperCase().includes('FARMACIA')}
                 />
+
+
+                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <div className="flex items-center mb-4">
+                        <DocumentTextIcon className="h-5 w-5 text-indigo-500 mr-2" />
+                        <h2 className="text-xl font-semibold text-gray-700">Observaciones del Pedido</h2>
+                    </div>
+                    <div className="relative">
+                        <textarea
+                            name="observacion"
+                            value={headerData.observacion}
+                            onChange={handleHeaderChange}
+                            rows={4}
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-4 bg-white transition-all duration-200"
+                            placeholder="Escriba aquí los detalles adicionales, justificaciones o notas importantes para este pedido..."
+                        />
+                        <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+                            Campo obligatorio *
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl p-8 shadow-sm">
+                    <div className="flex items-center mb-6">
+                        <div className="bg-indigo-100 p-2 rounded-lg mr-3">
+                            <ClockIcon className="h-6 w-6 text-indigo-600" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-800">Guía de Tiempos y Solicitudes</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                            <div className="flex items-start">
+                                <div className="h-2 w-2 rounded-full bg-indigo-500 mt-2 mr-3 shrink-0"></div>
+                                <div>
+                                    <h4 className="font-bold text-gray-700 text-lg mb-1">Unidad de Medida</h4>
+                                    <p className="text-gray-600 leading-relaxed text-sm">
+                                        Puede representarse en <span className="text-indigo-600 font-semibold italic">Unidad</span> o <span className="text-indigo-600 font-semibold italic">Paquete</span> según aplique a su proceso.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-5 rounded-lg border border-green-100 shadow-sm">
+                                <div className="flex items-center mb-3">
+                                    <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Prioritaria
+                                    </span>
+                                </div>
+                                <ul className="space-y-3 text-sm text-gray-600">
+                                    <li className="flex items-start">
+                                        <div className="h-1.5 w-1.5 bg-green-400 rounded-full mt-1.5 mr-3 shrink-0"></div>
+                                        <span><strong className="text-gray-700">Farmacia:</strong> Se recibe la solicitud y se dará respuesta en un tiempo no mayor a <span className="font-semibold text-green-700">5 horas</span>.</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="h-1.5 w-1.5 bg-green-400 rounded-full mt-1.5 mr-3 shrink-0"></div>
+                                        <span><strong className="text-gray-700">Compras Nacionales:</strong> En casos que requiera compra en otra ciudad, la respuesta será de <span className="font-semibold text-green-700">3 a 4 días hábiles</span>.</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="h-1.5 w-1.5 bg-green-400 rounded-full mt-1.5 mr-3 shrink-0"></div>
+                                        <span><strong className="text-gray-700">Otros Procesos:</strong> Se dará respuesta en <span className="font-semibold text-green-700">2 días hábiles</span>.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="bg-white p-5 rounded-lg border border-orange-100 shadow-sm">
+                                <div className="flex items-center mb-3">
+                                    <span className="bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Recurrente
+                                    </span>
+                                </div>
+                                <ul className="space-y-3 text-sm text-gray-600">
+                                    <li className="flex items-start">
+                                        <div className="h-1.5 w-1.5 bg-orange-400 rounded-full mt-1.5 mr-3 shrink-0"></div>
+                                        <span><strong className="text-gray-700">Farmacia:</strong> El pedido mensual recibe respuesta en un tiempo de <span className="font-semibold text-orange-700">1 a 5 días</span>.</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="h-1.5 w-1.5 bg-orange-400 rounded-full mt-1.5 mr-3 shrink-0"></div>
+                                        <span><strong className="text-gray-700">General:</strong> Se reciben los 5 primeros días del mes para dar respuesta en <span className="font-semibold text-orange-700">1 a 4 días hábiles</span>.</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg shadow-inner">
+                                <p className="text-sm text-amber-900 leading-relaxed">
+                                    <span className="font-bold flex items-center mb-1 text-amber-800">
+                                        <DocumentTextIcon className="h-4 w-4 mr-1" /> Nota Importante:
+                                    </span>
+                                    En caso que el pedido requiera elaboración, se dará respuesta en el tiempo determinado con el proveedor, previamente informado al proceso solicitante.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Signature Section */}
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
@@ -364,6 +437,8 @@ export default function CpPedidoForm({ initialData = null }) {
                             </button>
                         </div>
                     </div>
+
+
 
                     {useStoredSignature ? (
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-white min-h-[160px]">
@@ -430,6 +505,8 @@ export default function CpPedidoForm({ initialData = null }) {
                     </button>
                 </div>
             </form>
+
+
         </div>
     );
 }

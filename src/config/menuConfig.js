@@ -122,7 +122,7 @@ const menuConfig = [
                 permissions: ['cp_tipo_solicitud.crear', 'cp_tipo_solicitud.actualizar', 'cp_tipo_solicitud.eliminar'],
             },
             {
-                name: 'Servicios', href: '/cp-productos-servicios', icon: WrenchScrewdriverIcon,
+                name: 'Producto / Servicios', href: '/cp-productos-servicios', icon: WrenchScrewdriverIcon,
                 permissions: ['cp_producto_servicio.crear', 'cp_producto_servicio.actualizar', 'cp_producto_servicio.eliminar'],
             }
         ]

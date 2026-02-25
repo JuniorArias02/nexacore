@@ -1,8 +1,8 @@
 import api from '../../../services/api';
 
 export const cpProductoServicioService = {
-    getAll: async () => {
-        const response = await api.get('/cp-productos-servicios');
+    getAll: async (params = {}) => {
+        const response = await api.get('/cp-productos-servicios', { params });
         return response.data;
     },
 
