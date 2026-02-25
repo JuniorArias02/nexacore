@@ -341,9 +341,13 @@ export default function InventoryListPage() {
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                             <div className="flex justify-end gap-2">
-                                                <button className="text-gray-400 hover:text-indigo-600 transition-colors p-1" title="Ver detalles">
+                                                <Link
+                                                    to={`/inventario/detalle/${item.id}`}
+                                                    className="text-gray-400 hover:text-indigo-600 transition-colors p-1"
+                                                    title="Ver detalles"
+                                                >
                                                     <EyeIcon className="h-5 w-5" />
-                                                </button>
+                                                </Link>
                                                 <Link to={`/inventario/editar/${item.id}`} className="text-gray-400 hover:text-blue-600 transition-colors p-1" title="Editar">
                                                     <PencilSquareIcon className="h-5 w-5" />
                                                 </Link>

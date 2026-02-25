@@ -6,6 +6,7 @@ import InformacionWebPage from '../modules/informacionWeb/pages/InformacionWebPa
 import DashboardPage from '../modules/dashboard/pages/DashboardPage';
 import InventoryFormPage from '../modules/inventario/pages/InventoryFormPage';
 import InventoryListPage from '../modules/inventario/pages/InventoryListPage';
+import InventoryDetailPage from '../modules/inventario/pages/InventoryDetailPage';
 import DependenciaSedeList from '../modules/dependenciaSede/pages/DependenciaSedeList';
 import DependenciaSedeFormPage from '../modules/dependenciaSede/pages/DependenciaSedeFormPage';
 import CpDependenciaList from '../modules/cpDependencia/pages/CpDependenciaList';
@@ -143,6 +144,9 @@ const AppRouter = () => {
                     <Route path="/pc-devueltos/crear" element={<PcDevueltoForm />} />
                     <Route path="/pc-devueltos/editar/:id" element={<PcDevueltoForm />} />
 
+                    {/* Inventario */}
+                    <Route path="/inventario" element={<InventoryListPage />} />
+                    <Route path="/inventario/detalle/:id" element={<InventoryDetailPage />} />
                     <Route path="/inventario/nuevo" element={<InventoryFormPage />} />
                     <Route path="/inventario/editar/:id" element={<InventoryFormPage />} />
 
