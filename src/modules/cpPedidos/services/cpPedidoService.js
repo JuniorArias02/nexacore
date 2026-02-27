@@ -83,7 +83,9 @@ export const cpPedidoService = {
         if (data.use_stored_signature) {
             formData.append('use_stored_signature', '1');
         }
-        if (data.motivo) formData.append('motivo_aprobacion', data.motivo);
+        if (data.motivo_aprobacion_compras) {
+            formData.append('motivo_aprobacion_compras', data.motivo_aprobacion_compras);
+        }
 
         if (data.items_comprados && Array.isArray(data.items_comprados)) {
             data.items_comprados.forEach((itemId, index) => {
@@ -97,8 +99,8 @@ export const cpPedidoService = {
         return response.data;
     },
 
-    rechazarCompras: async (id, motivo) => {
-        const response = await api.post(`/cp-pedidos/${id}/rechazar-compras`, { motivo });
+    rechazarCompras: async (id, data) => {
+        const response = await api.post(`/cp-pedidos/${id}/rechazar-compras`, { motivo_rechazado_compras: data.motivo });
         return response.data;
     },
 
@@ -111,7 +113,7 @@ export const cpPedidoService = {
         const formData = new FormData();
         if (data.firma) formData.append('responsable_aprobacion_firma', data.firma);
         if (data.use_stored_signature) formData.append('use_stored_signature', '1');
-        if (data.observacion_gerencia) formData.append('observacion_gerencia', data.observacion_gerencia);
+        if (data.motivo_aprobacion_gerencia) formData.append('motivo_aprobacion_gerencia', data.motivo_aprobacion_gerencia);
 
         const response = await api.post(`/cp-pedidos/${id}/aprobar-gerencia`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -119,8 +121,8 @@ export const cpPedidoService = {
         return response.data;
     },
 
-    rechazarGerencia: async (id, observacion) => {
-        const response = await api.post(`/cp-pedidos/${id}/rechazar-gerencia`, { observacion_gerencia: observacion });
+    rechazarGerencia: async (id, data) => {
+        const response = await api.post(`/cp-pedidos/${id}/rechazar-gerencia`, { motivo_rechazado_gerencia: data.motivo });
         return response.data;
     },
 

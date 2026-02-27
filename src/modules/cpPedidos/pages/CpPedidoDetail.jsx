@@ -26,6 +26,7 @@ export default function CpPedidoDetail() {
     const [motivoAprobacion, setMotivoAprobacion] = useState('');
     const [isSignatureEmpty, setIsSignatureEmpty] = useState(true);
     const [useStoredSignature, setUseStoredSignature] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Items Management State (Post-Approval)
     const [localItems, setLocalItems] = useState([]);
@@ -153,16 +154,17 @@ export default function CpPedidoDetail() {
         }
 
         try {
+            setIsSubmitting(true);
             const data = {
                 firma: signatureFile,
                 use_stored_signature: useStored
             };
 
             if (approvalStage === 'gerencia') {
-                data.observacion_gerencia = motivoAprobacion;
+                data.motivo_aprobacion_gerencia = motivoAprobacion;
                 await cpPedidoService.aprobarGerencia(id, data);
             } else {
-                data.motivo = motivoAprobacion;
+                data.motivo_aprobacion_compras = motivoAprobacion;
                 data.items_comprados = [];
                 await cpPedidoService.aprobarCompras(id, data);
             }
@@ -180,6 +182,8 @@ export default function CpPedidoDetail() {
                 text: msg,
                 footer: details ? `<pre class="text-xs text-red-500">${details}</pre>` : null
             });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -200,10 +204,13 @@ export default function CpPedidoDetail() {
 
         if (text) {
             try {
+                const payload = {
+                    motivo: text
+                };
                 if (approvalStage === 'gerencia') {
-                    await cpPedidoService.rechazarGerencia(id, text);
+                    await cpPedidoService.rechazarGerencia(id, payload);
                 } else {
-                    await cpPedidoService.rechazarCompras(id, text);
+                    await cpPedidoService.rechazarCompras(id, payload);
                 }
                 Swal.fire('Rechazado', 'El pedido ha sido rechazado', 'success');
                 loadPedido();
@@ -450,14 +457,24 @@ export default function CpPedidoDetail() {
                                 <button
                                     type="button"
                                     onClick={handleApprove}
-                                    className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:w-auto"
+                                    disabled={isSubmitting}
+                                    className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:w-auto transition-all ${isSubmitting ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500'
+                                        }`}
                                 >
-                                    Confirmar Aprobación
+                                    {isSubmitting ? (
+                                        <>
+                                            <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0 mr-2"></div>
+                                            Aprobando...
+                                        </>
+                                    ) : (
+                                        'Confirmar Aprobación'
+                                    )}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={toggleApprovalMode}
-                                    className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto"
+                                    disabled={isSubmitting}
+                                    className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto disabled:opacity-50"
                                 >
                                     Cancelar
                                 </button>
@@ -497,25 +514,53 @@ export default function CpPedidoDetail() {
                                     <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 whitespace-pre-wrap">{pedido.observacion}</dd>
                                 </div>
                             )}
-                            {pedido.motivo_aprobacion && (
-                                <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 bg-green-50 rounded-md px-2 -mx-2">
-                                    <dt className="text-sm font-medium text-green-700">Motivo Aprobación</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 whitespace-pre-wrap">{pedido.motivo_aprobacion}</dd>
-                                </div>
-                            )}
-                            {pedido.observaciones_pedidos && (
-                                <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 bg-red-50 rounded-md px-2 -mx-2">
-                                    <dt className="text-sm font-medium text-red-600">Motivo Rechazo / Obs. Compras</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 whitespace-pre-wrap">{pedido.observaciones_pedidos}</dd>
-                                </div>
-                            )}
-                            {pedido.observacion_gerencia && (
-                                <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 bg-orange-50 rounded-md px-2 -mx-2">
-                                    <dt className="text-sm font-medium text-orange-700">Obs. Gerencia</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 whitespace-pre-wrap">{pedido.observacion_gerencia}</dd>
-                                </div>
-                            )}
                         </dl>
+
+                        <div className="mt-6 space-y-4">
+                            {pedido.motivo_aprobacion_compras && (
+                                <div className="bg-emerald-50 border border-emerald-500 text-emerald-800 rounded-md p-4 flex">
+                                    <div className="ml-3">
+                                        <h4 className="text-sm font-medium text-emerald-800">Motivo de Aprobación (Compras)</h4>
+                                        <div className="mt-1 text-sm text-emerald-700">
+                                            {pedido.motivo_aprobacion_compras}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {pedido.motivo_rechazado_compras && (
+                                <div className="bg-rose-50 border border-rose-500 text-rose-800 rounded-md p-4 flex">
+                                    <div className="ml-3">
+                                        <h4 className="text-sm font-medium text-rose-800">Motivo de Rechazo (Compras)</h4>
+                                        <div className="mt-1 text-sm text-rose-700 whitespace-pre-wrap">
+                                            {pedido.motivo_rechazado_compras}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {pedido.motivo_aprobacion_gerencia && (
+                                <div className="bg-indigo-50 border border-indigo-500 text-indigo-800 rounded-md p-4 flex">
+                                    <div className="ml-3">
+                                        <h4 className="text-sm font-medium text-indigo-800">Observación de Gerencia</h4>
+                                        <div className="mt-1 text-sm text-indigo-700">
+                                            {pedido.motivo_aprobacion_gerencia}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {pedido.motivo_rechazado_gerencia && (
+                                <div className="bg-orange-50 border border-orange-500 text-orange-800 rounded-md p-4 flex">
+                                    <div className="ml-3">
+                                        <h4 className="text-sm font-medium text-orange-800">Motivo de Rechazo (Gerencia)</h4>
+                                        <div className="mt-1 text-sm text-orange-700 whitespace-pre-wrap">
+                                            {pedido.motivo_rechazado_gerencia}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl overflow-hidden p-6">
