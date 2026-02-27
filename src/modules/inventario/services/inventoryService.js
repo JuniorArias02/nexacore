@@ -4,7 +4,8 @@ export const inventoryService = {
     // Productos / Servicios
     searchProductos: async (query) => {
         const response = await api.get('/cp-productos-servicios', { params: { q: query } });
-        return response.data.objeto;
+        const obj = response.data.objeto;
+        return Array.isArray(obj) ? obj : (obj?.data || []);
     },
 
     // Personal
