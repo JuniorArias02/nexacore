@@ -14,6 +14,7 @@ import {
     ShieldCheckIcon,
     SignalIcon
 } from '@heroicons/react/24/outline';
+import { formatRelativeTime } from '../../../utils/dateFormatter';
 
 export default function UserList() {
     const [items, setItems] = useState([]);
@@ -234,13 +235,20 @@ export default function UserList() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${item.is_online
-                                                ? 'bg-green-100 text-green-700 border border-green-200'
-                                                : 'bg-slate-100 text-slate-400 border border-slate-200 opacity-60'
-                                                }`}>
-                                                <span className={`h-1.5 w-1.5 rounded-full mr-2 ${item.is_online ? 'bg-green-600' : 'bg-slate-400'}`}></span>
-                                                {item.is_online ? 'Activo' : 'Desconectado'}
-                                            </span>
+                                            <div className="flex flex-col gap-1.5">
+                                                <span className={`inline-flex items-center w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${item.is_online
+                                                    ? 'bg-green-100 text-green-700 border border-green-200'
+                                                    : 'bg-slate-100 text-slate-400 border border-slate-200 opacity-60'
+                                                    }`}>
+                                                    <span className={`h-1.5 w-1.5 rounded-full mr-2 ${item.is_online ? 'bg-green-600' : 'bg-slate-400'}`}></span>
+                                                    {item.is_online ? 'Activo' : 'Desconectado'}
+                                                </span>
+                                                {!item.is_online && item.last_activity && (
+                                                    <span className="text-[9px] font-bold text-slate-400 pl-1 uppercase tracking-wider">
+                                                        Últ. vez: {formatRelativeTime(item.last_activity)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             <div className="flex justify-end gap-2">
