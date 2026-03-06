@@ -477,7 +477,7 @@ const AppRouter = () => {
                         </PermissionProtectedRoute>
                     } />
                     <Route path="/mis-mantenimientos" element={
-                        <PermissionProtectedRoute requiredPermissions={['mantenimiento.receptor', 'mantenimiento.listar_todos']}>
+                        <PermissionProtectedRoute requiredPermissions={['mantenimiento.seleccion_coordinador', 'mantenimiento.seleccion_tecnico', 'mantenimiento.listar_todos']}>
                             <MantenimientoReceptorPage />
                         </PermissionProtectedRoute>
                     } />

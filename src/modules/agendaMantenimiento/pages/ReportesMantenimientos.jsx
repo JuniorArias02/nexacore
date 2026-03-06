@@ -25,9 +25,7 @@ export default function ReportesMantenimientos() {
         try {
             setLoading(true);
             setError(null);
-            console.log("Fetching statistics...");
             const data = await mantenimientoService.getStatistics();
-            console.log("Statistics received:", data);
             setStats(data);
         } catch (error) {
             console.error("Error loading stats:", error);
@@ -70,10 +68,10 @@ export default function ReportesMantenimientos() {
             <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl group">
                 <div className="relative z-10 text-center md:text-left">
                     <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
-                        Analítica & Reportes
+                        
                     </span>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
-                        Dashboard de Mantenimientos
+                        Estadisticas
                     </h1>
                     <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90 mx-auto md:mx-0">
                         Visualiza el rendimiento, carga de trabajo y estadísticas clave del sistema en tiempo real.
