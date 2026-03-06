@@ -403,7 +403,7 @@ const AppRouter = () => {
                         </PermissionProtectedRoute>
                     } />
                     <Route path="/informe-consolidado-pedidos" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.listar', 'cp_pedido.listar.compras']}>
+                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.consolidado']}>
                             <InformeConsolidadoPage />
                         </PermissionProtectedRoute>
                     } />

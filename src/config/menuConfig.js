@@ -55,7 +55,7 @@ const menuConfig = [
         ]
     },
     {
-        title: "Mantenimiento",
+        title: "gestion infraestructura",
         items: [
             {
                 name: 'Mantenimientos', href: '/mantenimientos', icon: WrenchScrewdriverIcon,
@@ -91,7 +91,7 @@ const menuConfig = [
             },
             {
                 name: 'Informe Consolidado', href: '/informe-consolidado-pedidos', icon: DocumentChartBarIcon,
-                permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras'],
+                permissions: ['cp_pedido.consolidado'],
             }, {
                 name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
                 permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
