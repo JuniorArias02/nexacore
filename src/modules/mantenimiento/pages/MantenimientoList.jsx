@@ -16,7 +16,9 @@ import {
     ChevronRightIcon,
     ClockIcon,
     LockClosedIcon,
+    ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
+import MantenimientoReporteModal from '../components/MantenimientoReporteModal';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -28,6 +30,7 @@ export default function MantenimientoList() {
     const [sedeFilter, setSedeFilter] = useState('');
     const [sedes, setSedes] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [showReportModal, setShowReportModal] = useState(false);
 
     useEffect(() => {
         loadMantenimientos();
@@ -48,9 +51,7 @@ export default function MantenimientoList() {
             setLoading(true);
             const response = await mantenimientoService.getAll();
             const data = response?.objeto ?? (Array.isArray(response) ? response : []);
-            // Only show mantenimientos created by the logged-in user
             const mine = data.filter((m) => m.creado_por === user?.id);
-            // Sort descending by id (most recent first)
             mine.sort((a, b) => b.id - a.id);
             setMantenimientos(mine);
         } catch (error) {
@@ -196,10 +197,19 @@ export default function MantenimientoList() {
                     {filtered.length} registro{filtered.length !== 1 ? 's' : ''}
                 </span>
 
+                {/* Report button */}
+                <button
+                    onClick={() => setShowReportModal(true)}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition sm:ml-auto"
+                >
+                    <ArrowDownTrayIcon className="h-4 w-4 text-blue-600" />
+                    Reporte
+                </button>
+
                 {/* New button */}
                 <Link
                     to="/mantenimientos/nuevo"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 hover:from-blue-700 hover:to-cyan-600 transition sm:ml-auto"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 hover:from-blue-700 hover:to-cyan-600 transition"
                 >
                     <PlusIcon className="h-4 w-4" />
                     Nuevo
@@ -258,7 +268,7 @@ export default function MantenimientoList() {
                                             {item.sede?.nombre || '—'}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">
-                                            {item.receptor?.nombre_completo || '—'}
+                                            {item.coordinador?.nombre_completo || '—'}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3.5 text-sm">
                                             {item.esta_revisado ? (
@@ -349,6 +359,12 @@ export default function MantenimientoList() {
                     </div>
                 )}
             </div>
+
+            <MantenimientoReporteModal
+                show={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                onGenerate={mantenimientoService.exportExcel}
+            />
         </div>
     );
 }

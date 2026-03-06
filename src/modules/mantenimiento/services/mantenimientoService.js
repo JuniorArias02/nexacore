@@ -46,4 +46,29 @@ export const mantenimientoService = {
         const response = await api.get(`/usuarios/por-permiso/${permiso}`);
         return response.data;
     },
+
+    exportExcel: async (fechaInicio, fechaFin) => {
+        const response = await api.get('/mantenimientos/exportar-excel', {
+            params: { fecha_inicio: fechaInicio, fecha_fin: fechaFin },
+            responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `reporte_mantenimientos_${new Date().toISOString().split('T')[0]}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    },
+
+    getStatistics: async () => {
+        try {
+            const response = await api.get('/mantenimientos/estadisticas');
+            return response.data.objeto;
+        } catch (error) {
+            console.error("Error fetching maintenance statistics:", error);
+            throw error;
+        }
+    }
 };

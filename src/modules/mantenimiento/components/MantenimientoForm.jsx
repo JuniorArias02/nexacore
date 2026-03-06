@@ -16,7 +16,7 @@ export default function MantenimientoForm() {
         modelo: '',
         dependencia: '',
         sede_id: '',
-        nombre_receptor: '',
+        coordinador_id: '',
         descripcion: '',
     });
 
@@ -51,14 +51,14 @@ export default function MantenimientoForm() {
 
     const loadSelectData = async () => {
         try {
-            const [sedesRes, areasRes, receptoresRes] = await Promise.all([
+            const [sedesRes, areasRes, coordinadoresRes] = await Promise.all([
                 api.get('/sedes'),
                 api.get('/areas'),
-                mantenimientoService.getUsuariosPorPermiso('mantenimiento.receptor'),
+                mantenimientoService.getUsuariosPorPermiso('mantenimiento.seleccion_coordinador'),
             ]);
             setSedes(sedesRes.data?.objeto ?? []);
             setAllAreas(areasRes.data?.objeto ?? []);
-            setReceptores(receptoresRes?.objeto ?? []);
+            setReceptores(coordinadoresRes?.objeto ?? []);
         } catch (error) {
             console.error('Error loading select data:', error);
         }
@@ -73,7 +73,7 @@ export default function MantenimientoForm() {
                 modelo: data.modelo || '',
                 dependencia: data.dependencia || '',
                 sede_id: data.sede_id || '',
-                nombre_receptor: data.nombre_receptor || '',
+                coordinador_id: data.coordinador_id || '',
                 descripcion: data.descripcion || '',
             });
             // Parse existing images
@@ -222,19 +222,19 @@ export default function MantenimientoForm() {
                         </div>
                     </div>
 
-                    {/* Receptor */}
+                    {/* Coordinador (Validador) */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Receptor (Funcionario)</label>
-                        <select name="nombre_receptor" value={formData.nombre_receptor} onChange={handleChange}
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Coordinador (Validador)</label>
+                        <select name="coordinador_id" value={formData.coordinador_id} onChange={handleChange}
                             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                            <option value="">Seleccione un receptor</option>
+                            <option value="">Seleccione un coordinador</option>
                             {receptores.map((u) => (
                                 <option key={u.id} value={u.id}>
                                     {u.nombre_completo || u.usuario}
                                 </option>
                             ))}
                         </select>
-                        <p className="mt-1 text-xs text-gray-500">Solo aparecen usuarios con permiso "mantenimiento.receptor"</p>
+                        <p className="mt-1 text-xs text-gray-500">Solo aparecen usuarios con permiso para agendar mantenimientos</p>
                     </div>
 
                     {/* Descripcion */}
