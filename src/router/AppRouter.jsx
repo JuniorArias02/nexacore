@@ -472,7 +472,7 @@ const AppRouter = () => {
                         </PermissionProtectedRoute>
                     } />
                     <Route path="/mantenimientos/reportes" element={
-                        <PermissionProtectedRoute requiredPermissions={['agenda_mantenimiento.reportes']}>
+                        <PermissionProtectedRoute requiredPermissions={['mantenimiento.reportes']}>
                             <ReportesMantenimientos />
                         </PermissionProtectedRoute>
                     } />
