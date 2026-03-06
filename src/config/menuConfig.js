@@ -69,7 +69,7 @@ const menuConfig = [
                 name: 'Agenda', href: '/agenda-mantenimientos', icon: CalendarDaysIcon,
                 permissions: ['agenda_mantenimiento.listar', 'agenda_mantenimiento.crear', 'agenda_mantenimiento.listar_tecnico', 'agenda_mantenimiento.listar_coordinador'],
             },
-            { name: 'Reportes', href: '/mantenimientos/reportes', icon: DocumentChartBarIcon, permissions: ['agenda_mantenimiento.reportes'] },
+            { name: 'Reportes', href: '/mantenimientos/reportes', icon: DocumentChartBarIcon, permissions: ['mantenimiento.reportes'] },
         ]
     },
     {
