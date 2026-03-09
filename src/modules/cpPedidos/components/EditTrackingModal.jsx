@@ -5,7 +5,6 @@ const EditTrackingModal = ({ isOpen, onClose, pedido, onSave, saving }) => {
     const [form, setForm] = useState({
         fecha_solicitud_cotizacion: '',
         fecha_respuesta_cotizacion: '',
-        firma_aprobacion_orden: '',
         fecha_envio_proveedor: '',
         observaciones_pedidos: '',
     });
@@ -15,7 +14,6 @@ const EditTrackingModal = ({ isOpen, onClose, pedido, onSave, saving }) => {
             setForm({
                 fecha_solicitud_cotizacion: pedido.fecha_solicitud_cotizacion || '',
                 fecha_respuesta_cotizacion: pedido.fecha_respuesta_cotizacion || '',
-                firma_aprobacion_orden: pedido.firma_aprobacion_orden || '',
                 fecha_envio_proveedor: pedido.fecha_envio_proveedor || '',
                 observaciones_pedidos: pedido.observaciones_pedidos || '',
             });

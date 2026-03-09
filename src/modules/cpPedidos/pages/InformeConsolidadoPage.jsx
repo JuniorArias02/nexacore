@@ -47,6 +47,7 @@ const InformeConsolidadoPage = () => {
         try {
             setLoading(true);
             const data = await cpPedidoService.getAll();
+            console.log("data", data);
             setPedidos(data || []);
         } catch (err) {
             console.error('Error loading pedidos:', err);
@@ -62,12 +63,10 @@ const InformeConsolidadoPage = () => {
         return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
     }, [pedidos]);
 
-    // Procesos filtered by selected sede (cascading)
     const procesos = useMemo(() => {
         const set = new Set();
         pedidos.forEach(p => {
             if (!p.solicitante?.nombre) return;
-            // If a sede is selected, only show procesos belonging to that sede
             if (filterSede && String(p.solicitante.sede_id) !== filterSede) return;
             set.add(p.solicitante.nombre);
         });
@@ -86,13 +85,11 @@ const InformeConsolidadoPage = () => {
         return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]));
     }, [pedidos]);
 
-    // Reset proceso when sede changes
     const handleSedeChange = (value) => {
         setFilterSede(value);
-        setFilterProceso(''); // reset proceso because it depends on sede
+        setFilterProceso('');
     };
 
-    // Filtered data
     const filtered = useMemo(() => {
         return pedidos.filter(p => {
             const matchSearch = !search || [
@@ -342,9 +339,8 @@ const InformeConsolidadoPage = () => {
                                 <tr className="bg-gray-50/80">
                                     {[
                                         '#', 'Fecha Solicitud', 'Proceso', 'Sede', 'Consecutivo',
-                                        'Tipo Compra', 'Estado', 'Observación',
-                                        'Solicitud Cotización', 'Respuesta Cotización',
-                                        'Aprobación Orden', 'Envío Proveedor',
+                                        'Tipo Compra', 'Estado', 'Observación', 'Fecha Revision Compras', 'Fecha Revision Responsable',
+                                        'Solicitud Cotización', 'Respuesta Cotización', 'Envío Proveedor',
                                         'Obs. Pedido', 'Acciones'
                                     ].map(h => (
                                         <th key={h} className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
@@ -377,7 +373,7 @@ const InformeConsolidadoPage = () => {
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                                            {p.tipo_solicitud_rel?.nombre || p.tipoSolicitud?.nombre || '—'}
+                                            {p.tipo_solicitud?.nombre || p.tipoSolicitud?.nombre || '—'}
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
                                             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset capitalize ${estadoBadge(p.estado_compras)}`}>
@@ -387,16 +383,18 @@ const InformeConsolidadoPage = () => {
                                         <td className="px-4 py-3 text-sm text-gray-600 max-w-[150px] truncate" title={p.observacion}>
                                             {p.observacion || '—'}
                                         </td>
-
+                                        <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                                            {p.fecha_compra || <span className="text-gray-300">—</span>}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                                            {p.fecha_gerencia || <span className="text-gray-300">—</span>}
+                                        </td>
                                         {/* Tracking columns */}
                                         <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                                             {p.fecha_solicitud_cotizacion || <span className="text-gray-300">—</span>}
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                                             {p.fecha_respuesta_cotizacion || <span className="text-gray-300">—</span>}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
-                                            {p.firma_aprobacion_orden || <span className="text-gray-300">—</span>}
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                                             {p.fecha_envio_proveedor || <span className="text-gray-300">—</span>}
