@@ -90,9 +90,9 @@ export default function EntregaActivosFijosForm() {
     };
 
     // Async search for personal — triggers Kubapp fallback on backend
-    const handleSearchPersonal = useCallback(async (query) => {
+    const handleSearchPersonal = useCallback(async (query, externalSearch = false) => {
         try {
-            const results = await personalService.search(query);
+            const results = await personalService.search(query, externalSearch);
             const arr = Array.isArray(results) ? results : [];
             // Merge new results into the personal state so they persist in the dropdown
             setPersonal(prev => {

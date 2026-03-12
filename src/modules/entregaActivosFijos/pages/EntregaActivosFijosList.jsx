@@ -14,7 +14,7 @@ import {
     ChevronUpIcon,
     CubeIcon
 } from '@heroicons/react/24/outline';
-import React from 'react'; // Added React import for Fragment
+import React from 'react';
 
 export default function EntregaActivosFijosList() {
     const navigate = useNavigate();
@@ -79,8 +79,6 @@ export default function EntregaActivosFijosList() {
             await entregaActivosFijosService.exportExcel(id);
         } catch (error) {
             console.error('Error exporting to Excel:', error);
-            // Error handling is already inside the service or we can add it here if needed
-            // But usually, since it's a blob, we might need specific error parsing
         } finally {
             setExportingId(null);
         }

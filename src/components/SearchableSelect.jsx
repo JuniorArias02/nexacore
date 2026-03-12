@@ -47,39 +47,28 @@ export default function SearchableSelect({
     const selectedOption = allOptions().find(p => String(p.id) === String(value));
     const selectedName = selectedOption ? formatName(selectedOption.nombre) : '';
 
-    // Async search with debounce — only when local results are empty
+    // Async search logic — triggered manually by button
+    const handleExternalSearch = async () => {
+        if (!onSearch || !query || query.length < 3) return;
+
+        setSearching(true);
+        try {
+            const results = await onSearch(query, true); // true indicates external search
+            setAsyncResults(Array.isArray(results) ? results : []);
+        } catch (err) {
+            console.error('Async search error:', err);
+            setAsyncResults([]);
+        } finally {
+            setSearching(false);
+        }
+    };
+
+    // Remove the automatic useEffect search
     useEffect(() => {
-        if (!onSearch || !isOpen || !query || query.length < 3) {
+        if (!isOpen || !query) {
             setAsyncResults([]);
-            return;
         }
-
-        // Check if there are local matches already
-        const localMatches = options.filter(o =>
-            o.nombre?.toLowerCase().includes(query.toLowerCase())
-        );
-        if (localMatches.length > 0) {
-            setAsyncResults([]);
-            return;
-        }
-
-        // Debounce the async search
-        clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(async () => {
-            setSearching(true);
-            try {
-                const results = await onSearch(query.toUpperCase());
-                setAsyncResults(Array.isArray(results) ? results : []);
-            } catch (err) {
-                console.error('Async search error:', err);
-                setAsyncResults([]);
-            } finally {
-                setSearching(false);
-            }
-        }, 500);
-
-        return () => clearTimeout(debounceRef.current);
-    }, [query, isOpen, onSearch, options]);
+    }, [query, isOpen]);
 
     // Handle clicking outside
     useEffect(() => {
@@ -144,19 +133,37 @@ export default function SearchableSelect({
                             </div>
                         )}
                         {!searching && filteredOptions.length === 0 ? (
-                            <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                                {query.length >= 3 && onSearch
-                                    ? 'No se encontró en BD local ni en Kubapp.'
-                                    : query.length > 0 && query.length < 3 && onSearch
-                                        ? 'Escriba al menos 3 caracteres para buscar en Kubapp...'
-                                        : 'No se encontraron resultados.'}
+                            <div className="flex flex-col items-center justify-center py-6 px-4 text-center">
+                                <MagnifyingGlassIcon className="h-8 w-8 text-slate-300 mb-2" />
+                                <p className="text-sm font-semibold text-slate-600 mb-1">Personal no encontrado</p>
+                                <p className="text-xs text-slate-400 mb-4">No se encuentra en la base de datos local.</p>
+                                
+                                {onSearch && query.length >= 3 && (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleExternalSearch();
+                                        }}
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
+                                    >
+                                        <MagnifyingGlassIcon className="h-3.5 w-3.5" />
+                                        Agregarlo en servicios externos
+                                    </button>
+                                )}
+                                {onSearch && query.length > 0 && query.length < 3 && (
+                                    <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full">
+                                        Escriba al menos 3 caracteres
+                                    </p>
+                                )}
                             </div>
                         ) : (
                             <>
                                 {showKubappBadge && (
                                     <div className="px-4 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border-b border-emerald-100 flex items-center gap-1">
                                         <MagnifyingGlassIcon className="h-3.5 w-3.5" />
-                                        Resultados desde Kubapp (se guardarán automáticamente)
+                                        Resultados desde servicios de terceros (se guardarán automáticamente)
                                     </div>
                                 )}
                                 {filteredOptions.map((option) => {
@@ -185,7 +192,7 @@ export default function SearchableSelect({
                                             </span>
                                             {isFromKubapp && (
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                                                    Kubapp
+                                                    API
                                                 </span>
                                             )}
                                         </div>

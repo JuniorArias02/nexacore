@@ -171,25 +171,20 @@ const InventoryFormPage = () => {
                     title: 'Inventario Actualizado',
                     text: 'El item se ha actualizado correctamente.',
                     timer: 2000
+                }).then(() => {
+                    window.location.reload();
                 });
             } else {
                 await inventoryService.createInventario(dataToSend);
                 setSuccess(true);
-                setFormData(prev => ({
-                    ...prev,
-                    codigo: '',
-                    nombre: '',
-                    serial: ''
-                }));
-                setFilePreview(null);
-                window.scrollTo(0, 0);
                 Swal.fire({
                     icon: 'success',
                     title: 'Inventario Creado',
                     text: 'El item se ha registrado correctamente.',
                     timer: 2000
+                }).then(() => {
+                    window.location.reload();
                 });
-                setActiveTab('basic');
             }
         } catch (err) {
             console.error('Error completo:', err);

@@ -25,6 +25,7 @@ export default function InventoryDetailPage() {
         const fetchDetail = async () => {
             try {
                 const data = await inventoryService.getInventarioById(id);
+                console.log(data);
                 setItem(data);
             } catch (err) {
                 console.error("Error fetching inventory detail:", err);
@@ -191,7 +192,8 @@ export default function InventoryDetailPage() {
                         <SectionHeader title="Asignación" icon={UserCircleIcon} />
                         <div className="space-y-4">
                             <InfoField label="Sede" value={item.sede?.nombre} />
-                            <InfoField label="Proceso / Dependencia" value={item.dependencia} />
+                            <InfoField label="Proceso" value={item.proceso?.nombre} />
+                            <InfoField label="Dependencia" value={item.dependencia} />
                             <InfoField label="Ubicación" value={item.ubicacion} />
                             <div className="border-t border-slate-50 pt-4">
                                 <InfoField label="Responsable" value={item.responsable_personal?.nombre || item.responsable} />
