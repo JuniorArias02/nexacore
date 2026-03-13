@@ -214,7 +214,7 @@ export default function EntregaActivosFijosList() {
                                                     <button
                                                         onClick={() => navigate(`/entrega-activos-fijos/editar/${entrega.id}`)}
                                                         className="p-2 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
-                                                        title="Ver Detalle"
+                                                        title="Nueva Versión (Desde Plantilla)"
                                                     >
                                                         <EyeIcon className="h-5 w-5" />
                                                     </button>
@@ -292,10 +292,10 @@ export default function EntregaActivosFijosList() {
                                                         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                                             <div className="flex flex-col items-center">
                                                                 <p className="text-xs font-medium text-gray-500 uppercase mb-2">Firma Quien Entrega</p>
-                                                                {entrega.firma_quien_entrega ? (
+                                                                 {entrega.firma_quien_entrega ? (
                                                                     <div className="p-2 border border-dashed border-gray-300 rounded bg-gray-50/50">
                                                                         <img
-                                                                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${entrega.firma_quien_entrega}`}
+                                                                            src={entrega.firma_quien_entrega}
                                                                             alt="Firma Entrega"
                                                                             className="h-24 object-contain mix-blend-multiply"
                                                                         />
@@ -311,7 +311,7 @@ export default function EntregaActivosFijosList() {
                                                                 {entrega.firma_quien_recibe ? (
                                                                     <div className="p-2 border border-dashed border-gray-300 rounded bg-gray-50/50">
                                                                         <img
-                                                                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${entrega.firma_quien_recibe}`}
+                                                                            src={entrega.firma_quien_recibe}
                                                                             alt="Firma Recibe"
                                                                             className="h-24 object-contain mix-blend-multiply"
                                                                         />

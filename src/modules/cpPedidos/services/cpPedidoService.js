@@ -160,10 +160,18 @@ export const cpPedidoService = {
             responseType: 'blob',
         });
 
+        // Extract filename from Content-Disposition header
+        const disposition = response.headers['content-disposition'];
+        let filename = 'consolidado_pedidos.xlsx';
+        if (disposition) {
+            const match = disposition.match(/filename="?([^";\n]+)"?/);
+            if (match) filename = match[1];
+        }
+
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'consolidado_pedidos.xlsx');
+        link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();
         link.remove();

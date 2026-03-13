@@ -237,22 +237,19 @@ export default function EntregaActivosFijosForm() {
                 firma_quien_recibe: firmaRecibe ? dataURLtoFile(firmaRecibe, 'firma_recibe.png') : null
             };
 
-            if (isEditing) {
-                await entregaActivosFijosService.update(id, data);
-            } else {
-                await entregaActivosFijosService.create(data);
-            }
+            // We always create a new record now, as requested
+            await entregaActivosFijosService.create(data);
 
             Swal.fire({
                 icon: 'success',
-                title: isEditing ? 'Entrega actualizada exitosamente' : 'Entrega creada exitosamente',
+                title: 'Entrega generada exitosamente',
                 showConfirmButton: false,
                 timer: 1500
             });
 
             navigate('/entrega-activos-fijos');
         } catch (error) {
-            console.error('Error creating/updating entrega:', error);
+            console.error('Error creating entrega:', error);
             Swal.fire('Error', error.response?.data?.mensaje || 'Error al guardar la entrega', 'error');
         } finally {
             setLoading(false);
@@ -262,8 +259,8 @@ export default function EntregaActivosFijosForm() {
     return (
         <div className="max-w-6xl mx-auto p-6">
             <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">{isEditing ? 'Editar Entrega' : 'Nueva Entrega'} de Activos Fijos</h1>
-                <p className="text-gray-600 mt-2">Complete el formulario para registrar una nueva entrega</p>
+                <h1 className="text-3xl font-bold text-gray-800">{isEditing ? 'Nueva Versión (Desde Plantilla)' : 'Nueva Entrega'} de Activos Fijos</h1>
+                <p className="text-gray-600 mt-2">{isEditing ? 'Revise los datos y el inventario actualizado antes de generar la nueva acta.' : 'Complete el formulario para registrar una nueva entrega'}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -347,7 +344,20 @@ export default function EntregaActivosFijosForm() {
 
                 {/* Items Section */}
                 <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-700">Items de Inventario</h2>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                        <h2 className="text-xl font-semibold text-gray-700">Items de Inventario</h2>
+                        <button
+                            type="button"
+                            onClick={fetchInventarioItems}
+                            disabled={loadingItems || !formData.personal_id || !formData.coordinador_id}
+                            className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <svg className={`-ml-1 mr-2 h-4 w-4 ${loadingItems ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Actualizar Inventario
+                        </button>
+                    </div>
 
                     {loadingItems ? (
                         <div className="text-center py-8">
@@ -414,7 +424,7 @@ export default function EntregaActivosFijosForm() {
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500 mb-2">Firma actual:</p>
                                 <img
-                                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${existingFirmaEntrega}`}
+                                    src={existingFirmaEntrega}
                                     alt="Firma Entrega Actual"
                                     className="h-32 border border-gray-200 rounded bg-white p-2"
                                 />
@@ -433,7 +443,7 @@ export default function EntregaActivosFijosForm() {
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500 mb-2">Firma actual:</p>
                                 <img
-                                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${existingFirmaRecibe}`}
+                                    src={existingFirmaRecibe}
                                     alt="Firma Recibe Actual"
                                     className="h-32 border border-gray-200 rounded bg-white p-2"
                                 />
@@ -461,7 +471,7 @@ export default function EntregaActivosFijosForm() {
                         disabled={loading}
                         className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Guardando...' : (isEditing ? 'Actualizar Entrega' : 'Guardar Entrega')}
+                        {loading ? 'Guardando...' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega')}
                     </button>
                 </div>
             </form>
