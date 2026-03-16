@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import menuConfig from '../config/menuConfig';
 import { useLocation, Link } from 'react-router-dom';
@@ -9,117 +9,139 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
     const { hasAnyPermission } = useAuth();
     const [expandedItems, setExpandedItems] = useState({});
 
-    const toggleExpand = (key) => {
+    const toggleExpand = (e, key) => {
+        e.preventDefault();
+        e.stopPropagation();
         setExpandedItems(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     // Filter menu items based on user permissions
-    const filteredNavigation = menuConfig.reduce((acc, group) => {
-        const filteredItems = group.items.filter(item =>
-            hasAnyPermission(item.permissions)
-        ).map(item => {
-            // Also filter children by permission
-            if (item.children) {
-                const filteredChildren = item.children.filter(child =>
-                    hasAnyPermission(child.permissions)
-                );
-                return { ...item, children: filteredChildren.length > 0 ? filteredChildren : undefined };
-            }
-            return item;
-        });
+    const filteredNavigation = useMemo(() => {
+        return menuConfig.reduce((acc, group) => {
+            const filteredItems = group.items.filter(item =>
+                hasAnyPermission(item.permissions)
+            ).map(item => {
+                if (item.children) {
+                    const filteredChildren = item.children.filter(child =>
+                        hasAnyPermission(child.permissions)
+                    );
+                    return { ...item, children: filteredChildren.length > 0 ? filteredChildren : undefined };
+                }
+                return item;
+            });
 
-        if (filteredItems.length > 0) {
-            acc.push({ ...group, items: filteredItems });
-        }
-        return acc;
-    }, []);
+            if (filteredItems.length > 0) {
+                acc.push({ ...group, items: filteredItems });
+            }
+            return acc;
+        }, []);
+    }, [hasAnyPermission]);
 
     return (
         <>
-            {/* Mobile backdrop */}
+            {/* Mobile backdrop with premium blur */}
             <div
-                className={`fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-md transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={onClose}
             />
 
-            {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-xl transition-all duration-200 ease-in-out transform 
+            {/* Sidebar Container */}
+            <aside className={`fixed inset-y-0 left-0 z-50 bg-white transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform 
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-                lg:translate-x-0 lg:fixed lg:z-50 h-full flex flex-col border-r border-gray-200
-                ${collapsed ? 'lg:w-20' : 'lg:w-72'}
+                lg:translate-x-0 lg:fixed h-full flex flex-col border-r border-slate-100 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.03)]
+                ${collapsed ? 'lg:w-24' : 'lg:w-80'}
             `}>
-                <div className={`flex h-16 items-center justify-between px-4 border-b border-gray-100 transition-all duration-200 ease-in-out ${collapsed ? 'justify-center' : ''}`}>
-                    <Link to="/dashboard" className={`flex items-center gap-2 overflow-hidden ${collapsed ? 'justify-center w-full' : ''}`}>
-                        <div className="h-8 w-8 min-w-[2rem] rounded-lg bg-indigo-600 flex items-center justify-center">
-                            <span className="text-white font-bold text-xl">N</span>
+                {/* Header / Logo Section */}
+                <div className="relative h-24 flex items-center px-6 mb-2">
+                    <Link to="/dashboard" className="flex items-center gap-4 group">
+                        <div className="relative">
+                            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform duration-500 overflow-hidden">
+                                <span className="text-white font-black text-2xl relative z-10">N</span>
+                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                            {/* Status Indicator */}
+                            <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-emerald-500 shadow-sm" />
                         </div>
-                        <span className={`text-xl font-bold text-gray-900 tracking-tight whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${collapsed ? 'opacity-0 max-w-0' : 'opacity-100 max-w-[200px]'}`}>
-                            NexaCore
-                        </span>
+                        
+                        <div className={`flex flex-col transition-all duration-500 ${collapsed ? 'opacity-0 scale-95 pointer-events-none w-0' : 'opacity-100 scale-100'}`}>
+                            <span className="text-xl font-black text-slate-900 tracking-tighter leading-none">
+                                NEXA<span className="text-indigo-600">CORE</span>
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">
+                                
+                            </span>
+                        </div>
                     </Link>
-                    <button onClick={onClose} className="lg:hidden text-gray-500 hover:text-gray-700">
-                        <XMarkIcon className="h-6 w-6" />
-                    </button>
-                    {/* Desktop Toggle Button */}
+
+                    {/* Desktop Toggle - Minimalist style */}
                     <button
                         onClick={() => setCollapsed(!collapsed)}
-                        className={`hidden lg:flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-indigo-600 transition-colors absolute -right-3 top-5 border border-gray-200 shadow-sm`}
+                        className="hidden lg:flex absolute -right-3 top-9 h-6 w-6 rounded-full bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 items-center justify-center shadow-sm transition-all z-50"
                     >
-                        {collapsed ? <ChevronRightIcon className="h-4 w-4" /> : <ChevronLeftIcon className="h-4 w-4" />}
+                        {collapsed ? <ChevronRightIcon className="h-3 w-3" /> : <ChevronLeftIcon className="h-3 w-3" />}
+                    </button>
+                    
+                    <button onClick={onClose} className="lg:hidden absolute right-4 text-slate-400 hover:text-slate-600">
+                        <XMarkIcon className="h-6 w-6" />
                     </button>
                 </div>
 
-                <nav className="flex flex-1 flex-col gap-y-7 px-3 py-6 overflow-y-auto overflow-x-hidden">
+                {/* Navigation Links */}
+                <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar pb-8">
                     {filteredNavigation.map((group, groupIndex) => (
-                        <div key={groupIndex} className="space-y-2">
-                            {group.title && group.title !== 'Principal' && (
-                                <h3 className={`px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider transition-all duration-200 ease-in-out ${collapsed ? 'text-center' : ''}`}>
-                                    {collapsed ? '•' : group.title}
-                                </h3>
-                            )}
-                            <ul role="list" className="-mx-2 space-y-1">
+                        <div key={groupIndex} className="mb-8">
+                            <div className={`flex items-center mb-4 px-2 ${collapsed ? 'justify-center' : ''}`}>
+                                {!collapsed ? (
+                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                                        {group.title}
+                                    </h3>
+                                ) : (
+                                    <div className="h-px w-6 bg-slate-100" />
+                                )}
+                            </div>
+                            
+                            <ul className="space-y-1.5">
                                 {group.items.map((item) => {
                                     const active = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
                                     const hasChildren = item.children && item.children.length > 0;
-                                    const isExpanded = expandedItems[item.href] || active;
+                                    const isExpanded = expandedItems[item.href] || (active && !collapsed);
 
                                     return (
-                                        <li key={item.name}>
-                                            <div className="flex items-center">
+                                        <li key={item.name} className="relative">
+                                            <div className="group flex items-center">
                                                 <Link
                                                     to={item.href}
                                                     className={`
-                                                        group flex-1 flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200
-                                                        ${active
-                                                            ? 'bg-indigo-50 text-indigo-600'
-                                                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                                                        relative flex-1 flex items-center gap-4 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300
+                                                        ${active 
+                                                            ? 'bg-gradient-to-r from-violet-600/90 to-indigo-600/90 text-white shadow-lg shadow-indigo-100' 
+                                                            : 'text-slate-600 hover:bg-slate-50 hover:text-indigo-600 hover:translate-x-1'
                                                         }
-                                                        ${collapsed ? 'justify-center' : ''}
+                                                        ${collapsed ? 'justify-center px-0 h-12 w-12 mx-auto' : ''}
                                                     `}
-                                                    onClick={() => window.innerWidth < 1024 && !hasChildren && onClose()}
                                                     title={collapsed ? item.name : ''}
+                                                    onClick={() => window.innerWidth < 1024 && !hasChildren && onClose()}
                                                 >
-                                                    <item.icon
-                                                        className={`h-6 w-6 shrink-0 transition-colors ${active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}`}
-                                                        aria-hidden="true"
-                                                    />
-                                                    <span className={`whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${collapsed ? 'opacity-0 max-w-0' : 'opacity-100 max-w-[200px]'}`}>
-                                                        {item.name}
-                                                    </span>
+                                                    <item.icon className={`h-6 w-6 shrink-0 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                                    
+                                                    {!collapsed && (
+                                                        <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                                                            {item.name}
+                                                        </span>
+                                                    )}
+
+                                                    {hasChildren && !collapsed && (
+                                                        <ChevronDownIcon 
+                                                            onClick={(e) => toggleExpand(e, item.href)}
+                                                            className={`h-4 w-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''} ${active ? 'text-white' : 'text-slate-400'}`} 
+                                                        />
+                                                    )}
                                                 </Link>
-                                                {hasChildren && !collapsed && (
-                                                    <button
-                                                        onClick={() => toggleExpand(item.href)}
-                                                        className="p-1.5 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-gray-50 transition-colors"
-                                                    >
-                                                        <ChevronDownIcon className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                                                    </button>
-                                                )}
                                             </div>
 
-                                            {/* Sub-items */}
+                                            {/* Nested Items with Luxury Vertical Guide */}
                                             {hasChildren && !collapsed && isExpanded && (
-                                                <ul className="mt-1 ml-9 space-y-0.5">
+                                                <ul className="mt-2 ml-7 pl-4 border-l-2 border-slate-50 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
                                                     {item.children.map((child) => {
                                                         const childActive = location.pathname === child.href;
                                                         return (
@@ -127,18 +149,16 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                                                 <Link
                                                                     to={child.href}
                                                                     className={`
-                                                                        group flex items-center gap-x-2 rounded-md px-2 py-1.5 text-xs font-medium transition-all duration-200
+                                                                        flex items-center gap-3 rounded-xl px-4 py-2 text-xs font-black transition-all duration-200
                                                                         ${childActive
-                                                                            ? 'text-indigo-600 bg-indigo-50'
-                                                                            : 'text-gray-500 hover:text-indigo-600 hover:bg-gray-50'
+                                                                            ? 'text-indigo-600 bg-indigo-50/50'
+                                                                            : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-50'
                                                                         }
                                                                     `}
                                                                     onClick={() => window.innerWidth < 1024 && onClose()}
                                                                 >
-                                                                    {child.icon && (
-                                                                        <child.icon className={`h-4 w-4 shrink-0 ${childActive ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}`} />
-                                                                    )}
-                                                                    {child.name}
+                                                                    <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${childActive ? 'bg-indigo-600 scale-125' : 'bg-slate-200'}`} />
+                                                                    <span className="uppercase tracking-widest">{child.name}</span>
                                                                 </Link>
                                                             </li>
                                                         );
@@ -152,9 +172,24 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                         </div>
                     ))}
                 </nav>
-            </div>
+
+                {/* Footer / Profile Section */}
+                {/* <div className="p-4 border-t border-slate-50">
+                    <div className={`flex items-center gap-3 p-2 rounded-2xl bg-slate-50/50 ${collapsed ? 'justify-center' : ''}`}>
+                        <div className="h-10 w-10 rounded-xl bg-slate-200 flex-shrink-0" />
+                        {!collapsed && (
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-black text-slate-900 truncate uppercase tracking-tighter">Usuario Premium</p>
+                                <p className="text-[10px] font-medium text-slate-500 truncate">Administrador</p>
+                            </div>
+                        )}
+                    </div>
+                </div> */}
+            </aside>
         </>
     );
 };
 
 export default Sidebar;
+
+

@@ -30,7 +30,7 @@ const MainLayout = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#fcfcfd]">
             <Sidebar
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
@@ -38,14 +38,15 @@ const MainLayout = () => {
                 setCollapsed={setCollapsed}
             />
 
-            <div className={`flex flex-col min-h-screen transition-all duration-200 ease-in-out ${collapsed ? 'lg:pl-20' : 'lg:pl-72'}`}>
+            <div className={`flex flex-col min-h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'lg:pl-24' : 'lg:pl-80'}`}>
                 <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
 
-                <main className="flex-1 sm:px-6 lg:px-8  mx-auto w-full">
+                <main className="flex-1 p-6 lg:p-10 w-full max-w-[1600px] mx-auto">
                     <Outlet />
                 </main>
             </div>
         </div>
+
     );
 };
 

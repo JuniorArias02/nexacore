@@ -15,6 +15,10 @@ export const AuthProvider = ({ children }) => {
     const [permissions, setPermissions] = useState([]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [sessionStatus, setSessionStatus] = useState('active'); // 'active', 'idle', 'expired'
+
+    // Activity tracking constants
+    const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes for idle
 
     // Extract permission names from user data
     const extractPermissions = (userData) => {
@@ -35,6 +39,31 @@ export const AuthProvider = ({ children }) => {
         return permNames.some((p) => permissions.includes(p));
     };
 
+    // Activity tracking logic
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        let idleTimer;
+        
+        const resetIdleTimer = () => {
+            if (sessionStatus === 'idle') setSessionStatus('active');
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                setSessionStatus('idle');
+            }, IDLE_TIMEOUT);
+        };
+
+        const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+        activityEvents.forEach(event => document.addEventListener(event, resetIdleTimer));
+
+        resetIdleTimer();
+
+        return () => {
+            activityEvents.forEach(event => document.removeEventListener(event, resetIdleTimer));
+            clearTimeout(idleTimer);
+        };
+    }, [isAuthenticated, sessionStatus]);
+
     useEffect(() => {
         const checkAuth = async () => {
             const token = localStorage.getItem('token');
@@ -51,12 +80,16 @@ export const AuthProvider = ({ children }) => {
                     setUser(userData);
                     setPermissions(extractPermissions(userData));
                     setIsAuthenticated(true);
+                    setSessionStatus('active');
                 } else {
-                    logout();
+                    setSessionStatus('expired');
+                    // Give user a moment to see the red status before logging out
+                    setTimeout(logout, 3000);
                 }
             } catch (error) {
                 console.error("Error verificando sesión:", error);
-                logout();
+                setSessionStatus('expired');
+                setTimeout(logout, 3000);
             } finally {
                 setLoading(false);
             }
@@ -73,6 +106,7 @@ export const AuthProvider = ({ children }) => {
                 const token = response.data.objeto.access_token;
                 localStorage.setItem('token', token);
                 setIsAuthenticated(true);
+                setSessionStatus('active');
 
                 // Obtener datos del usuario inmediatamente después del login
                 const userResponse = await api.post('/auth/me');
@@ -103,6 +137,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
             setPermissions([]);
             setIsAuthenticated(false);
+            setSessionStatus('expired');
         }
     };
 
@@ -117,11 +152,14 @@ export const AuthProvider = ({ children }) => {
                 const userData = userResponse.data.objeto;
                 setUser(userData);
                 setPermissions(extractPermissions(userData));
+                setSessionStatus('active');
                 return { success: true };
             }
+            setSessionStatus('expired');
             return { success: false, message: 'No se pudo obtener la información del usuario' };
         } catch (error) {
             console.error("Error refreshing permissions:", error);
+            setSessionStatus('expired');
             return {
                 success: false,
                 message: error.response?.data?.mensaje || 'Error al sincronizar permisos'
@@ -134,6 +172,7 @@ export const AuthProvider = ({ children }) => {
         permissions,
         isAuthenticated,
         loading,
+        sessionStatus,
         login,
         logout,
         updateUser,

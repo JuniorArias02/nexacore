@@ -182,6 +182,24 @@ const menuConfig = [
                 permissions: ['permiso.crear', 'permiso.actualizar', 'permiso.eliminar'],
             },
         ]
+    },{
+        title: "OTROS",
+        items: [
+            {
+                name: 'App DKD', href: '/coming-soon', icon: UserGroupIcon,
+                permissions: [],
+                children: [
+                    { name: 'Crear', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
+                ]
+            },
+            {
+                name: 'Fondo Mensual', href: '/coming-soon', icon: UserGroupIcon,
+                permissions: [],
+                children: [
+                    { name: 'Crear', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
+                ]
+            }
+        ]
     }
 ];
 

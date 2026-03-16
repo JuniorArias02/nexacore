@@ -210,8 +210,8 @@ export default function InventoryDetailPage() {
                             <InfoField label="Num. Factura" value={item.num_factu} />
                             <InfoField label="Proveedor" value={item.proveedor} />
                             <div className="border-t border-slate-50 pt-4">
-                                <InfoField label="Vida Útil" value={item.vida_util ? `${item.vida_util} años` : null} />
-                                <InfoField label="Vida Útil NIIF" value={item.vida_util_niff ? `${item.vida_util_niff} años` : null} />
+                                <InfoField label="Vida Útil" value={item.vida_util ? `${item.vida_util} meses` : null} />
+                                <InfoField label="Vida Útil NIIF" value={item.vida_util_niff ? `${item.vida_util_niff} meses` : null} />
                                 <InfoField label="Depreciación Acumulada" value={item.depreciacion_acumulada ? `$${new Intl.NumberFormat('es-CO').format(item.depreciacion_acumulada)}` : null} />
                             </div>
                             <div className="border-t border-slate-50 pt-4">

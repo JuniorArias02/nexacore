@@ -42,4 +42,31 @@ h1, h2, h3, h4, h5, h6 {
 .animate-shake {
   animation: shake 0.2s ease-in-out infinite;
   animation-iteration-count: 2;
+}                                                                                                              
+
+/* Premium Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f1f5f9;
+  border-radius: 20px;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+}
+
+/* Glassmorphism & Effects */
+.glass-effect {
+  @apply backdrop-blur-md bg-white/70 border border-white/20;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700;
 }

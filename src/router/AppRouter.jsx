@@ -54,6 +54,10 @@ import AgendaMantenimientoFormPage from '../modules/agendaMantenimiento/pages/Ag
 import ReportesMantenimientos from '../modules/agendaMantenimiento/pages/ReportesMantenimientos';
 import MainLayout from '../layout/MainLayout';
 import PermissionProtectedRoute from '../components/common/PermissionProtectedRoute';
+import Error404 from '../modules/errorPage/pages/Error404';
+import Error500 from '../modules/errorPage/pages/Error500';
+import Error403 from '../modules/errorPage/pages/Error403';
+import ComingSoon from '../modules/errorPage/pages/ComingSoon';
 
 // Componente para proteger rutas privadas
 const ProtectedRoute = ({ children }) => {
@@ -498,11 +502,19 @@ const AppRouter = () => {
                             <AgendaMantenimientoFormPage />
                         </PermissionProtectedRoute>
                     } />
+
+                    {/* Rutas de Estado y Error */}
+                    <Route path="/mantenimiento" element={<Error500 />} />
+                    <Route path="/403" element={<Error403 />} />
+                    <Route path="/coming-soon" element={<ComingSoon />} />
+
+                    {/* Capturar rutas no encontradas DENTRO del layout (para autenticados) */}
+                    <Route path="*" element={<Error404 />} />
                 </Route>
 
-                {/* Redirecciones por defecto */}
+                {/* Redirecciones y catch-all fuera del layout */}
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </Router>
     );

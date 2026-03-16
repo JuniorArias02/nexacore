@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
  * @param {string[]} props.requiredPermissions - List of permissions required to access the route.
  * @param {string} props.redirectTo - Route to redirect to if permission is denied.
  */
-const PermissionProtectedRoute = ({ children, requiredPermissions = [], redirectTo = '/dashboard' }) => {
+const PermissionProtectedRoute = ({ children, requiredPermissions = [], redirectTo = '/403' }) => {
     const { isAuthenticated, loading, hasAnyPermission } = useAuth();
 
     if (loading) {
