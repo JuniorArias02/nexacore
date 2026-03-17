@@ -29,7 +29,6 @@ export default function PcEntregasList() {
         try {
             setLoading(true);
             const data = await pcEntregasService.getAll();
-            console.log(data);
             setEntregas(data || []);
         } catch (error) {
             console.error('PcEntregasList: Error loading entregas:', error);

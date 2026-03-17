@@ -55,7 +55,6 @@ export default function PcDevueltoForm() {
                 setIsSearching(true);
                 try {
                     const results = await pcEntregasService.search(searchTerm);
-                    console.log(results);
                     setSearchResults(results || []);
                 } catch (error) {
                     console.error('Error searching:', error);
