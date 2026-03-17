@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CameraIcon, ArrowUpTrayIcon, TrashIcon, PencilIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import SignaturePad from './SignaturePad';
+import SignaturePad from '../../signatures/components/SignaturePad';
 import { resizeImageBlob } from '../utils/imageUtils';
 import SignatureCropModal from '../../../components/common/SignatureCropModal';
 
@@ -149,8 +149,11 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
                     {/* Content */}
                     <div className="min-h-[300px] flex items-center justify-center">
                         {activeTab === 'draw' ? (
-                            <div className="w-full">
-                                <SignaturePad onSave={handleDrawingSave} />
+                            <div className="w-full flex-grow flex flex-col min-h-[400px]">
+                                <SignaturePad 
+                                    embedded={true} 
+                                    onSave={handleDrawingSave} 
+                                />
                             </div>
                         ) : (
                             <div className="w-full">

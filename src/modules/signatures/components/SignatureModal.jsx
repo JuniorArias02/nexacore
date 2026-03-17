@@ -1,22 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import SignaturePad from './SignaturePad';
 import Swal from 'sweetalert2';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function SignatureModal({ isOpen, onClose, onSave, title = "Firmar Documento" }) {
     const [currentSignature, setCurrentSignature] = useState(null);
-
-    // We need a way to trigger the 'trim'/save from the parent modal button, 
-    // or we modify SignaturePad to auto-save to state on end.
-    // Let's modify SignaturePad wrapper to handle this, or just pass a callback.
-    // Actually, SignaturePad has 'onSave' prop which is called when trimming.
-    // But we want to trim only when clicking "Aceptar". 
-
-    // Simplest approach: Use a ref to call a method on SignaturePad, 
-    // BUT SignaturePad is a specific implementation.
-
-    // Let's trust the SignaturePad 'onSave' prop which provides the dataURL.
-    // We can have the SignaturePad update a local state in this modal, 
-    // and "Aceptar" confirms that state.
 
     const handleSignatureChange = (dataUrl) => {
         setCurrentSignature(dataUrl);
@@ -24,7 +13,13 @@ export default function SignatureModal({ isOpen, onClose, onSave, title = "Firma
 
     const handleConfirm = () => {
         if (!currentSignature) {
-            Swal.fire('Atención', 'Debe realizar una firma antes de aceptar', 'warning');
+            Swal.fire({
+                title: 'Atención',
+                text: 'Debe realizar una firma antes de aceptar',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl' }
+            });
             return;
         }
         onSave(currentSignature);
@@ -33,49 +28,66 @@ export default function SignatureModal({ isOpen, onClose, onSave, title = "Firma
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    return createPortal(
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div 
+                className="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity" 
+                onClick={onClose}
+            ></div>
 
-                {/* Background overlay */}
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={onClose}></div>
-
-                {/* Modal panel */}
-                <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            {/* Modal panel */}
+            <div className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+                {/* Header */}
+                <div className="p-6 sm:p-8 flex items-center justify-between border-b border-slate-50 bg-white">
                     <div>
-                        <div className="mt-3 text-center sm:mt-5">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                {title}
-                            </h3>
-                            <div className="mt-4">
-                                {/* Pass a dummy onSave to capture changes if needed, 
-                                    but SignaturePad currently saves on 'trim' which is 'onEnd'. 
-                                    So every stroke end triggers onSave. Perfect. */}
-                                <SignaturePad
-                                    onSave={handleSignatureChange}
-                                    onClear={() => setCurrentSignature(null)}
-                                />
-                            </div>
-                        </div>
+                        <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none uppercase tracking-[0.1em]">
+                            {title}
+                        </h3>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
+                            Validación de Identidad
+                        </p>
                     </div>
-                    <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                        <button
-                            type="button"
-                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-                            onClick={handleConfirm}
-                        >
-                            Aceptar
-                        </button>
-                        <button
-                            type="button"
-                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-                            onClick={onClose}
-                        >
-                            Cancelar
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                    >
+                        <XMarkIcon className="h-5 w-5 stroke-[2.5]" />
+                    </button>
+                </div>
+
+                {/* Body - Using Embedded SignaturePad */}
+                <div className="p-6 sm:p-8 bg-white min-h-[350px]">
+                    <SignaturePad
+                        embedded={true}
+                        onSave={handleSignatureChange}
+                    />
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 sm:p-8 bg-slate-50/50 border-t border-slate-50 flex gap-4">
+                    <button
+                        type="button"
+                        className="flex-1 py-4 bg-white text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-slate-100 hover:bg-slate-100 transition-all active:scale-95"
+                        onClick={onClose}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        onClick={handleConfirm}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        Confirmar Firma
+                    </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

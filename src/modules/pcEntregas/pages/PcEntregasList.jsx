@@ -29,6 +29,7 @@ export default function PcEntregasList() {
         try {
             setLoading(true);
             const data = await pcEntregasService.getAll();
+            console.log(data);
             setEntregas(data || []);
         } catch (error) {
             console.error('PcEntregasList: Error loading entregas:', error);
@@ -175,10 +176,10 @@ export default function PcEntregasList() {
                                     <tr key={item.id} className="hover:bg-indigo-50/30 transition-all duration-200 group">
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-black text-slate-400 tracking-widest uppercase">ID: TR-{item.id.toString().padStart(4, '0')}</span>
+                                                <span className="text-xs font-black text-slate-400 tracking-widest uppercase">Inventario:{item.equipo?.numero_inventario}</span>
                                                 <div className="flex items-center gap-1.5 mt-1 text-slate-500">
                                                     <CalendarIcon className="h-3.5 w-3.5" />
-                                                    <span className="text-xs font-bold">{item.fecha_entrega}</span>
+                                                    <span className="text-xs font-bold">{item.fecha_entrega?.split('T')[0]}</span>
                                                 </div>
                                             </div>
                                         </td>

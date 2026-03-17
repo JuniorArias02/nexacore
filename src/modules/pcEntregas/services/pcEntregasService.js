@@ -6,6 +6,11 @@ const pcEntregasService = {
         return response.data.objeto;
     },
 
+    search: async (query) => {
+        const response = await api.get(`/pc-entregas/search?query=${query}`);
+        return response.data.objeto;
+    },
+
     getById: async (id) => {
         const response = await api.get(`/pc-entregas/${id}`);
         return response.data.objeto;

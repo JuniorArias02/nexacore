@@ -30,8 +30,11 @@ export default function PcDevueltoForm() {
         firma_recibe: '' // Admin receiving
     });
 
-    const [entregas, setEntregas] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [selectedEntrega, setSelectedEntrega] = useState(null);
 
     // Signatures
     const [firmaEntrega, setFirmaEntrega] = useState(null);
@@ -40,20 +43,32 @@ export default function PcDevueltoForm() {
     const [existingFirmaRecibe, setExistingFirmaRecibe] = useState(null);
 
     useEffect(() => {
-        loadEntregas();
         if (isEditMode) {
             loadDevuelto();
         }
     }, [id]);
 
-    const loadEntregas = async () => {
-        try {
-            const data = await pcEntregasService.getAll();
-            setEntregas(data || []);
-        } catch (error) {
-            console.error('Error loading entregas:', error);
-        }
-    };
+    // Búsqueda debounced
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (searchTerm.length > 2) {
+                setIsSearching(true);
+                try {
+                    const results = await pcEntregasService.search(searchTerm);
+                    console.log(results);
+                    setSearchResults(results || []);
+                } catch (error) {
+                    console.error('Error searching:', error);
+                } finally {
+                    setIsSearching(false);
+                }
+            } else {
+                setSearchResults([]);
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
 
     const loadDevuelto = async () => {
         try {
@@ -67,6 +82,12 @@ export default function PcDevueltoForm() {
                 });
                 setExistingFirmaEntrega(data.firma_entrega);
                 setExistingFirmaRecibe(data.firma_recibe);
+
+                // Cargar info de la entrega vinculada para mostrar en el buscador
+                if (data.entrega_id) {
+                    const entregaData = await pcEntregasService.getById(data.entrega_id);
+                    setSelectedEntrega(entregaData);
+                }
             }
         } catch (error) {
             console.error('Error loading devuelto:', error);
@@ -183,28 +204,92 @@ export default function PcDevueltoForm() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Vincular con Acta de Entrega *</label>
-                                    <div className="group relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <CubeIcon className="h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                                <div className="space-y-4 md:col-span-2">
+                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Buscar Acta de Entrega *</label>
+                                    
+                                    {!selectedEntrega ? (
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <DocumentMagnifyingGlassIcon className="h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Buscar por Serial, Equipo o Nombre de Funcionario..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 font-bold placeholder:text-slate-300"
+                                            />
+                                            
+                                            {isSearching && (
+                                                <div className="absolute right-4 top-4">
+                                                    <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                                                </div>
+                                            )}
+
+                                            {/* Resultados de búsqueda */}
+                                            {searchResults.length > 0 && (
+                                                <div className="absolute z-50 w-full mt-2 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                    <div className="p-2">
+                                                        {searchResults.map((entrega) => (
+                                                            <button
+                                                                key={entrega.id}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setSelectedEntrega(entrega);
+                                                                    setFormData(prev => ({ ...prev, entrega_id: entrega.id }));
+                                                                    setSearchResults([]);
+                                                                    setSearchTerm('');
+                                                                }}
+                                                                className="w-full text-left p-4 hover:bg-slate-50 rounded-2xl transition-colors group/item"
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-4">
+                                                                        <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-colors">
+                                                                            <CubeIcon className="h-5 w-5" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="font-black text-slate-800 text-sm">{entrega.equipo?.nombre_equipo}</p>
+                                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Serial: {entrega.equipo?.serial}</p>
+                                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Inventario: {entrega.equipo?.numero_inventario}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <p className="font-bold text-slate-600 text-xs">{entrega.funcionario?.nombre}</p>
+                                                                        <p className="text-[9px] font-black text-indigo-500 uppercase tracking-tighter">Entrega #{entrega.id}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                        <select
-                                            name="entrega_id"
-                                            value={formData.entrega_id}
-                                            onChange={handleChange}
-                                            required
-                                            disabled={isEditMode}
-                                            className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 font-bold appearance-none disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer disabled:cursor-not-allowed"
-                                        >
-                                            <option value="">Seleccione una entrega de equipo</option>
-                                            {entregas.map(entrega => (
-                                                <option key={entrega.id} value={entrega.id}>
-                                                    📦 {entrega.equipo?.nombre_equipo} ({entrega.equipo?.serial}) - 👤 {entrega.funcionario?.nombre || '---'}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    ) : (
+                                        <div className="relative p-6 bg-indigo-50/50 border-2 border-dashed border-indigo-200 rounded-[2rem] flex items-center justify-between animate-in zoom-in-95">
+                                            <div className="flex items-center gap-5">
+                                                <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                                                    <CheckCircleIcon className="h-8 w-8" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">Entrega Vinculada</p>
+                                                    <h4 className="text-lg font-black text-slate-800">{selectedEntrega.equipo?.nombre_equipo}</h4>
+                                                    <p className="text-xs font-bold text-slate-400 italic">Asignado a: {selectedEntrega.funcionario?.nombre}</p>
+                                                </div>
+                                            </div>
+                                            {!isEditMode && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedEntrega(null);
+                                                        setFormData(prev => ({ ...prev, entrega_id: '' }));
+                                                    }}
+                                                    className="p-3 bg-white text-slate-400 hover:text-red-500 rounded-2xl shadow-sm border border-slate-100 transition-all active:scale-90"
+                                                >
+                                                    <ArrowUturnLeftIcon className="h-5 w-5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">

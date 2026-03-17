@@ -223,24 +223,20 @@ export default function PcEntregasForm({ equipoId: propEquipoId, onCancel: propO
                                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800">1. Recursos del Acta</h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Seleccionar Equipo *</label>
+                                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <EquipoSearchSelect
+                                        label="Seleccionar Equipo *"
                                         value={formData.equipo_id}
                                         onChange={handleEquipoSelect}
                                         disabled={!!propEquipoId}
                                     />
-                                </div>
 
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Funcionario que Recibe *</label>
                                     <PersonalSearchSelect
+                                        label="Funcionario que Recibe *"
                                         value={formData.funcionario_id}
                                         onChange={handlePersonalSelect}
                                     />
                                 </div>
-                            </div>
                         </div>
 
                         {/* Section: Logística */}
