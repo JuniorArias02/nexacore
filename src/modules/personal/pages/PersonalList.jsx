@@ -2,11 +2,22 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { personalService } from '../services/personalService';
 import Swal from 'sweetalert2';
-import { PencilIcon, TrashIcon, PlusIcon, UserGroupIcon, IdentificationIcon, PhoneIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
+import { 
+    PencilIcon, 
+    TrashIcon, 
+    PlusIcon, 
+    UserGroupIcon, 
+    IdentificationIcon, 
+    PhoneIcon, 
+    BriefcaseIcon,
+    MagnifyingGlassIcon,
+    SignalIcon
+} from '@heroicons/react/24/outline';
 
 export default function PersonalList() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         loadItems();
@@ -37,17 +48,29 @@ export default function PersonalList() {
             text: "No podrás revertir esto",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#ef4444',
             confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'rounded-[2rem]',
+                confirmButton: 'rounded-xl px-6 py-3 font-bold',
+                cancelButton: 'rounded-xl px-6 py-3 font-bold'
+            }
         });
 
         if (result.isConfirmed) {
             try {
                 await personalService.delete(id);
                 setItems(prev => prev.filter(item => item.id !== id));
-                Swal.fire('Eliminado', 'El registro ha sido eliminado.', 'success');
+                Swal.fire({
+                    title: '¡Eliminado!',
+                    text: 'El registro ha sido eliminado.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
             } catch (error) {
                 console.error("Error deleting:", error);
                 const errorMessage = error.response?.data?.mensaje || 'No se pudo eliminar el registro';
@@ -56,35 +79,62 @@ export default function PersonalList() {
         }
     };
 
+    // Filtrado inteligente por nombre o cédula
+    const filteredItems = items.filter(item => 
+        item.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.cedula?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up font-sans">
 
-            {/* Hero Section - Nexa Purple Theme (Matching CpPedidoList) */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+            {/* Hero Section - Nexa Purple Theme */}
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
                 <div className="relative z-10">
-                    <span className="inline-flex items-center rounded-md bg-white/20 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/30 mb-2 backdrop-blur-sm">
-                        RECURSOS HUMANOS
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
+                        GESTIÓN DE TALENTO
                     </span>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
-                        Control de Personal
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
+                        Control de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">Personal</span>
                     </h1>
-                    <p className="text-indigo-50 max-w-2xl text-lg">
-                        Gestiona la base de datos de empleados, contratistas y colaboradores de la organización.
+                    <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
+                        Administre la base de datos maestra de colaboradores, cargos y accesos de la organización.
                     </p>
 
-                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                    <div className="mt-10 flex flex-wrap gap-4">
                         <Link
                             to="/personal/nuevo"
-                            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all transform hover:-translate-y-1"
+                            className="inline-flex items-center justify-center rounded-2xl bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-indigo-600 shadow-xl shadow-indigo-900/20 hover:bg-indigo-50 transition-all transform hover:-translate-y-1 active:scale-95"
                         >
-                            <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
+                            <PlusIcon className="-ml-1 mr-2 h-5 w-5 stroke-[3]" />
                             Nuevo Registro
                         </Link>
                     </div>
                 </div>
-                {/* Decorative Blobs */}
-                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-white/10 blur-3xl opacity-50 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
+                {/* Decorative Elements */}
+                <div className="absolute top-0 right-0 -mt-24 -mr-24 h-96 w-96 rounded-full bg-white/10 blur-[100px] pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -mb-24 -ml-24 h-64 w-64 rounded-full bg-indigo-500/20 blur-[80px] pointer-events-none"></div>
+                <UserGroupIcon className="absolute right-12 bottom-0 h-64 w-64 text-white/5 -mb-20 pointer-events-none transform -rotate-12 transition-transform duration-700 group-hover:rotate-0" />
+            </div>
+
+            {/* Premium Search Bar */}
+            <div className="bg-white/70 backdrop-blur-xl border border-white rounded-[2rem] p-4 shadow-xl shadow-slate-200/50 mb-10 flex flex-col md:flex-row gap-4 items-center justify-between transition-all hover:shadow-2xl hover:shadow-indigo-100/50">
+                <div className="relative w-full md:max-w-md group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <MagnifyingGlassIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                    </div>
+                    <input
+                        type="text"
+                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 placeholder:text-slate-400 font-bold"
+                        placeholder="Buscar por nombre o cédula..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex items-center gap-3 px-4 py-2 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+                    <SignalIcon className="h-4 w-4 animate-pulse text-indigo-500" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Base de Datos Activa</span>
+                </div>
             </div>
 
             {/* Table Content */}
@@ -113,19 +163,21 @@ export default function PersonalList() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : items.length === 0 ? (
+                            ) : filteredItems.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-20 text-center">
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="h-20 w-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-4">
                                                 <UserGroupIcon className="h-10 w-10 text-slate-200" />
                                             </div>
-                                            <p className="text-slate-500 text-sm font-bold tracking-tight">No se encontraron colaboradores</p>
+                                            <p className="text-slate-500 text-sm font-bold tracking-tight">
+                                                {searchTerm ? 'No hay resultados para esta búsqueda' : 'No se encontraron colaboradores'}
+                                            </p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : (
-                                items.map((item) => (
+                                filteredItems.map((item) => (
                                     <tr key={item.id} className="hover:bg-indigo-50/30 transition-all duration-200 group">
                                         <td className="px-6 py-5 whitespace-nowrap">
                                             <span className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-xs font-black text-slate-500 tracking-tight">
