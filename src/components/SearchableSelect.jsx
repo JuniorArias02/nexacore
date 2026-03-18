@@ -36,12 +36,14 @@ export default function SearchableSelect({
         return [...map.values()];
     }, [options, asyncResults]);
 
-    // Filter from combined options
+    // Filter from combined options (Smart filtering: checks that all words in query are present)
     const filteredOptions = query === ''
         ? allOptions()
-        : allOptions().filter((option) =>
-            option.nombre?.toLowerCase().includes(query.toLowerCase())
-        );
+        : allOptions().filter((option) => {
+            const name = option.nombre?.toLowerCase() || '';
+            const searchTerms = query.toLowerCase().split(' ').filter(t => t.length > 0);
+            return searchTerms.every(term => name.includes(term));
+        });
 
     // Match selected option from combined list
     const selectedOption = allOptions().find(p => String(p.id) === String(value));
