@@ -18,7 +18,9 @@ import {
     ShieldCheckIcon,
     PlusCircleIcon,
     DocumentChartBarIcon,
+    FolderIcon,
 } from '@heroicons/react/24/outline';
+
 
 const menuConfig = [
     {
@@ -97,7 +99,9 @@ const menuConfig = [
                 permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
                 children: [
                     { name: 'Crear Entrega Activos', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
+                    { name: 'Historial', href: '/entrega-activos-fijos/historial', icon: FolderIcon, permissions: ['cp_entrega_activos_fijos.listar'] },
                 ]
+
             },
             {
                 name: 'Productos', href: '/cp-productos', icon: TagIcon,

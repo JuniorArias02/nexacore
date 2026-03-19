@@ -34,6 +34,8 @@ import CpPedidoDetail from '../modules/cpPedidos/pages/CpPedidoDetail';
 import InformeConsolidadoPage from '../modules/cpPedidos/pages/InformeConsolidadoPage';
 import EntregaActivosFijosList from '../modules/entregaActivosFijos/pages/EntregaActivosFijosList';
 import EntregaActivosFijosForm from '../modules/entregaActivosFijos/pages/EntregaActivosFijosForm';
+import EntregaActivosFijosHistory from '../modules/entregaActivosFijos/pages/EntregaActivosFijosHistory';
+
 import AreasList from '../modules/areas/pages/AreasList';
 import AreasForm from '../modules/areas/pages/AreasForm';
 import PcEquiposList from '../modules/pcEquipos/pages/PcEquiposList';
@@ -428,6 +430,12 @@ const AppRouter = () => {
                             <EntregaActivosFijosForm />
                         </PermissionProtectedRoute>
                     } />
+                    <Route path="/entrega-activos-fijos/historial" element={
+                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.listar']}>
+                            <EntregaActivosFijosHistory />
+                        </PermissionProtectedRoute>
+                    } />
+
 
                     {/* Áreas */}
                     <Route path="/areas" element={

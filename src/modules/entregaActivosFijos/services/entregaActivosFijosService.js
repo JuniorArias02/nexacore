@@ -90,4 +90,15 @@ export const entregaActivosFijosService = {
         link.remove();
         window.URL.revokeObjectURL(url);
     },
+
+    getCoordinadores: async () => {
+        const response = await api.get('/cp-entrega-activos-fijos/coordinadores');
+        return response.data;
+    },
+
+    getByCoordinador: async (id) => {
+        const response = await api.get(`/cp-entrega-activos-fijos/coordinador/${id}`);
+        return response.data;
+    },
 };
+
