@@ -100,5 +100,23 @@ export const entregaActivosFijosService = {
         const response = await api.get(`/cp-entrega-activos-fijos/coordinador/${id}`);
         return response.data;
     },
+
+    transferir: async (id, nuevoCoordinadorId, nuevoPersonalId = null) => {
+        const response = await api.post(`/cp-entrega-activos-fijos/${id}/transferir`, {
+            nuevo_coordinador_id: nuevoCoordinadorId,
+            nuevo_personal_id: nuevoPersonalId
+        });
+        return response.data;
+    },
+
+    transferirTodo: async (coordinadorViejoId, nuevoCoordinadorId) => {
+        const response = await api.post('/cp-entrega-activos-fijos/transferir-todo', {
+            coordinador_viejo_id: coordinadorViejoId,
+            nuevo_coordinador_id: nuevoCoordinadorId
+        });
+        return response.data;
+    },
 };
+
+
 

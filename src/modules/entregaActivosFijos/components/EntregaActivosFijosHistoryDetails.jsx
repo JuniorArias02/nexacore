@@ -4,9 +4,14 @@ import {
     TableCellsIcon, 
     CubeIcon, 
     ChevronDownIcon, 
-    ChevronUpIcon 
+    ChevronUpIcon,
+    ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
 import { formatDate } from '../../../utils/dateFormatter';
+import TransferenciaActaModal from './TransferenciaActaModal';
+import { entregaActivosFijosService } from '../services/entregaActivosFijosService';
+import Swal from 'sweetalert2';
+
 
 export default function EntregaActivosFijosHistoryDetails({ 
     entregas, 
@@ -15,10 +20,47 @@ export default function EntregaActivosFijosHistoryDetails({
     exportingId 
 }) {
     const [expandedEntregaId, setExpandedEntregaId] = useState(null);
+    const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+    const [selectedActa, setSelectedActa] = useState(null);
 
     const toggleRow = (id) => {
         setExpandedEntregaId(expandedEntregaId === id ? null : id);
     };
+
+    const handleOpenTransfer = (entrega) => {
+        setSelectedActa(entrega);
+        setIsTransferModalOpen(true);
+    };
+
+    const confirmTransfer = async (nuevoCoordinadorId, nuevoPersonalId = null) => {
+        try {
+            Swal.fire({
+                title: 'Transfiriendo...',
+                text: 'Espere un momento por favor',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            await entregaActivosFijosService.transferir(selectedActa.id, nuevoCoordinadorId, nuevoPersonalId);
+
+            
+            setIsTransferModalOpen(false);
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'El acta ha sido transferida correctamente.',
+                icon: 'success',
+                confirmButtonColor: '#4f46e5'
+            });
+            
+            // Opcionalmente podrías refrescar los datos aquí si fuera necesario
+        } catch (error) {
+            console.error('Error al transferir:', error);
+            Swal.fire('Error', 'No se pudo completar la transferencia.', 'error');
+        }
+    };
+
 
     if (loading) {
         return (
@@ -37,7 +79,9 @@ export default function EntregaActivosFijosHistoryDetails({
     }
 
     return (
+        <>
         <div className="bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-slate-100 animate-fade-in-up">
+
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-slate-100">
                     <thead className="bg-slate-50/50">
@@ -92,7 +136,14 @@ export default function EntregaActivosFijosHistoryDetails({
                                             {entrega.items?.length || 0} items
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
+                                        <button
+                                            onClick={() => handleOpenTransfer(entrega)}
+                                            className="p-2 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all hover:shadow-lg hover:shadow-orange-200"
+                                            title="Transferir Acta"
+                                        >
+                                            <ArrowsRightLeftIcon className="h-5 w-5" />
+                                        </button>
                                         <button
                                             onClick={() => handleExportExcel(entrega.id)}
                                             disabled={exportingId === entrega.id}
@@ -106,6 +157,7 @@ export default function EntregaActivosFijosHistoryDetails({
                                             )}
                                         </button>
                                     </td>
+
                                 </tr>
                                 {/* Expanded Details */}
                                 {expandedEntregaId === entrega.id && (
@@ -183,5 +235,15 @@ export default function EntregaActivosFijosHistoryDetails({
                 </table>
             </div>
         </div>
+
+        {/* Transfer Modal */}
+        <TransferenciaActaModal
+            isOpen={isTransferModalOpen}
+            onClose={() => setIsTransferModalOpen(false)}
+            onConfirm={confirmTransfer}
+            acta={selectedActa}
+        />
+        </>
     );
 }
+

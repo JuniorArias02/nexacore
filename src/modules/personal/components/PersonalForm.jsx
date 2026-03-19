@@ -21,8 +21,10 @@ export default function PersonalForm() {
         nombre: '',
         cedula: '',
         telefono: '',
-        cargo_id: ''
+        cargo_id: '',
+        estado: 1
     });
+
     const [cargos, setCargos] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -55,8 +57,10 @@ export default function PersonalForm() {
                 nombre: data.nombre,
                 cedula: data.cedula || '',
                 telefono: data.telefono || '',
-                cargo_id: data.cargo_id || ''
+                cargo_id: data.cargo_id || '',
+                estado: data.estado !== undefined ? data.estado : 1
             });
+
         } catch (error) {
             console.error("Error loading personal:", error);
             Swal.fire('Error', 'No se pudo cargar el personal', 'error');
@@ -233,7 +237,46 @@ export default function PersonalForm() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Estado (Solo en edición o siempre si se desea) */}
+                            <div className="md:col-span-2 space-y-4 bg-slate-50/50 p-6 rounded-3xl border border-slate-100/50">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+                                            Estado del Colaborador
+                                        </label>
+                                        <p className="text-xs text-slate-400 font-medium ml-1 mt-1">
+                                            Define si el colaborador está actualmente activo en el sistema.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, estado: 1 }))}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                formData.estado == 1 
+                                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' 
+                                                    : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            Activo
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, estado: 0 }))}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                formData.estado == 0 
+                                                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' 
+                                                    : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            Inactivo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
 
                         <div className="pt-6 flex flex-col sm:flex-row gap-4 border-t border-slate-50">
                             <button

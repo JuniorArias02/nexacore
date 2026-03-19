@@ -8,7 +8,11 @@ import {
     FolderIcon,
     ChevronRightIcon,
     ArrowLeftIcon,
+    ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
+
+import TransferenciaActaModal from '../components/TransferenciaActaModal';
+
 import React from 'react';
 
 export default function EntregaActivosFijosHistory() {
@@ -19,6 +23,9 @@ export default function EntregaActivosFijosHistory() {
     const [loading, setLoading] = useState(true);
     const [loadingEntregas, setLoadingEntregas] = useState(false);
     const [exportingId, setExportingId] = useState(null);
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [coordinadorToTransfer, setCoordinadorToTransfer] = useState(null);
+
 
     useEffect(() => {
         loadCoordinadores();
@@ -66,6 +73,33 @@ export default function EntregaActivosFijosHistory() {
             setExportingId(null);
         }
     };
+
+    const handleOpenBulkTransfer = (e, coordinator) => {
+        e.stopPropagation(); // Evitar que entre al detalle
+        setCoordinadorToTransfer(coordinator);
+        setIsBulkModalOpen(true);
+    };
+
+    const confirmBulkTransfer = async (nuevoCoordinadorId) => {
+        try {
+            Swal.fire({
+                title: 'Transfiriendo actas...',
+                text: 'Esto puede tardar un momento',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            await entregaActivosFijosService.transferirTodo(coordinadorToTransfer.id, nuevoCoordinadorId);
+
+            setIsBulkModalOpen(false);
+            Swal.fire('¡Éxito!', 'Todas las actas han sido transferidas.', 'success');
+            loadCoordinadores(); // Refrescar lista de coordinadores
+        } catch (error) {
+            console.error('Error in bulk transfer:', error);
+            Swal.fire('Error', 'No se pudo completar la transferencia masiva.', 'error');
+        }
+    };
+
 
     if (loading) {
         return (
@@ -126,11 +160,20 @@ export default function EntregaActivosFijosHistory() {
                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                     <FolderIcon className="h-24 w-24 text-indigo-600" />
                                 </div>
+                                <div className="absolute top-6 right-6 z-20">
+                                    <button
+                                        onClick={(e) => handleOpenBulkTransfer(e, coord)}
+                                        className="p-3 rounded-2xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm hover:shadow-orange-200"
+                                        title="Transferencia Masiva"
+                                    >
+                                        <ArrowsRightLeftIcon className="h-5 w-5" />
+                                    </button>
+                                </div>
                                 <div className="relative z-10">
                                     <div className="h-14 w-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                                         <UserIcon className="h-7 w-7 text-indigo-600" />
                                     </div>
-                                    <h3 className="text-xl font-black text-slate-900 mb-1 tracking-tight">
+                                    <h3 className="text-xl font-black text-slate-900 mb-1 tracking-tight pr-10">
                                         {coord.nombre}
                                     </h3>
                                     <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
@@ -142,6 +185,7 @@ export default function EntregaActivosFijosHistory() {
                                     </div>
                                 </div>
                             </div>
+
                         ))
                     )}
                 </div>
@@ -153,6 +197,16 @@ export default function EntregaActivosFijosHistory() {
                     exportingId={exportingId}
                 />
             )}
+
+            {/* Bulk Transfer Modal */}
+            <TransferenciaActaModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                onConfirm={confirmBulkTransfer}
+                acta={coordinadorToTransfer}
+                mode="bulk"
+            />
         </div>
     );
 }
+

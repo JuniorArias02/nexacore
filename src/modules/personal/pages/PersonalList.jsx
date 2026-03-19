@@ -148,7 +148,9 @@ export default function PersonalList() {
                                 <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Cédula</th>
                                 <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Contacto</th>
                                 <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Cargo</th>
+                                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Estado</th>
                                 <th scope="col" className="relative px-6 py-5">
+
                                     <span className="sr-only">Acciones</span>
                                 </th>
                             </tr>
@@ -211,13 +213,19 @@ export default function PersonalList() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                <BriefcaseIcon className="h-4 w-4 text-indigo-400" />
-                                                <span className="text-xs font-black uppercase text-indigo-600 tracking-tighter bg-indigo-50 px-2 py-1 rounded-md">
-                                                    {item.cargo ? item.cargo.nombre : 'SIN ASIGNAR'}
+                                            {item.estado == 0 ? (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-rose-600 border border-rose-100 shadow-sm shadow-rose-50">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                                    Inactivo
                                                 </span>
-                                            </div>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-600 border border-emerald-100 shadow-sm shadow-emerald-50">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                    Activo
+                                                </span>
+                                            )}
                                         </td>
+
                                         <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
                                             <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Link
