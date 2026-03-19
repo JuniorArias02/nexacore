@@ -34,7 +34,7 @@ const menuConfig = [
                 name: 'Equipos PC', href: '/pc-equipos', icon: ComputerDesktopIcon,
                 permissions: ['pc_equipo.crear', 'pc_equipo.actualizar', 'pc_equipo.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/pc-equipos/nuevo', icon: PlusCircleIcon, permissions: ['pc_equipo.crear'] },
+                    { name: 'Crear Equipo PC', href: '/pc-equipos/nuevo', icon: PlusCircleIcon, permissions: ['pc_equipo.crear'] },
                     { name: 'Hoja de Vida', href: '/pc-equipos', icon: DocumentChartBarIcon, permissions: ['pc_equipo.crear', 'pc_equipo.actualizar'] },
                 ]
             },
@@ -42,14 +42,14 @@ const menuConfig = [
                 name: 'Entregas PC', href: '/pc-entregas', icon: TruckIcon,
                 permissions: ['pc_entrega.crear', 'pc_entrega.actualizar', 'pc_entrega.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/pc-entregas/crear', icon: PlusCircleIcon, permissions: ['pc_entrega.crear'] },
+                    { name: 'Crear Entrega PC', href: '/pc-entregas/crear', icon: PlusCircleIcon, permissions: ['pc_entrega.crear'] },
                 ]
             },
             {
                 name: 'Devoluciones PC', href: '/pc-devueltos', icon: ArrowPathRoundedSquareIcon,
                 permissions: ['pc_devuelto.crear', 'pc_devuelto.actualizar', 'pc_devuelto.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/pc-devueltos/crear', icon: PlusCircleIcon, permissions: ['pc_devuelto.crear'] },
+                    { name: 'Crear Devolución PC', href: '/pc-devueltos/crear', icon: PlusCircleIcon, permissions: ['pc_devuelto.crear'] },
                 ]
             }
         ]
@@ -61,7 +61,7 @@ const menuConfig = [
                 name: 'Mantenimientos', href: '/mantenimientos', icon: WrenchScrewdriverIcon,
                 permissions: ['mantenimiento.listar', 'mantenimiento.crear'],
                 children: [
-                    { name: 'Crear', href: '/mantenimientos/nuevo', icon: PlusCircleIcon, permissions: ['mantenimiento.crear'] },
+                    { name: 'Crear Mantenimiento', href: '/mantenimientos/nuevo', icon: PlusCircleIcon, permissions: ['mantenimiento.crear'] },
                 ]
             },
             { name: 'Mis Mantenimientos', href: '/mis-mantenimientos', icon: ClipboardDocumentListIcon, permissions: ['mantenimiento.seleccion_coordinador', 'mantenimiento.listar_todos'] },
@@ -79,14 +79,14 @@ const menuConfig = [
                 name: 'Inventario', href: '/inventario', icon: ClipboardDocumentListIcon,
                 permissions: ['inventario.crear', 'inventario.actualizar', 'inventario.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/inventario/nuevo', icon: PlusCircleIcon, permissions: ['inventario.crear'] },
+                    { name: 'Crear Inventario', href: '/inventario/nuevo', icon: PlusCircleIcon, permissions: ['inventario.crear'] },
                 ]
             },
             {
                 name: 'Pedidos de Compra', href: '/cp-pedidos', icon: ShoppingCartIcon,
                 permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras', 'cp_pedido.listar.responsable', 'cp_pedido.crear'],
                 children: [
-                    { name: 'Crear', href: '/cp-pedidos/nuevo', icon: PlusCircleIcon, permissions: ['cp_pedido.crear'] },
+                    { name: 'Crear Pedido', href: '/cp-pedidos/nuevo', icon: PlusCircleIcon, permissions: ['cp_pedido.crear'] },
                 ]
             },
             {
@@ -96,14 +96,14 @@ const menuConfig = [
                 name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
                 permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
+                    { name: 'Crear Entrega Activos', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
                 ]
             },
             {
                 name: 'Productos', href: '/cp-productos', icon: TagIcon,
                 permissions: ['cp_producto.crear', 'cp_producto.actualizar', 'cp_producto.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/cp-productos/nuevo', icon: PlusCircleIcon, permissions: ['cp_producto.crear'] },
+                    { name: 'Crear Producto', href: '/cp-productos/nuevo', icon: PlusCircleIcon, permissions: ['cp_producto.crear'] },
                 ]
             },
             {
@@ -135,21 +135,21 @@ const menuConfig = [
                 name: 'Usuarios', href: '/usuarios', icon: UserGroupIcon,
                 permissions: ['usuario.listar', 'usuario.crear'],
                 children: [
-                    { name: 'Crear', href: '/usuarios/nuevo', icon: PlusCircleIcon, permissions: ['usuario.crear'] },
+                    { name: 'Crear Usuario', href: '/usuarios/nuevo', icon: PlusCircleIcon, permissions: ['usuario.crear'] },
                 ]
             },
             {
                 name: 'Personal', href: '/personal', icon: IdentificationIcon,
                 permissions: ['personal.listar', 'personal.crear'],
                 children: [
-                    { name: 'Crear', href: '/personal/nuevo', icon: PlusCircleIcon, permissions: ['personal.crear'] },
+                    { name: 'Crear Personal', href: '/personal/nuevo', icon: PlusCircleIcon, permissions: ['personal.crear'] },
                 ]
             },
             {
                 name: 'Cargos', href: '/p-cargos', icon: BriefcaseIcon,
                 permissions: ['p_cargo.crear', 'p_cargo.actualizar', 'p_cargo.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/p-cargos/nuevo', icon: PlusCircleIcon, permissions: ['p_cargo.crear'] },
+                    { name: 'Crear Cargo', href: '/p-cargos/nuevo', icon: PlusCircleIcon, permissions: ['p_cargo.crear'] },
                 ]
             },
             {
@@ -160,21 +160,21 @@ const menuConfig = [
                 name: 'Dependencias Sedes', href: '/dependencias-sedes', icon: BuildingOfficeIcon,
                 permissions: ['dependencia_sede.crear', 'dependencia_sede.actualizar', 'dependencia_sede.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/dependencias-sedes/nuevo', icon: PlusCircleIcon, permissions: ['dependencia_sede.crear'] },
+                    { name: 'Crear Dependencia Sede', href: '/dependencias-sedes/nuevo', icon: PlusCircleIcon, permissions: ['dependencia_sede.crear'] },
                 ]
             },
             {
                 name: 'Áreas', href: '/areas', icon: BuildingOfficeIcon,
                 permissions: ['area.crear', 'area.actualizar', 'area.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/areas/nuevo', icon: PlusCircleIcon, permissions: ['area.crear'] },
+                    { name: 'Crear Área', href: '/areas/nuevo', icon: PlusCircleIcon, permissions: ['area.crear'] },
                 ]
             },
             {
                 name: 'Roles', href: '/roles', icon: ShieldCheckIcon,
                 permissions: ['rol.crear', 'rol.actualizar', 'rol.eliminar'],
                 children: [
-                    { name: 'Crear', href: '/roles/nuevo', icon: PlusCircleIcon, permissions: ['rol.crear'] },
+                    { name: 'Crear Rol', href: '/roles/nuevo', icon: PlusCircleIcon, permissions: ['rol.crear'] },
                 ]
             },
             {
@@ -189,14 +189,14 @@ const menuConfig = [
                 name: 'App DKD', href: '/coming-soon', icon: UserGroupIcon,
                 permissions: [],
                 children: [
-                    { name: 'Crear', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
+                    { name: 'Crear App DKD', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
                 ]
             },
             {
                 name: 'Fondo Mensual', href: '/coming-soon', icon: UserGroupIcon,
                 permissions: [],
                 children: [
-                    { name: 'Crear', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
+                    { name: 'Crear Fondo Mensual', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
                 ]
             }
         ]

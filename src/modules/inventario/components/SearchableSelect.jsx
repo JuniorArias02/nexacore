@@ -1,27 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
-import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/20/solid';
+import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
-const defaultOptions = [];
-
-export default function SearchableSelect({
-    label,
-    value,
-    onChange,
+export default function SearchableSelect({ 
+    label, 
+    options = [], 
+    value, 
+    onChange, 
     onSearch,
-    options = defaultOptions,
     placeholder = "Seleccionar...",
     displayKey = "nombre",
-    valueKey = "id",
-    disabled = false,
-    className = ""
+    valueKey = "id"
 }) {
-    const [query, setQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
-    const [internalOptions, setInternalOptions] = useState(options);
-    const [loading, setLoading] = useState(false);
+    const [query, setQuery] = useState('');
     const wrapperRef = useRef(null);
 
-    // Close when clicking outside
+    // Smart filtering
+    const filteredOptions = query === ''
+        ? options
+        : options.filter((item) => {
+            const name = item[displayKey]?.toString().toLowerCase() || '';
+            return name.includes(query.toLowerCase());
+        });
+
+    // Find selected name for display
+    const selectedOption = options.find(p => String(p[valueKey]) === String(value));
+    const selectedName = selectedOption ? selectedOption[displayKey] : '';
+
+    // Handle clicking outside
     useEffect(() => {
         function handleClickOutside(event) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -30,135 +36,84 @@ export default function SearchableSelect({
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [wrapperRef]);
+    }, []);
 
-    // Update internal options when props change
     useEffect(() => {
-        setInternalOptions(options);
-    }, [options]);
-
-    // Handle search with debounce
-    useEffect(() => {
-        if (!onSearch || !isOpen) return;
-
-        const timeoutId = setTimeout(async () => {
-            setLoading(true);
-            try {
-                const results = await onSearch(query);
-                if (results) setInternalOptions(results);
-            } catch (error) {
-                console.error("Search error:", error);
-            } finally {
-                setLoading(false);
-            }
-        }, 500);
-
-        return () => clearTimeout(timeoutId);
-    }, [query, onSearch, isOpen]);
-
-    const selectedOption = internalOptions.find(opt => opt[valueKey] == value)
-        || options.find(opt => opt[valueKey] == value);
+        if (!isOpen && value) {
+            setQuery(selectedName);
+        } else if (!isOpen && !value) {
+            setQuery('');
+        }
+    }, [isOpen, value, selectedName]);
 
     return (
-        <div className={`w-full ${className}`} ref={wrapperRef}>
-            {label && (
-                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">
-                    {label}
-                </label>
-            )}
+        <div className="relative group" ref={wrapperRef}>
+            {label && <label className="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">{label}</label>}
             <div className="relative">
-                <button
-                    type="button"
-                    className={`
-                        relative w-full cursor-default rounded-2xl border border-slate-100 
-                        bg-slate-50/50 py-3 pl-4 pr-12 text-left transition-all duration-300
-                        hover:bg-white hover:shadow-lg hover:shadow-indigo-500/5 hover:border-indigo-100
-                        focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:bg-white focus:border-indigo-200
-                        sm:text-sm font-medium text-slate-700
-                        ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100' : ''}
-                        ${isOpen ? 'bg-white shadow-xl shadow-indigo-500/10 border-indigo-200 ring-4 ring-indigo-500/5' : ''}
-                    `}
-                    onClick={() => !disabled && setIsOpen(!isOpen)}
-                >
-                    <span className="block truncate">
-                        {selectedOption ? selectedOption[displayKey] : (
-                            <span className="text-slate-400 italic font-normal">{placeholder}</span>
-                        )}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <div className={`
-                            p-1.5 rounded-xl transition-all duration-300
-                            ${isOpen ? 'bg-indigo-600 text-white rotate-180' : 'bg-indigo-50 text-indigo-500'}
-                        `}>
-                            <ChevronUpDownIcon className="h-4 w-4" aria-hidden="true" />
-                        </div>
-                    </span>
-                </button>
+                <input
+                    type="text"
+                    className="block w-full rounded-2xl border-0 py-3 pl-4 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
+                    placeholder={placeholder}
+                    value={isOpen ? query : (selectedName || query)}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        setIsOpen(true);
+                        if (event.target.value === '') {
+                            onChange('');
+                        }
+                    }}
+                    onFocus={() => {
+                        setIsOpen(true);
+                        setQuery('');
+                    }}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
+                    {value && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onChange('');
+                                setQuery('');
+                            }}
+                            className="p-1 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                            title="Limpiar"
+                        >
+                            <XMarkIcon className="h-4 w-4" />
+                        </button>
+                    )}
+                    <div className="pointer-events-none">
+                        <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                </div>
 
+                {/* Dropdown Options */}
                 {isOpen && (
-                    <div className="absolute z-50 mt-3 max-h-72 w-full overflow-hidden rounded-[1.5rem] bg-white text-base shadow-2xl ring-1 ring-slate-200 focus:outline-none sm:text-sm animate-fade-in-up">
-                        {onSearch && (
-                            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md p-3 border-b border-slate-50">
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        className="w-full bg-slate-50 border-none rounded-xl py-2 pl-3 pr-10 text-xs font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-700 placeholder:text-slate-400 transition-all"
-                                        placeholder="Escribe para buscar..."
-                                        value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        autoFocus
-                                    />
-                                    {loading && (
-                                        <div className="absolute right-3 top-2.5">
-                                            <div className="animate-spin h-3.5 w-3.5 border-2 border-indigo-500 border-t-transparent rounded-full"></div>
-                                        </div>
-                                    )}
-                                </div>
+                    <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                        {filteredOptions.length === 0 ? (
+                            <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500 italic">
+                                No se encontraron resultados.
                             </div>
+                        ) : (
+                            filteredOptions.map((item) => (
+                                <div
+                                    key={item[valueKey]}
+                                    className={`relative cursor-default select-none py-2.5 pl-4 pr-9 transition-colors ${String(value) === String(item[valueKey]) 
+                                        ? 'bg-indigo-50 text-indigo-900 font-semibold' 
+                                        : 'text-gray-700 hover:bg-gray-100 cursor-pointer'
+                                    }`}
+                                    onClick={() => {
+                                        onChange(item[valueKey]);
+                                        setQuery(item[displayKey]);
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    <span className="block truncate">
+                                        {item[displayKey]}
+                                    </span>
+                                </div>
+                            ))
                         )}
-
-                        <div className="overflow-auto max-h-60 p-2 space-y-1">
-                            {loading && internalOptions.length === 0 ? (
-                                <div className="px-4 py-8 text-center">
-                                    <div className="animate-pulse flex flex-col items-center">
-                                        <div className="h-8 w-8 bg-indigo-50 rounded-full mb-2"></div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Buscando...</p>
-                                    </div>
-                                </div>
-                            ) : internalOptions.length === 0 ? (
-                                <div className="px-4 py-8 text-center">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sin resultados</p>
-                                </div>
-                            ) : (
-                                internalOptions.map((option) => (
-                                    <div
-                                        key={option[valueKey]}
-                                        className={`
-                                            relative cursor-pointer select-none py-3 pl-4 pr-10 rounded-xl transition-all duration-200
-                                            ${option[valueKey] == value 
-                                                ? 'bg-indigo-50 text-indigo-700 font-bold' 
-                                                : 'text-slate-600 hover:bg-slate-50 hover:pl-6'}
-                                        `}
-                                        onClick={() => {
-                                            onChange(option);
-                                            setIsOpen(false);
-                                            setQuery('');
-                                        }}
-                                    >
-                                        <span className="block truncate text-sm">
-                                            {option[displayKey]}
-                                        </span>
-                                        {option[valueKey] == value && (
-                                            <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                                <div className="bg-indigo-600 rounded-full p-0.5">
-                                                    <CheckIcon className="h-3 w-3 text-white" aria-hidden="true" />
-                                                </div>
-                                            </span>
-                                        )}
-                                    </div>
-                                ))
-                            )}
-                        </div>
                     </div>
                 )}
             </div>

@@ -8,113 +8,17 @@ import {
     MagnifyingGlassIcon,
     FunnelIcon,
     ChevronDownIcon,
-    ArrowLeftIcon
+    ArrowLeftIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline';
 import { inventoryService } from '../services/inventoryService';
 import { sedeService } from '../../users/services/sedeService';
 import { personalService } from '../../personal/services/personalService';
 import { useAuth } from '../../../context/AuthContext';
 import ContextMenu from '../../../components/common/ContextMenu';
+import SearchableSelect from '../components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-// Internal Component for Searchable Select
-const SearchableSelect = ({ label, options, value, onChange, placeholder = "Seleccionar..." }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [query, setQuery] = useState('');
-    const [wrapperRef, setWrapperRef] = useState(null);
-
-    // Filter options based on query
-    const filteredOptions = query === ''
-        ? options
-        : options.filter((person) =>
-            person.nombre.toLowerCase().includes(query.toLowerCase())
-        );
-
-    // Find selected name for display
-    const selectedName = options.find(p => String(p.id) === String(value))?.nombre || '';
-
-    // Handle clicking outside
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (wrapperRef && !wrapperRef.contains(event.target)) {
-                setIsOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [wrapperRef]);
-
-    useEffect(() => {
-        if (!isOpen && value) {
-            setQuery(selectedName);
-        } else if (!isOpen && !value) {
-            setQuery('');
-        }
-    }, [isOpen, value, selectedName]);
-
-    return (
-        <div className="relative group" ref={setWrapperRef}>
-            <label className="block text-xs font-medium text-gray-500 mb-1 ml-1">{label}</label>
-            <div className="relative">
-                <input
-                    type="text"
-                    className="block w-full rounded-2xl border-0 py-3 pl-4 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 focus:bg-white"
-                    placeholder={placeholder}
-                    value={isOpen ? query : (selectedName || query)}
-                    onChange={(event) => {
-                        setQuery(event.target.value);
-                        setIsOpen(true);
-                        if (event.target.value === '') {
-                            onChange('');
-                        }
-                    }}
-                    onFocus={() => {
-                        setIsOpen(true);
-                        setQuery('');
-                    }}
-                />
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                </div>
-
-                {/* Dropdown Options */}
-                {isOpen && (
-                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                        {filteredOptions.length === 0 ? (
-                            <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                                No se encontraron resultados.
-                            </div>
-                        ) : (
-                            filteredOptions.map((person) => (
-                                <div
-                                    key={person.id}
-                                    className={`relative cursor-default select-none py-2 pl-4 pr-9 ${String(value) === String(person.id) ? 'bg-indigo-50 text-indigo-900' : 'text-gray-900 hover:bg-gray-100'
-                                        }`}
-                                    onClick={() => {
-                                        onChange(person.id);
-                                        setQuery(person.nombre);
-                                        setIsOpen(false);
-                                    }}
-                                >
-                                    <span className={`block truncate ${String(value) === String(person.id) ? 'font-semibold' : 'font-normal'}`}>
-                                        {person.nombre}
-                                    </span>
-                                    {String(value) === String(person.id) ? (
-                                        <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-                                            {/* Checkmark icon could go here */}
-                                        </span>
-                                    ) : null}
-                                </div>
-                            ))
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
 
 export default function InventoryListPage() {
     const navigate = useNavigate();
@@ -149,37 +53,58 @@ export default function InventoryListPage() {
     const [sedes, setSedes] = useState([]);
     const [personal, setPersonal] = useState([]);
 
+    // Carga inicial de catálogos (solo una vez)
     useEffect(() => {
-        loadInitialData(pagination.current_page);
-    }, [pagination.current_page]);
+        const fetchCatalogs = async () => {
+            try {
+                const [sedesData, personalData] = await Promise.all([
+                    sedeService.getAll(),
+                    personalService.getAll()
+                ]);
+                setSedes(Array.isArray(sedesData) ? sedesData : (sedesData.objeto || []));
+                setPersonal(Array.isArray(personalData) ? personalData : (personalData.objeto || []));
+            } catch (err) {
+                console.error("Error loading catalogs:", err);
+            }
+        };
+        fetchCatalogs();
+    }, []);
 
-    const loadInitialData = async (page = 1) => {
+    // Función principal para cargar inventario con filtros
+    const fetchInventory = async (page = 1) => {
         setLoading(true);
         try {
-            const [invData, sedesData, personalData] = await Promise.all([
-                inventoryService.getAllInventario({ page, per_page: pagination.per_page, search: searchTerm }),
-                sedeService.getAll(),
-                personalService.getAll()
-            ]);
+            const invData = await inventoryService.getAllInventario({ 
+                page, 
+                per_page: pagination.per_page, 
+                search: searchTerm,
+                sede_id: filterSede,
+                responsable_id: filterResponsable,
+                coordinador_id: filterCoordinador
+            });
 
-            const paginatedData = invData.objeto;
+            const paginatedData = invData.objeto || invData;
             setInventory(paginatedData.data || []);
             setPagination({
-                current_page: paginatedData.current_page,
-                last_page: paginatedData.last_page,
-                per_page: paginatedData.per_page,
-                total: paginatedData.total
+                current_page: paginatedData.current_page || 1,
+                last_page: paginatedData.last_page || 1,
+                per_page: paginatedData.per_page || pagination.per_page,
+                total: paginatedData.total || 0
             });
-            setSedes(Array.isArray(sedesData) ? sedesData : (sedesData.objeto || []));
-            setPersonal(Array.isArray(personalData) ? personalData : (personalData.objeto || []));
-
+            setError(null);
         } catch (err) {
-            console.error("Error loading data:", err);
+            console.error("Error loading inventory:", err);
             setError("No se pudo cargar la información del inventario.");
         } finally {
             setLoading(false);
         }
     };
+
+    // Efecto para cambios en filtros o página
+    useEffect(() => {
+        // No ejecutamos si el término de búsqueda está cambiando (para eso está el debounce abajo)
+        fetchInventory(pagination.current_page);
+    }, [pagination.current_page, filterSede, filterResponsable, filterCoordinador]);
 
     const handleDelete = async (id) => {
         const result = await Swal.fire({
@@ -258,11 +183,13 @@ export default function InventoryListPage() {
         setPagination(prev => ({ ...prev, current_page: 1 }));
     };
 
-    // Debounced search
+    // Debounced search effect
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            if (searchTerm !== undefined) {
-                loadInitialData(1);
+            if (pagination.current_page !== 1) {
+                setPagination(prev => ({ ...prev, current_page: 1 }));
+            } else {
+                fetchInventory(1);
             }
         }, 500);
 
@@ -326,8 +253,20 @@ export default function InventoryListPage() {
                                     <option key={sede.id} value={sede.id}>{sede.nombre}</option>
                                 ))}
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
+                                {filterSede && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setFilterSede('')}
+                                        className="p-1 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                                        title="Limpiar filtro"
+                                    >
+                                        <XMarkIcon className="h-4 w-4" />
+                                    </button>
+                                )}
+                                <div className="pointer-events-none">
+                                    <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -365,6 +304,21 @@ export default function InventoryListPage() {
                                 value={searchTerm}
                                 onChange={handleSearch}
                             />
+                            {searchTerm && (
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                            setPagination(prev => ({ ...prev, current_page: 1 }));
+                                        }}
+                                        className="p-1 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                                        title="Limpiar búsqueda"
+                                    >
+                                        <XMarkIcon className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

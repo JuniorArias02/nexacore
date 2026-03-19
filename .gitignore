@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 BACKUP_GUIDE.md
+ARCHITECTURE.md
+DEVELOPER_GUIDE.md
+NEXACORE_GUIDE.md

@@ -90,7 +90,7 @@ const GlobalSearch = () => {
     };
 
     return (
-        <div className="relative group" ref={searchRef}>
+        <div className="relative" ref={searchRef}>
             <div className={`
                 flex items-center bg-slate-50 border transition-all duration-300 rounded-2xl px-3 py-1.5
                 ${isOpen ? 'ring-4 ring-indigo-500/10 border-indigo-200 bg-white w-64 md:w-80 shadow-lg' : 'border-slate-100 w-40 md:w-56'}
