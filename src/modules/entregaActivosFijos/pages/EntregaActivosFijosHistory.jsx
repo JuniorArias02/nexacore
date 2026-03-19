@@ -14,6 +14,7 @@ import {
 import TransferenciaActaModal from '../components/TransferenciaActaModal';
 
 import React from 'react';
+import Can from '../../../components/common/Can';
 
 export default function EntregaActivosFijosHistory() {
     const navigate = useNavigate();
@@ -160,15 +161,17 @@ export default function EntregaActivosFijosHistory() {
                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                     <FolderIcon className="h-24 w-24 text-indigo-600" />
                                 </div>
-                                <div className="absolute top-6 right-6 z-20">
-                                    <button
-                                        onClick={(e) => handleOpenBulkTransfer(e, coord)}
-                                        className="p-3 rounded-2xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm hover:shadow-orange-200"
-                                        title="Transferencia Masiva"
-                                    >
-                                        <ArrowsRightLeftIcon className="h-5 w-5" />
-                                    </button>
-                                </div>
+                                <Can permission="cp_entrega_activos_fijos.transferir_actas_todo">
+                                    <div className="absolute top-6 right-6 z-20">
+                                        <button
+                                            onClick={(e) => handleOpenBulkTransfer(e, coord)}
+                                            className="p-3 rounded-2xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm hover:shadow-orange-200"
+                                            title="Transferencia Masiva"
+                                        >
+                                            <ArrowsRightLeftIcon className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </Can>
                                 <div className="relative z-10">
                                     <div className="h-14 w-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                                         <UserIcon className="h-7 w-7 text-indigo-600" />

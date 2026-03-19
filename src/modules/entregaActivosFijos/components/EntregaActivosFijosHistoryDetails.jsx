@@ -11,6 +11,7 @@ import { formatDate } from '../../../utils/dateFormatter';
 import TransferenciaActaModal from './TransferenciaActaModal';
 import { entregaActivosFijosService } from '../services/entregaActivosFijosService';
 import Swal from 'sweetalert2';
+import Can from '../../../components/common/Can';
 
 
 export default function EntregaActivosFijosHistoryDetails({ 
@@ -137,13 +138,15 @@ export default function EntregaActivosFijosHistoryDetails({
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
-                                        <button
-                                            onClick={() => handleOpenTransfer(entrega)}
-                                            className="p-2 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all hover:shadow-lg hover:shadow-orange-200"
-                                            title="Transferir Acta"
-                                        >
-                                            <ArrowsRightLeftIcon className="h-5 w-5" />
-                                        </button>
+                                        <Can permission="cp_entrega_activos_fijos.transferir">
+                                            <button
+                                                onClick={() => handleOpenTransfer(entrega)}
+                                                className="p-2 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all hover:shadow-lg hover:shadow-orange-200"
+                                                title="Transferir Acta"
+                                            >
+                                                <ArrowsRightLeftIcon className="h-5 w-5" />
+                                            </button>
+                                        </Can>
                                         <button
                                             onClick={() => handleExportExcel(entrega.id)}
                                             disabled={exportingId === entrega.id}
