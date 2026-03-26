@@ -3,15 +3,24 @@ import api from '../../../services/api';
 export const inventoryService = {
     // Productos / Servicios
     searchProductos: async (query) => {
-        const response = await api.get('/cp-productos-servicios', { params: { q: query } });
-        const obj = response.data.objeto;
-        return Array.isArray(obj) ? obj : (obj?.data || []);
+        const response = await api.get('/cp-productos-servicios/buscar', { params: { termino: query } });
+        return response.data; // Return full response object to check 'source' and 'objeto'
+    },
+
+    searchProductosExterno: async (query) => {
+        const response = await api.get('/cp-productos-servicios/buscar-externo', { params: { termino: query } });
+        return response.data;
     },
 
     // Personal
     searchPersonal: async (query) => {
-        const response = await api.get('/personal', { params: { q: query } });
-        return response.data.objeto;
+        const response = await api.get('/personal/buscar', { params: { termino: query } });
+        return response.data;
+    },
+
+    searchPersonalExterno: async (query) => {
+        const response = await api.get('/personal/buscar-externo', { params: { termino: query } });
+        return response.data;
     },
 
     // Sedes
