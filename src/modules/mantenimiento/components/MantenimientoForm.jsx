@@ -160,158 +160,223 @@ export default function MantenimientoForm() {
     const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 
     return (
-        <div className="max-w-3xl mx-auto p-6">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="max-w-4xl mx-auto p-4 md:p-10 animate-fade-in">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden transform transition-all duration-500">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-6">
-                    <h2 className="text-2xl font-bold text-white">
-                        {isEditing ? 'Editar Mantenimiento' : 'Nuevo Mantenimiento'}
-                    </h2>
-                    <p className="text-blue-100 mt-1">
-                        {isEditing ? 'Actualiza la información del mantenimiento' : 'Completa los datos para registrar un nuevo mantenimiento'}
-                    </p>
+                <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 px-8 py-10 md:px-12 md:py-14 text-white">
+                    <div className="relative z-10">
+                        <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-4 backdrop-blur-md">
+                            Mantenimiento
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-2">
+                            {isEditing ? 'Editar Registro' : 'Nuevo Mantenimiento'}
+                        </h2>
+                        <p className="text-indigo-100 text-sm md:text-base font-medium opacity-90 max-w-xl">
+                            {isEditing 
+                                ? 'Actualiza los detalles técnicos y el estado del equipo para mantener la trazabilidad.' 
+                                : 'Ingresa la información detallada para programar y registrar un nuevo servicio técnico.'}
+                        </p>
+                    </div>
+                    
+                    {/* Decorative Background Icon */}
+                    <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-1/4 translate-y-1/4 pointer-events-none">
+                        <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6.3 6.3 9 1.7 4.4C.6 6.8 1 9.8 3 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.4-.4.4-1.1 0-1.5z" />
+                        </svg>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                    {/* Titulo */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Título *</label>
-                        <input type="text" name="titulo" value={formData.titulo} onChange={handleChange}
-                            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                            placeholder="Ej: Mantenimiento preventivo impresora" required />
+                <form onSubmit={handleSubmit} className="p-6 md:p-12 space-y-8 bg-white">
+                    {/* Section: General Info */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="h-1 w-8 bg-indigo-600 rounded-full"></div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Información General</span>
+                        </div>
+                        
+                        {/* Titulo */}
+                        <div className="group">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Título del Mantenimiento *</label>
+                            <input type="text" name="titulo" value={formData.titulo} onChange={handleChange}
+                                className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium"
+                                placeholder="Ej: Mantenimiento preventivo impresora contabilidad" required />
+                        </div>
+
+                        {/* Codigo + Modelo */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="group">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Código de Activo</label>
+                                <input type="text" name="codigo" value={formData.codigo} onChange={handleChange}
+                                    className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium"
+                                    placeholder="Ej: MNT-001" />
+                            </div>
+                            <div className="group">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Modelo del Equipo</label>
+                                <input type="text" name="modelo" value={formData.modelo} onChange={handleChange}
+                                    className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium"
+                                    placeholder="Ej: HP LaserJet Pro M404dn" />
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Codigo + Modelo */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Código</label>
-                            <input type="text" name="codigo" value={formData.codigo} onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                placeholder="Ej: MNT-001" />
+                    {/* Section: Location */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="h-1 w-8 bg-indigo-600 rounded-full"></div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Ubicación y Asignación</span>
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Modelo</label>
-                            <input type="text" name="modelo" value={formData.modelo} onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                placeholder="Ej: HP LaserJet Pro" />
-                        </div>
-                    </div>
 
-                    {/* Sede + Dependencia (cascade) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Sede</label>
-                            <select name="sede_id" value={formData.sede_id} onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                                <option value="">Seleccione una sede</option>
-                                {sedes.map((s) => (
-                                    <option key={s.id} value={s.id}>{s.nombre}</option>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="group">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Sede</label>
+                                <select name="sede_id" value={formData.sede_id} onChange={handleChange}
+                                    className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium appearance-none">
+                                    <option value="">Seleccione una sede</option>
+                                    {sedes.map((s) => (
+                                        <option key={s.id} value={s.id}>{s.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="group">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Dependencia / Área</label>
+                                <select name="dependencia" value={formData.dependencia} onChange={handleChange}
+                                    className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium appearance-none"
+                                    disabled={!formData.sede_id}>
+                                    <option value="">{formData.sede_id ? 'Seleccione un área' : 'Seleccione primero la sede'}</option>
+                                    {areas.map((a) => (
+                                        <option key={a.id} value={a.nombre}>{a.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Coordinador */}
+                        <div className="group">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Coordinador Autorizado</label>
+                            <select name="coordinador_id" value={formData.coordinador_id} onChange={handleChange}
+                                className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium appearance-none">
+                                <option value="">Seleccione el validador</option>
+                                {receptores.map((u) => (
+                                    <option key={u.id} value={u.id}>
+                                        {u.nombre_completo || u.usuario}
+                                    </option>
                                 ))}
                             </select>
+                            <p className="mt-2 text-[10px] font-medium text-slate-400 italic">Solo personal con permisos de auditoría y gestión técnica.</p>
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Dependencia</label>
-                            <select name="dependencia" value={formData.dependencia} onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                disabled={!formData.sede_id}>
-                                <option value="">{formData.sede_id ? 'Seleccione una dependencia' : 'Primero seleccione una sede'}</option>
-                                {areas.map((a) => (
-                                    <option key={a.id} value={a.nombre}>{a.nombre}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Coordinador (Validador) */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Coordinador (Validador)</label>
-                        <select name="coordinador_id" value={formData.coordinador_id} onChange={handleChange}
-                            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                            <option value="">Seleccione un coordinador</option>
-                            {receptores.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                    {u.nombre_completo || u.usuario}
-                                </option>
-                            ))}
-                        </select>
-                        <p className="mt-1 text-xs text-gray-500">Solo aparecen usuarios con permiso para agendar mantenimientos</p>
                     </div>
 
                     {/* Descripcion */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
+                    <div className="group">
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 group-focus-within:text-indigo-600 transition-colors">Descripción del Servicio</label>
                         <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows={4}
-                            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                            placeholder="Describa el mantenimiento a realizar..." />
+                            className="w-full rounded-2xl border-slate-100 bg-slate-50 px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-medium"
+                            placeholder="Detalle el estado actual y los requerimientos del mantenimiento..." />
                     </div>
 
-                    {/* Images */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-3">Fotografías del equipo</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Images Section */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="h-1 w-8 bg-indigo-600 rounded-full"></div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Evidencia Fotográfica</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Image 1 */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-400 transition-colors">
+                            <div className="relative group">
                                 <input type="file" accept="image/*"
                                     onChange={(e) => handleImageChange(e, setImagen1, setPreview1)}
                                     className="hidden" id="imagen1-input" />
-                                <label htmlFor="imagen1-input" className="cursor-pointer block">
+                                <label htmlFor="imagen1-input" className="cursor-pointer block border-2 border-dashed border-slate-200 rounded-3xl p-6 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all duration-300">
                                     {preview1 ? (
-                                        <img src={preview1} alt="Preview 1" className="mx-auto h-40 object-cover rounded-lg" />
+                                        <div className="relative group/preview">
+                                            <img src={preview1} alt="Preview 1" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            </div>
+                                        </div>
                                     ) : existingImages[0] ? (
-                                        <img src={`${API_URL}/${existingImages[0]}`} alt="Imagen actual 1" className="mx-auto h-40 object-cover rounded-lg" />
+                                        <div className="relative group/preview">
+                                            <img src={`${API_URL}/${existingImages[0]}`} alt="Imagen actual 1" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <div className="py-8">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mx-auto text-gray-400 mb-2">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                            </svg>
-                                            <p className="text-sm text-gray-500">Foto 1 — Click para seleccionar</p>
+                                        <div className="py-6 flex flex-col items-center">
+                                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cargar Foto Principal</p>
                                         </div>
                                     )}
                                 </label>
                             </div>
 
                             {/* Image 2 */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-400 transition-colors">
+                            <div className="relative group">
                                 <input type="file" accept="image/*"
                                     onChange={(e) => handleImageChange(e, setImagen2, setPreview2)}
                                     className="hidden" id="imagen2-input" />
-                                <label htmlFor="imagen2-input" className="cursor-pointer block">
+                                <label htmlFor="imagen2-input" className="cursor-pointer block border-2 border-dashed border-slate-200 rounded-3xl p-6 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all duration-300">
                                     {preview2 ? (
-                                        <img src={preview2} alt="Preview 2" className="mx-auto h-40 object-cover rounded-lg" />
+                                        <div className="relative group/preview">
+                                            <img src={preview2} alt="Preview 2" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            </div>
+                                        </div>
                                     ) : existingImages[1] ? (
-                                        <img src={`${API_URL}/${existingImages[1]}`} alt="Imagen actual 2" className="mx-auto h-40 object-cover rounded-lg" />
+                                        <div className="relative group/preview">
+                                            <img src={`${API_URL}/${existingImages[1]}`} alt="Imagen actual 2" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <div className="py-8">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mx-auto text-gray-400 mb-2">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                            </svg>
-                                            <p className="text-sm text-gray-500">Foto 2 — Click para seleccionar</p>
+                                        <div className="py-6 flex flex-col items-center">
+                                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cargar Foto Secundaria</p>
                                         </div>
                                     )}
                                 </label>
                             </div>
                         </div>
+
                         {compressing && (
-                            <p className="mt-2 text-sm text-blue-600 flex items-center gap-2">
-                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-3 px-4 py-3 bg-indigo-50 rounded-2xl text-indigo-700 animate-pulse">
+                                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                 </svg>
-                                Comprimiendo imagen...
-                            </p>
+                                <span className="text-sm font-bold uppercase tracking-widest">Optimizando Archivo...</span>
+                            </div>
                         )}
-                        <p className="mt-2 text-xs text-gray-500">Las imágenes se comprimen automáticamente para optimizar el almacenamiento.</p>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-100">
+                    <div className="flex flex-col-reverse md:flex-row items-center justify-end gap-4 pt-8 border-t border-slate-100">
                         <button type="button" onClick={() => navigate('/mantenimientos')}
-                            className="px-6 py-3 rounded-xl text-gray-700 bg-gray-100 hover:bg-gray-200 font-semibold transition">
-                            Cancelar
+                            className="w-full md:w-auto px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 bg-slate-100 hover:bg-slate-200 hover:text-slate-700 transition-all">
+                            Cancelar Operación
                         </button>
                         <button type="submit" disabled={loading || compressing}
-                            className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold hover:from-blue-700 hover:to-cyan-600 disabled:opacity-50 transition shadow-lg">
-                            {loading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear Mantenimiento'}
+                            className="w-full md:w-auto px-10 py-4 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-2xl hover:shadow-indigo-200 hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50 disabled:translate-y-0">
+                            {loading ? (
+                                <div className="flex items-center gap-2">
+                                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    Guardando...
+                                </div>
+                            ) : isEditing ? 'Confirmar Actualización' : 'Registrar Mantenimiento'}
                         </button>
                     </div>
                 </form>

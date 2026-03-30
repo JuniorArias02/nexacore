@@ -6,6 +6,7 @@ import { personalService } from '../../personal/services/personalService';
 import { sedeService } from '../../users/services/sedeService';
 import { dependenciaSedeService } from '../../dependenciaSede/services/dependenciaSedeService';
 import { inventarioService } from '../../inventario/services/inventarioService';
+import { authService } from '../../auth/services/authService';
 import SignaturePad from '../../signatures/components/SignaturePad';
 import SearchableSelect from '../../../components/SearchableSelect';
 
@@ -34,12 +35,26 @@ export default function EntregaActivosFijosForm() {
     const [existingFirmaEntrega, setExistingFirmaEntrega] = useState(null);
     const [existingFirmaRecibe, setExistingFirmaRecibe] = useState(null);
 
+    const [useStoredSignatureEntrega, setUseStoredSignatureEntrega] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+
     useEffect(() => {
         loadDependencies();
+        loadCurrentUser();
         if (id) {
             loadEntrega(id);
         }
     }, [id]);
+
+    const loadCurrentUser = async () => {
+        try {
+            const response = await authService.me();
+            const user = response.objeto || response;
+            setCurrentUser(user);
+        } catch (error) {
+            console.error('Error loading user:', error);
+        }
+    };
 
     // Filter dependencias based on selected Sede
     useEffect(() => {
@@ -220,6 +235,17 @@ export default function EntregaActivosFijosForm() {
         }
 
 
+        // Frontend Validation for Signatures
+        if (!useStoredSignatureEntrega && !firmaEntrega && !existingFirmaEntrega) {
+            Swal.fire('Error', 'La firma de quien entrega es requerida.', 'error');
+            return;
+        }
+
+        if (!firmaRecibe && !existingFirmaRecibe) {
+            Swal.fire('Error', 'La firma de quien recibe es requerida sí o sí.', 'error');
+            return;
+        }
+
         try {
             setLoading(true);
 
@@ -233,7 +259,8 @@ export default function EntregaActivosFijosForm() {
             const data = {
                 ...formData,
                 items,
-                firma_quien_entrega: firmaEntrega ? dataURLtoFile(firmaEntrega, 'firma_entrega.png') : null,
+                use_stored_signature_entrega: useStoredSignatureEntrega ? 1 : 0,
+                firma_quien_entrega: (!useStoredSignatureEntrega && firmaEntrega) ? dataURLtoFile(firmaEntrega, 'firma_entrega.png') : null,
                 firma_quien_recibe: firmaRecibe ? dataURLtoFile(firmaRecibe, 'firma_recibe.png') : null
             };
 
@@ -419,39 +446,98 @@ export default function EntregaActivosFijosForm() {
                 {/* Signatures */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-700">Firma Quien Entrega</h2>
-                        {existingFirmaEntrega && !firmaEntrega && (
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                            <h2 className="text-xl font-semibold text-gray-700">Firma Quien Entrega</h2>
+                            <div className="flex items-center gap-3 bg-slate-50 py-1.5 px-3 rounded-full border border-slate-200">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    {useStoredSignatureEntrega ? 'Usando firma guardada' : 'Dibujar firma'}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setUseStoredSignatureEntrega(!useStoredSignatureEntrega)}
+                                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 shadow-sm ${useStoredSignatureEntrega ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${useStoredSignatureEntrega ? 'translate-x-5' : 'translate-x-0'}`}
+                                    />
+                                </button>
+                            </div>
+                        </div>
+
+                        {existingFirmaEntrega && !firmaEntrega && !useStoredSignatureEntrega && (
                             <div className="mb-4">
-                                <p className="text-sm text-gray-500 mb-2">Firma actual:</p>
+                                <p className="text-sm text-gray-500 mb-2">Firma actual guardada en el acta:</p>
                                 <img
-                                    src={existingFirmaEntrega}
+                                    src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${existingFirmaEntrega}`}
                                     alt="Firma Entrega Actual"
-                                    className="h-32 border border-gray-200 rounded bg-white p-2"
+                                    className="h-32 border border-gray-200 rounded bg-white p-2 object-contain"
+                                    onError={(e) => {
+                                        if(!e.target.src.includes(existingFirmaEntrega) && existingFirmaEntrega.startsWith('http')) {
+                                            e.target.src = existingFirmaEntrega;
+                                        }
+                                    }}
                                 />
                             </div>
                         )}
-                        <SignaturePad
-                            onSave={setFirmaEntrega}
-                            buttonText={existingFirmaEntrega ? "Cambiar Firma" : "Firmar Entrega"}
-                            title="Firma de Quien Entrega"
-                        />
+
+                        {useStoredSignatureEntrega ? (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-white min-h-[160px]">
+                                {currentUser?.firma_digital ? (
+                                    <div className="text-center">
+                                        <img
+                                            src={currentUser.firma_digital?.startsWith('http')
+                                                ? currentUser.firma_digital
+                                                : `${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${currentUser.firma_digital}`
+                                            }
+                                            alt="Firma Guardada"
+                                            className="h-24 object-contain mx-auto mb-2"
+                                            onError={(e) => {
+                                                console.error('Error loading signature:', e.target.src);
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                        <p className="text-sm text-green-600 font-medium">Firma guardada lista para usar</p>
+                                    </div>
+                                ) : (
+                                    <div className="text-center text-gray-500">
+                                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <p className="mt-2 text-sm font-medium text-gray-900">No tienes una firma guardada</p>
+                                        <p className="mt-1 text-sm text-gray-500">Por favor, personaliza tu firma en tu perfil.</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <SignaturePad
+                                onSave={setFirmaEntrega}
+                                buttonText={existingFirmaEntrega ? "Reemplazar Firma" : "Firmar Entrega"}
+                                title="Firma de Quien Entrega"
+                            />
+                        )}
                     </div>
 
                     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                         <h2 className="text-xl font-semibold mb-4 text-gray-700">Firma Quien Recibe</h2>
                         {existingFirmaRecibe && !firmaRecibe && (
                             <div className="mb-4">
-                                <p className="text-sm text-gray-500 mb-2">Firma actual:</p>
+                                <p className="text-sm text-gray-500 mb-2">Firma actual guardada en el acta:</p>
                                 <img
-                                    src={existingFirmaRecibe}
+                                    src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${existingFirmaRecibe}`}
                                     alt="Firma Recibe Actual"
-                                    className="h-32 border border-gray-200 rounded bg-white p-2"
+                                    className="h-32 border border-gray-200 rounded bg-white p-2 object-contain"
+                                    onError={(e) => {
+                                        if(!e.target.src.includes(existingFirmaRecibe) && existingFirmaRecibe.startsWith('http')) {
+                                            e.target.src = existingFirmaRecibe;
+                                        }
+                                    }}
                                 />
                             </div>
                         )}
                         <SignaturePad
                             onSave={setFirmaRecibe}
-                            buttonText={existingFirmaRecibe ? "Cambiar Firma" : "Firmar Recepción"}
+                            buttonText={existingFirmaRecibe ? "Reemplazar Firma" : "Firmar Recepción"}
                             title="Firma de Quien Recibe"
                         />
                     </div>
