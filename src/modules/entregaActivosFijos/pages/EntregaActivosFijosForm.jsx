@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { entregaActivosFijosService } from '../services/entregaActivosFijosService';
@@ -17,6 +17,7 @@ export default function EntregaActivosFijosForm() {
     const isEditing = !!id;
     const isUpdatingSignature = location.pathname.includes('/actualizar-firma');
     const [submitMode, setSubmitMode] = useState('');
+    const submitModeRef = useRef('');
     const [loading, setLoading] = useState(false);
     const [loadingItems, setLoadingItems] = useState(false);
     const [personal, setPersonal] = useState([]);
@@ -267,7 +268,9 @@ export default function EntregaActivosFijosForm() {
                 firma_quien_recibe: firmaRecibe ? dataURLtoFile(firmaRecibe, 'firma_recibe.png') : null
             };
 
-            if (isUpdatingSignature || submitMode === 'update') {
+            const currentSubmitMode = submitModeRef.current;
+
+            if (isUpdatingSignature || currentSubmitMode === 'update') {
                 await entregaActivosFijosService.update(id, data);
                 Swal.fire({
                     icon: 'success',
@@ -576,7 +579,10 @@ export default function EntregaActivosFijosForm() {
                         <button
                             type="submit"
                             disabled={loading}
-                            onClick={() => setSubmitMode('update')}
+                            onClick={() => {
+                                setSubmitMode('update');
+                                submitModeRef.current = 'update';
+                            }}
                             className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading && submitMode === 'update' ? 'Actualizando...' : 'Actualizar Acta Actual'}
@@ -585,7 +591,10 @@ export default function EntregaActivosFijosForm() {
                     <button
                         type="submit"
                         disabled={loading}
-                        onClick={() => setSubmitMode('create')}
+                        onClick={() => {
+                            setSubmitMode('create');
+                            submitModeRef.current = 'create';
+                        }}
                         className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading && submitMode === 'create' ? 'Guardando...' : (isUpdatingSignature ? 'Actualizar Acta' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega'))}
