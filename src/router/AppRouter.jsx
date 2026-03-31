@@ -430,6 +430,11 @@ const AppRouter = () => {
                             <EntregaActivosFijosForm />
                         </PermissionProtectedRoute>
                     } />
+                    <Route path="/entrega-activos-fijos/actualizar-firma/:id" element={
+                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.actualizar']}>
+                            <EntregaActivosFijosForm />
+                        </PermissionProtectedRoute>
+                    } />
                     <Route path="/entrega-activos-fijos/historial" element={
                         <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.listar']}>
                             <EntregaActivosFijosHistory />

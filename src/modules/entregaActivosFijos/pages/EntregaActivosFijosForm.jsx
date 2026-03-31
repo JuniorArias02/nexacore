@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { entregaActivosFijosService } from '../services/entregaActivosFijosService';
 import { personalService } from '../../personal/services/personalService';
@@ -13,7 +13,9 @@ import SearchableSelect from '../../../components/SearchableSelect';
 export default function EntregaActivosFijosForm() {
     const navigate = useNavigate();
     const { id } = useParams();
+    const location = useLocation();
     const isEditing = !!id;
+    const isUpdatingSignature = location.pathname.includes('/actualizar-firma');
     const [loading, setLoading] = useState(false);
     const [loadingItems, setLoadingItems] = useState(false);
     const [personal, setPersonal] = useState([]);
@@ -264,15 +266,25 @@ export default function EntregaActivosFijosForm() {
                 firma_quien_recibe: firmaRecibe ? dataURLtoFile(firmaRecibe, 'firma_recibe.png') : null
             };
 
-            // We always create a new record now, as requested
-            await entregaActivosFijosService.create(data);
+            if (isUpdatingSignature) {
+                await entregaActivosFijosService.update(id, data);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Acta actualizada exitosamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                // We always create a new record now, as requested
+                await entregaActivosFijosService.create(data);
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Entrega generada exitosamente',
-                showConfirmButton: false,
-                timer: 1500
-            });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Entrega generada exitosamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
 
             navigate('/entrega-activos-fijos');
         } catch (error) {
@@ -286,8 +298,15 @@ export default function EntregaActivosFijosForm() {
     return (
         <div className="max-w-6xl mx-auto p-6">
             <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">{isEditing ? 'Nueva Versión (Desde Plantilla)' : 'Nueva Entrega'} de Activos Fijos</h1>
-                <p className="text-gray-600 mt-2">{isEditing ? 'Revise los datos y el inventario actualizado antes de generar la nueva acta.' : 'Complete el formulario para registrar una nueva entrega'}</p>
+                <h1 className="text-3xl font-bold text-gray-800">
+                    {isUpdatingSignature ? 'Actualizar Firma del Acta' : (isEditing ? 'Nueva Versión (Desde Plantilla)' : 'Nueva Entrega')} de Activos Fijos
+                </h1>
+                <p className="text-gray-600 mt-2">
+                    {isUpdatingSignature 
+                        ? 'Actualice las firmas de este acta y guarde los cambios.' 
+                        : (isEditing ? 'Revise los datos y el inventario actualizado antes de generar la nueva acta.' : 'Complete el formulario para registrar una nueva entrega')
+                    }
+                </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -557,7 +576,7 @@ export default function EntregaActivosFijosForm() {
                         disabled={loading}
                         className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Guardando...' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega')}
+                        {loading ? 'Guardando...' : (isUpdatingSignature ? 'Actualizar Acta' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega'))}
                     </button>
                 </div>
             </form>

@@ -212,6 +212,13 @@ export default function EntregaActivosFijosList() {
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div className="flex justify-end gap-2">
                                                     <button
+                                                        onClick={() => navigate(`/entrega-activos-fijos/actualizar-firma/${entrega.id}`)}
+                                                        className="p-2 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
+                                                        title="Actualizar Firma"
+                                                    >
+                                                        <PencilSquareIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
                                                         onClick={() => navigate(`/entrega-activos-fijos/editar/${entrega.id}`)}
                                                         className="p-2 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
                                                         title="Nueva Versión (Desde Plantilla)"
