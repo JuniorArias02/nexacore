@@ -16,6 +16,7 @@ export default function EntregaActivosFijosForm() {
     const location = useLocation();
     const isEditing = !!id;
     const isUpdatingSignature = location.pathname.includes('/actualizar-firma');
+    const [submitMode, setSubmitMode] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingItems, setLoadingItems] = useState(false);
     const [personal, setPersonal] = useState([]);
@@ -266,7 +267,7 @@ export default function EntregaActivosFijosForm() {
                 firma_quien_recibe: firmaRecibe ? dataURLtoFile(firmaRecibe, 'firma_recibe.png') : null
             };
 
-            if (isUpdatingSignature) {
+            if (isUpdatingSignature || submitMode === 'update') {
                 await entregaActivosFijosService.update(id, data);
                 Swal.fire({
                     icon: 'success',
@@ -571,12 +572,23 @@ export default function EntregaActivosFijosForm() {
                     >
                         Cancelar
                     </button>
+                    {isEditing && !isUpdatingSignature && (
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            onClick={() => setSubmitMode('update')}
+                            className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading && submitMode === 'update' ? 'Actualizando...' : 'Actualizar Acta Actual'}
+                        </button>
+                    )}
                     <button
                         type="submit"
                         disabled={loading}
+                        onClick={() => setSubmitMode('create')}
                         className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Guardando...' : (isUpdatingSignature ? 'Actualizar Acta' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega'))}
+                        {loading && submitMode === 'create' ? 'Guardando...' : (isUpdatingSignature ? 'Actualizar Acta' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega'))}
                     </button>
                 </div>
             </form>
