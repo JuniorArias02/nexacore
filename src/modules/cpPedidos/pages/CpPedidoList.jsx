@@ -411,7 +411,7 @@ export default function CpPedidoList() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex justify-end gap-2">
-                                                <Can permission="cp_pedido.listar.compras, cp_pedido.listar.responsable">
+                                                <Can permission={["cp_pedido.listar.compras", "cp_pedido.listar.responsable"]}>
                                                     <button
                                                         onClick={() => handleViewDetails(pedido.id)}
                                                         className="p-1 rounded-full text-indigo-600 hover:bg-indigo-50 transition-colors"
