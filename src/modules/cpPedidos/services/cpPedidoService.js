@@ -155,6 +155,30 @@ export const cpPedidoService = {
         window.URL.revokeObjectURL(url);
     },
 
+    exportPdf: async (id) => {
+        const response = await api.get(`/cp-pedidos/${id}/exportar-pdf`, {
+            responseType: 'blob',
+        });
+
+        // Extract filename from Content-Disposition header
+        const disposition = response.headers['content-disposition'];
+        let filename = `pedido_${id}.pdf`;
+        if (disposition) {
+            const match = disposition.match(/filename="?([^";\n]+)"?/);
+            if (match) filename = match[1];
+        }
+
+        // Trigger browser download
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    },
+
     exportConsolidadoExcel: async (filters) => {
         const response = await api.post(`/cp-pedidos/exportar-consolidado`, filters, {
             responseType: 'blob',

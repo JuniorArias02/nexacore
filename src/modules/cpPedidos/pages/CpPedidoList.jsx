@@ -24,6 +24,7 @@ export default function CpPedidoList() {
     const [loading, setLoading] = useState(true);
     const [expandedOrderId, setExpandedOrderId] = useState(null);
     const [exportingId, setExportingId] = useState(null);
+    const [exportingPdfId, setExportingPdfId] = useState(null);
 
     // Filters & Pagination
     // Raw Filter Inputs
@@ -147,6 +148,18 @@ export default function CpPedidoList() {
             Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
         } finally {
             setExportingId(null);
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfId(id);
+            await cpPedidoService.exportPdf(id);
+        } catch (error) {
+            console.error('Error exporting to PDF:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
+        } finally {
+            setExportingPdfId(null);
         }
     };
 
@@ -442,10 +455,16 @@ export default function CpPedidoList() {
                                                     )}
                                                 </button>
                                                 <button
-                                                    className="p-1 rounded-full text-red-600 hover:bg-red-50 transition-colors opacity-50 cursor-not-allowed"
-                                                    title="Descargar PDF (Próximamente)"
+                                                    onClick={() => handleExportPdf(pedido.id)}
+                                                    disabled={exportingPdfId === pedido.id}
+                                                    className={`p-1 rounded-full transition-colors ${exportingPdfId === pedido.id ? 'text-gray-400 bg-gray-100' : 'text-red-600 hover:bg-red-50'}`}
+                                                    title="Descargar PDF"
                                                 >
-                                                    <DocumentArrowDownIcon className="h-5 w-5" />
+                                                    {exportingPdfId === pedido.id ? (
+                                                        <div className="h-5 w-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <DocumentArrowDownIcon className="h-5 w-5" />
+                                                    )}
                                                 </button>
                                                 <Can permission="cp_pedido.eliminar">
                                                     <button
