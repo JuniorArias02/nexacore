@@ -89,3 +89,59 @@
     overflow: hidden !important;
     border: 1px solid #e5e7eb !important;
 }
+
+/* ── Google-Calendar-style: day cells are clickable ── */
+.fc .fc-daygrid-day-frame {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.fc .fc-daygrid-day-frame:hover {
+    background: rgba(79, 70, 229, 0.04);
+}
+
+/* ── Today day number: badge style ── */
+.fc .fc-day-today .fc-daygrid-day-number {
+    background: #4f46e5 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 4px !important;
+}
+
+/* ── TimeGrid: slot hover ── */
+.fc .fc-timegrid-slot:hover {
+    background: rgba(79, 70, 229, 0.05) !important;
+    cursor: crosshair;
+}
+
+/* ── Selection highlight: muy visible al arrastrar ── */
+.fc .fc-highlight {
+    background: rgba(79, 70, 229, 0.35) !important;
+    border: 2px solid #4f46e5 !important;
+    border-radius: 6px !important;
+    box-shadow: inset 0 0 0 2px rgba(99, 102, 241, 0.4) !important;
+    animation: selectionPulse 0.9s ease-in-out infinite alternate !important;
+}
+
+@keyframes selectionPulse {
+    from { background: rgba(79, 70, 229, 0.28) !important; }
+    to   { background: rgba(79, 70, 229, 0.48) !important; }
+}
+
+/* ── Mirror event (ghost while dragging) ── */
+.fc .fc-timegrid-event.fc-event-mirror,
+.fc .fc-daygrid-event.fc-event-mirror {
+    opacity: 0.85 !important;
+    border: 2px solid #4f46e5 !important;
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4) !important;
+}
+
+/* ── Event hover ── */
+.fc-event:hover {
+    filter: brightness(1.1);
+    cursor: pointer;
+}
