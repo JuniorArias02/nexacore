@@ -35,4 +35,16 @@ export const agendaMantenimientoService = {
         const response = await api.get(`/usuarios/por-permiso/${permiso}`);
         return response.data;
     },
+
+    /**
+     * Retorna los IDs de técnicos que ya tienen conflicto de horario
+     * para el rango fecha_inicio → fecha_fin.
+     */
+    getDisponibilidad: async (fechaInicio, fechaFin, excludeId = null) => {
+        const params = { fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+        if (excludeId) params.exclude_id = excludeId;
+        const response = await api.get('/agenda-mantenimientos/disponibilidad', { params });
+        return response.data?.objeto?.tecnicos_ocupados ?? [];
+    },
 };
+
