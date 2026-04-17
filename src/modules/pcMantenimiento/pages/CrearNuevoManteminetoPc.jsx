@@ -382,9 +382,7 @@ export default function CrearNuevoManteminetoPc() {
             </form>
 
             <div className="mt-8 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300">
-                    NexaCore Assets Governance &copy; 2026 | Hardware Lifecycle Management
-                </p>
+                
             </div>
         </div>
     );

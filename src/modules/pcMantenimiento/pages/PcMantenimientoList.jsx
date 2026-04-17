@@ -295,9 +295,6 @@ export default function PcMantenimientoList() {
                         Mostrando {filteredItems.length} de {mantenimientos.length} registros totales
                     </span>
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300">
-                    NexaCore Systems &copy; 2026 | Hardware Compliance Mngt
-                </p>
             </div>
         </div>
     );
