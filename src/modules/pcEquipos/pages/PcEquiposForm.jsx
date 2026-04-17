@@ -15,6 +15,11 @@ export default function PcEquiposForm() {
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(false);
 
+    // Searchable Personal State
+    const [personalSearch, setPersonalSearch] = useState('');
+    const [personalResults, setPersonalResults] = useState([]);
+    const [showPersonalResults, setShowPersonalResults] = useState(false);
+
     // Image Upload State
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -22,7 +27,6 @@ export default function PcEquiposForm() {
     // Dropdown Data
     const [sedes, setSedes] = useState([]);
     const [areas, setAreas] = useState([]);
-    const [personal, setPersonal] = useState([]);
 
     const [formData, setFormData] = useState({
         tipo: '',
@@ -49,13 +53,6 @@ export default function PcEquiposForm() {
             const sedesRes = await api.get('/sedes');
             setSedes(sedesRes.data.objeto || sedesRes.data || []);
 
-            // Fetch Personal (for responsable)
-            // Assuming endpoint /personal exists
-            try {
-                const personalRes = await api.get('/personal');
-                setPersonal(personalRes.data.objeto || personalRes.data || []);
-            } catch (e) { console.warn('Could not load personal', e); }
-
         } catch (error) {
             console.error('Error loading catalogs', error);
         }
@@ -68,6 +65,12 @@ export default function PcEquiposForm() {
             if (response && response.objeto) {
                 // Map backend fields to form fields if needed, but they should match now
                 setFormData(response.objeto);
+                
+                // Set initial search string for autocomplete
+                if (response.objeto.responsable) {
+                    setPersonalSearch(response.objeto.responsable.nombre);
+                }
+
                 // Trigger area load if sede is selected
                 if (response.objeto.sede_id) {
                     loadAreas(response.objeto.sede_id);
@@ -100,26 +103,54 @@ export default function PcEquiposForm() {
             return;
         }
         try {
-            // Assuming endpoint exists for areas by sede or just filter all areas
-            // Let's try standard endpoint. If dependent, maybe /areas?sede_id=...
-            // Or /dependencias like in previous tasks?
-            // User schema mentioned `areas` table.
-            // Let's try fetching all areas for now or specific endpoint.
-            const response = await api.get('/areas');
+            const response = await api.get('/areas', {
+                params: { sede_id: sedeId }
+            });
             const allAreas = response.data.objeto || response.data || [];
-            // Client side filter if needed, or if API supports it
             setAreas(allAreas);
         } catch (error) {
             console.error('Error loading areas', error);
         }
     };
 
+    const handlePersonalSearch = async (query) => {
+        setPersonalSearch(query);
+        if (query.length < 2) {
+            setPersonalResults([]);
+            setShowPersonalResults(false);
+            return;
+        }
+
+        try {
+            const response = await api.get('/personal/buscar', {
+                params: { termino: query }
+            });
+            const results = response.data.objeto || response.data || [];
+            // Show only first 5 as requested (or a handful)
+            setPersonalResults(results.slice(0, 8));
+            setShowPersonalResults(true);
+        } catch (error) {
+            console.error('Error searching personal:', error);
+        }
+    };
+
+    const selectPersonal = (p) => {
+        setFormData(prev => ({ ...prev, responsable_id: p.id }));
+        setPersonalSearch(p.nombre);
+        setShowPersonalResults(false);
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        
+        setFormData(prev => {
+            const newData = { ...prev, [name]: value };
+            // Clear area_id if sede_id changes to avoid inconsistent data
+            if (name === 'sede_id') {
+                newData.area_id = '';
+            }
+            return newData;
+        });
 
         if (name === 'sede_id') {
             loadAreas(value);
@@ -377,19 +408,53 @@ export default function PcEquiposForm() {
                             </select>
                         </div>
 
-                        <div className="md:col-span-2">
+                        <div className="md:col-span-2 relative">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
-                            <select
-                                name="responsable_id"
-                                value={formData.responsable_id}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                <option value="">Seleccione Responsable...</option>
-                                {personal.map(p => (
-                                    <option key={p.id} value={p.id}>{p.nombres} {p.apellidos}</option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={personalSearch}
+                                    onChange={(e) => handlePersonalSearch(e.target.value)}
+                                    placeholder="Escribe el nombre del responsable..."
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                                    autoComplete="off"
+                                />
+                                {personalSearch && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setPersonalSearch('');
+                                            setPersonalResults([]);
+                                            setFormData(prev => ({...prev, responsable_id: ''}));
+                                        }}
+                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                                    >
+                                        &times;
+                                    </button>
+                                )}
+                            </div>
+
+                            {showPersonalResults && personalResults.length > 0 && (
+                                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                    {personalResults.map(p => (
+                                        <div
+                                            key={p.id}
+                                            onClick={() => selectPersonal(p)}
+                                            className="px-4 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-b-0"
+                                        >
+                                            <div className="text-sm font-medium text-gray-900">{p.nombre}</div>
+                                            {p.cargo && (
+                                                <div className="text-xs text-gray-500">{p.cargo.nombre}</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {!showPersonalResults && personalSearch.length >= 2 && personalResults.length === 0 && (
+                                // This could be used for "no results" but often it's better to just hide it
+                                null
+                            )}
                         </div>
                     </div>
 

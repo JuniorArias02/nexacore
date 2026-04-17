@@ -19,6 +19,9 @@ import {
     PlusCircleIcon,
     DocumentChartBarIcon,
     FolderIcon,
+    ExclamationTriangleIcon,
+    ClipboardDocumentCheckIcon,
+    PresentationChartLineIcon,
 } from '@heroicons/react/24/outline';
 
 
@@ -52,6 +55,15 @@ const menuConfig = [
                 permissions: ['pc_devuelto.crear', 'pc_devuelto.actualizar', 'pc_devuelto.eliminar'],
                 children: [
                     { name: 'Crear Devolución PC', href: '/pc-devueltos/crear', icon: PlusCircleIcon, permissions: ['pc_devuelto.crear'] },
+                ]
+            },
+            {
+                name: 'Mantenimientos PC', href: '/pc-mantenimientos', icon: WrenchScrewdriverIcon,
+                permissions: ['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar'],
+                children: [
+                    { name: 'Crear Mantenimiento', href: '/pc-mantenimientos/nuevo', icon: PlusCircleIcon, permissions: ['pc_mantenimiento.crear'] },
+                    { name: 'Cronograma', href: '/pc-mantenimientos/cronograma', icon: CalendarDaysIcon, permissions: ['pc_mantenimiento.listar'] },
+                    { name: 'Historial', href: '/pc-mantenimientos', icon: DocumentTextIcon, permissions: ['pc_mantenimiento.listar'] },
                 ]
             }
         ]

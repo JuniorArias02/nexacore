@@ -54,6 +54,9 @@ import MantenimientoReceptorPage from '../modules/mantenimiento/pages/Mantenimie
 import AgendaMantenimientoList from '../modules/agendaMantenimiento/pages/AgendaMantenimientoList';
 import AgendaMantenimientoFormPage from '../modules/agendaMantenimiento/pages/AgendaMantenimientoFormPage';
 import ReportesMantenimientos from '../modules/agendaMantenimiento/pages/ReportesMantenimientos';
+import PcMantenimientoList from '../modules/pcMantenimiento/pages/PcMantenimientoList';
+import CrearNuevoManteminetoPc from '../modules/pcMantenimiento/pages/CrearNuevoManteminetoPc';
+import PcMantenimientoCronograma from '../modules/pcMantenimiento/pages/PcMantenimientoCronograma';
 import MainLayout from '../layout/MainLayout';
 import PermissionProtectedRoute from '../components/common/PermissionProtectedRoute';
 import Error404 from '../modules/errorPage/pages/Error404';
@@ -192,6 +195,23 @@ const AppRouter = () => {
                     <Route path="/pc-devueltos/editar/:id" element={
                         <PermissionProtectedRoute requiredPermissions={['pc_devuelto.actualizar']}>
                             <PcDevueltoForm />
+                        </PermissionProtectedRoute>
+                    } />
+
+                    {/* PcMantenimiento */}
+                    <Route path="/pc-mantenimientos/nuevo" element={
+                        <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.crear']}>
+                            <CrearNuevoManteminetoPc />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/pc-mantenimientos" element={
+                        <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar']}>
+                            <PcMantenimientoList />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/pc-mantenimientos/cronograma" element={
+                        <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar']}>
+                            <PcMantenimientoCronograma />
                         </PermissionProtectedRoute>
                     } />
 

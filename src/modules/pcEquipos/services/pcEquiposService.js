@@ -30,6 +30,11 @@ const pcEquiposService = {
         const response = await api.get(`/pc-equipos/${id}/hoja-de-vida`);
         return response.data;
     },
+    
+    buscar: async (query) => {
+        const response = await api.get(`/pc-equipos/buscar?q=${query}`);
+        return response.data;
+    },
 };
 
 export default pcEquiposService;

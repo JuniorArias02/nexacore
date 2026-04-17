@@ -13,7 +13,8 @@ import {
     CheckBadgeIcon,
     ClockIcon,
     SignalIcon,
-    ChatBubbleBottomCenterTextIcon
+    ChatBubbleBottomCenterTextIcon,
+    ArrowUturnLeftIcon
 } from '@heroicons/react/24/outline';
 
 export default function PcEntregasList() {
@@ -29,6 +30,7 @@ export default function PcEntregasList() {
         try {
             setLoading(true);
             const data = await pcEntregasService.getAll();
+            console.log(data);
             setEntregas(data || []);
         } catch (error) {
             console.error('PcEntregasList: Error loading entregas:', error);
@@ -227,6 +229,15 @@ export default function PcEntregasList() {
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             <div className="flex justify-end gap-2">
+                                                {item.estado === 'entregado' && (
+                                                    <Link
+                                                        to={`/pc-devueltos/crear?entregaId=${item.id}`}
+                                                        className="p-2.5 bg-slate-50 hover:bg-violet-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-violet-600"
+                                                        title="Devolver Equipo"
+                                                    >
+                                                        <ArrowUturnLeftIcon className="h-5 w-5 stroke-[2]" />
+                                                    </Link>
+                                                )}
                                                 <Link
                                                     to={`/pc-entregas/editar/${item.id}`}
                                                     className="p-2.5 bg-slate-50 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-indigo-600"

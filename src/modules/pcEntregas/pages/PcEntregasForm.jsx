@@ -248,7 +248,7 @@ export default function PcEntregasForm({ equipoId: propEquipoId, onCancel: propO
                                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800">2. Detalles de Logística</h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
                                 <div className="space-y-2">
                                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Fecha de Entrega</label>
                                     <div className="group relative">
@@ -264,37 +264,6 @@ export default function PcEntregasForm({ equipoId: propEquipoId, onCancel: propO
                                         />
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Estado del Proceso</label>
-                                    <div className="group relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <ClipboardDocumentCheckIcon className="h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
-                                        </div>
-                                        <select
-                                            name="estado"
-                                            value={formData.estado}
-                                            onChange={handleChange}
-                                            className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 font-bold appearance-none"
-                                        >
-                                            <option value="entregado">📦 Entregado</option>
-                                            <option value="devuelto">🔄 Devuelto</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {formData.estado === 'devuelto' && (
-                                    <div className="space-y-2 animate-fade-in">
-                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Fecha Devolución</label>
-                                        <input
-                                            type="date"
-                                            name="devuelto"
-                                            value={formData.devuelto}
-                                            onChange={handleChange}
-                                            className="block w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 font-bold"
-                                        />
-                                    </div>
-                                )}
                             </div>
                         </div>
 

@@ -52,7 +52,7 @@ const EquipoSearchSelect = ({ label, value, onChange, placeholder = "Buscar por 
 
         setLoading(true);
         try {
-            const response = await api.get(`/pc-equipos?q=${term}`);
+            const response = await api.get(`/pc-equipos/buscar?q=${term}`);
             let data = response.data.objeto || response.data || [];
             setResults(data);
             setShowResults(true);
@@ -66,7 +66,7 @@ const EquipoSearchSelect = ({ label, value, onChange, placeholder = "Buscar por 
 
     const handleSelect = (item) => {
         setSelectedItem(item);
-        setSearchTerm(`${item.serial} - ${item.marca} ${item.modelo}`);
+        setSearchTerm(`${item.nombre_equipo || 'PC'} - ${item.serial || item.numero_inventario}`);
         setShowResults(false);
         if (onChange) {
             onChange(item);
@@ -116,16 +116,23 @@ const EquipoSearchSelect = ({ label, value, onChange, placeholder = "Buscar por 
                                     <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-colors">
                                         <CubeIcon className="h-5 w-5" />
                                     </div>
-                                    <div>
-                                        <p className="font-black text-slate-800 text-sm">{item.serial}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-black text-slate-800 text-sm truncate">
+                                            {item.nombre_equipo || 'Sin nombre'}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">
+                                                SN: {item.serial || 'N/A'}
+                                            </span>
+                                            {item.numero_inventario && (
+                                                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">
+                                                    INV: {item.numero_inventario}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                                             {item.marca} {item.modelo}
                                         </p>
-                                        {(item.sede || item.area) && (
-                                            <p className="text-[9px] font-black text-indigo-500 uppercase tracking-tighter mt-1">
-                                                {item.sede?.nombre} {item.area ? `/ ${item.area.nombre}` : ''}
-                                            </p>
-                                        )}
                                     </div>
                                 </div>
                             </button>

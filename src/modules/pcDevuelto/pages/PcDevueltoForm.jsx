@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import pcDevueltoService from '../services/pcDevueltoService';
 import pcEntregasService from '../../pcEntregas/services/pcEntregasService';
@@ -20,7 +20,11 @@ import {
 export default function PcDevueltoForm() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const isEditMode = !!id;
+
+    const queryParams = new URLSearchParams(location.search);
+    const preselectedEntregaId = queryParams.get('entregaId');
 
     const [formData, setFormData] = useState({
         entrega_id: '',
@@ -45,8 +49,25 @@ export default function PcDevueltoForm() {
     useEffect(() => {
         if (isEditMode) {
             loadDevuelto();
+        } else if (preselectedEntregaId) {
+            handlePreselectedEntrega(preselectedEntregaId);
         }
-    }, [id]);
+    }, [id, preselectedEntregaId]);
+
+    const handlePreselectedEntrega = async (entregaId) => {
+        try {
+            setLoading(true);
+            const data = await pcEntregasService.getById(entregaId);
+            if (data) {
+                setSelectedEntrega(data);
+                setFormData(prev => ({ ...prev, entrega_id: data.id }));
+            }
+        } catch (error) {
+            console.error('Error loading preselected entrega:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Búsqueda debounced
     useEffect(() => {
