@@ -164,9 +164,9 @@ export default function PcEquiposList() {
                         className="block w-full pl-10 pr-10 py-4 bg-white border border-slate-100 rounded-3xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm appearance-none cursor-pointer"
                     >
                         <option value="todos">Todos los Estados</option>
-                        <option value="operativo">🟢 Operativo</option>
-                        <option value="mantenimiento">🟡 Mantenimiento</option>
-                        <option value="baja">🔴 Baja</option>
+                        <option value="operativo">Operativo</option>
+                        <option value="mantenimiento">Mantenimiento</option>
+                        <option value="baja">Baja</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                         <ChevronRightIcon className="h-4 w-4 text-slate-400 rotate-90" />
