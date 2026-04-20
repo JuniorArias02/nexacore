@@ -14,6 +14,7 @@ import {
     CpuChipIcon,
     ServerIcon,
     FunnelIcon,
+    ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 
 const tipoIconMap = {
@@ -68,7 +69,13 @@ export default function PcEquiposList() {
         if (result.isConfirmed) {
             try {
                 await pcEquiposService.delete(id);
-                Swal.fire('Eliminado', 'El equipo ha sido eliminado', 'success');
+                Swal.fire({
+                    title: 'Eliminado',
+                    text: 'El equipo ha sido eliminado',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
                 loadEquipos();
             } catch (error) {
                 console.error('Error deleting equipo:', error);
@@ -92,12 +99,12 @@ export default function PcEquiposList() {
 
     if (loading) {
         return (
-            <div className="flex flex-col justify-center items-center h-80 gap-4">
+            <div className="flex flex-col justify-center items-center h-screen gap-4">
                 <div className="relative">
-                    <div className="animate-spin rounded-full h-14 w-14 border-4 border-indigo-100 border-t-indigo-600"></div>
-                    <CpuChipIcon className="h-6 w-6 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-100 border-t-indigo-600"></div>
+                    <CpuChipIcon className="h-8 w-8 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                 </div>
-                <p className="text-sm text-gray-500 animate-pulse">Cargando equipos...</p>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 animate-pulse">Sincronizando Inventario...</p>
             </div>
         );
     }
@@ -105,151 +112,171 @@ export default function PcEquiposList() {
     const TipoIcon = (tipo) => tipoIconMap[tipo?.toLowerCase()] || ComputerDesktopIcon;
 
     return (
-        <div className="max-w-7xl mx-auto p-4 sm:p-6">
-            {/* Header */}
-            <div className="mb-8">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Inventario de Equipos</h1>
-                        <p className="mt-1 text-sm text-gray-500">
-                            {equipos.length} equipo{equipos.length !== 1 ? 's' : ''} registrado{equipos.length !== 1 ? 's' : ''}
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => navigate('/pc-equipos/nuevo')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 active:scale-95"
-                    >
-                        <PlusIcon className="h-5 w-5" />
-                        Nuevo Equipo
-                    </button>
-                </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
+            {/* Hero Header */}
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
+                        ACTIVOS TECNOLÓGICOS
+                    </span>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
+                        Inventario de Equipos
+                    </h1>
+                    <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
+                        Gestiona y monitorea el parque computacional de la organización en tiempo real.
+                    </p>
 
-                {/* Search & Filter Bar */}
-                <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                    <div className="relative flex-1">
-                        <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Buscar por marca, modelo, serial, sede..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm"
-                        />
-                    </div>
-                    <div className="relative">
-                        <FunnelIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <select
-                            value={filterEstado}
-                            onChange={(e) => setFilterEstado(e.target.value)}
-                            className="pl-10 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm appearance-none cursor-pointer"
+                    <div className="mt-8 flex flex-wrap gap-4">
+                        <button
+                            onClick={() => navigate('/pc-equipos/nuevo')}
+                            className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3.5 text-sm font-black uppercase tracking-widest text-indigo-600 shadow-xl shadow-indigo-900/20 hover:bg-indigo-50 transition-all transform hover:scale-105 active:scale-95"
                         >
-                            <option value="todos">Todos los estados</option>
-                            <option value="operativo">Operativo</option>
-                            <option value="mantenimiento">Mantenimiento</option>
-                            <option value="baja">Baja</option>
-                        </select>
+                            <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+                            Registrar Equipo
+                        </button>
+                    </div>
+                </div>
+                {/* Decorative Icon */}
+                <ComputerDesktopIcon className="absolute right-12 bottom-0 h-64 w-64 text-white/5 -mb-20 pointer-events-none transform -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+            </div>
+
+            {/* Search & Filter Bar */}
+            <div className="mb-10 flex flex-col md:flex-row gap-4">
+                <div className="relative flex-1 group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <MagnifyingGlassIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Buscar por marca, modelo, serial, sede..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="block w-full pl-11 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm shadow-slate-200/50"
+                    />
+                </div>
+                <div className="relative min-w-[200px]">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <FunnelIcon className="h-4 w-4 text-slate-400" />
+                    </div>
+                    <select
+                        value={filterEstado}
+                        onChange={(e) => setFilterEstado(e.target.value)}
+                        className="block w-full pl-10 pr-10 py-4 bg-white border border-slate-100 rounded-3xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm appearance-none cursor-pointer"
+                    >
+                        <option value="todos">Todos los Estados</option>
+                        <option value="operativo">🟢 Operativo</option>
+                        <option value="mantenimiento">🟡 Mantenimiento</option>
+                        <option value="baja">🔴 Baja</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                        <ChevronRightIcon className="h-4 w-4 text-slate-400 rotate-90" />
                     </div>
                 </div>
             </div>
 
             {/* Cards Grid */}
             {filtered.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
-                    <ComputerDesktopIcon className="h-16 w-16 text-gray-300 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-1">No se encontraron equipos</h3>
-                    <p className="text-sm text-gray-400">
+                <div className="flex flex-col items-center justify-center py-24 bg-white rounded-[2.5rem] border border-dashed border-slate-200 shadow-sm animate-fade-in">
+                    <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                        <ComputerDesktopIcon className="h-12 w-12 text-slate-300" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800 mb-2">No se encontraron resultados</h3>
+                    <p className="text-slate-400 max-w-sm text-center font-medium">
                         {searchTerm || filterEstado !== 'todos'
-                            ? 'Intenta ajustar los filtros de búsqueda'
-                            : 'Comienza agregando un nuevo equipo'}
+                            ? 'Ajusta los filtros para encontrar lo que buscas'
+                            : 'El inventario está vacío. Comienza agregando el primer equipo.'}
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filtered.map((item) => {
                         const Icon = TipoIcon(item.tipo_equipo);
                         const estado = estadoConfig[item.estado] || estadoConfig.mantenimiento;
                         return (
                             <div
                                 key={item.id}
-                                className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden"
+                                className="group relative bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col"
                             >
-                                {/* Top Color Accent */}
-                                <div className={`absolute top-0 left-0 right-0 h-1 ${estado.dot} opacity-80`}></div>
+                                {/* Active State Progress (Subtle Top Bar) */}
+                                <div className={`h-1.5 w-full ${estado.dot} opacity-20 group-hover:opacity-100 transition-opacity`}></div>
 
-                                <div className="p-5">
-                                    {/* Header: Icon + Type + Estado */}
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex-shrink-0 p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
-                                                <Icon className="h-6 w-6 text-indigo-600" />
+                                <div className="p-8 flex-1">
+                                    {/* Header */}
+                                    <div className="flex items-start justify-between mb-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-shrink-0 p-4 bg-indigo-50/50 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                <Icon className="h-7 w-7 text-indigo-600 group-hover:text-white" />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-bold text-gray-900 capitalize leading-tight">
+                                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">
                                                     {item.tipo_equipo}
                                                 </h3>
-                                                <p className="text-xs text-gray-400 mt-0.5">{item.marca}</p>
+                                                <p className="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{item.marca}</p>
                                             </div>
                                         </div>
-                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${estado.bg} ${estado.text} border ${estado.border}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${estado.dot}`}></span>
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${estado.bg} ${estado.text} border ${estado.border} shadow-sm`}>
+                                            <span className={`w-2 h-2 rounded-full ${estado.dot} animate-pulse`}></span>
                                             {item.estado}
                                         </span>
                                     </div>
 
-                                    {/* Model */}
-                                    <p className="text-base font-semibold text-gray-800 mb-3 truncate" title={item.modelo}>
-                                        {item.modelo || 'Sin modelo'}
-                                    </p>
-
-                                    {/* Details */}
-                                    <div className="space-y-2 mb-4">
-                                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                                            <CpuChipIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                                            <span className="truncate">
-                                                SN: <span className="font-medium text-gray-700">{item.serial}</span>
-                                            </span>
+                                    {/* Main Content */}
+                                    <div className="space-y-4 mb-8">
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-800 mb-1">Modelo</p>
+                                            <p className="text-sm text-slate-500 font-medium truncate" title={item.modelo}>
+                                                {item.modelo || 'No especificado'}
+                                            </p>
                                         </div>
-                                        {item.activo_fijo && (
-                                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                                                <DocumentTextIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                                                <span className="truncate">
-                                                    AF: <span className="font-medium text-gray-700">{item.activo_fijo}</span>
-                                                </span>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100/50">
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Serial</p>
+                                                <p className="text-xs font-bold text-slate-700 truncate">{item.serial}</p>
                                             </div>
-                                        )}
-                                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                                            <MapPinIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                                            <span className="truncate">
-                                                {item.sede?.nombre || 'Sin Sede'}
-                                                {item.area?.nombre ? ` · ${item.area.nombre}` : ''}
-                                            </span>
+                                            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100/50">
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Activo Fijo</p>
+                                                <p className="text-xs font-bold text-slate-700 truncate">{item.activo_fijo || 'N/A'}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 p-3 bg-indigo-50/30 rounded-2xl border border-indigo-100/50">
+                                            <MapPinIcon className="h-5 w-5 text-indigo-500 flex-shrink-0" />
+                                            <div>
+                                                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-wider">Ubicación Actual</p>
+                                                <p className="text-xs font-bold text-indigo-900 truncate">
+                                                    {item.sede?.nombre || 'Sin Sede'}
+                                                    {item.area?.nombre ? ` · ${item.area.nombre}` : ''}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    {/* Action Buttons */}
-                                    <div className="flex items-center gap-1 pt-3 border-t border-gray-100">
-                                        <button
-                                            onClick={() => navigate(`/pc-equipos/hoja-de-vida/${item.id}`)}
-                                            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                                            title="Hoja de Vida"
-                                        >
-                                            <DocumentTextIcon className="h-4 w-4" />
-                                            <span className="hidden sm:inline">Hoja de Vida</span>
-                                            <span className="sm:hidden">HV</span>
-                                        </button>
+                                {/* Footer Actions */}
+                                <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between gap-3 group-hover:bg-white transition-colors">
+                                    <button
+                                        onClick={() => navigate(`/pc-equipos/hoja-de-vida/${item.id}`)}
+                                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-white border border-indigo-100 rounded-xl hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm"
+                                    >
+                                        <DocumentTextIcon className="h-4 w-4" />
+                                        Hoja de Vida
+                                    </button>
+                                    
+                                    <div className="flex gap-2">
                                         <button
                                             onClick={() => navigate(`/pc-equipos/editar/${item.id}`)}
-                                            className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                                            className="p-3 text-slate-400 bg-white border border-slate-100 rounded-xl hover:text-indigo-600 hover:border-indigo-100 hover:shadow-lg transition-all"
                                             title="Editar"
                                         >
-                                            <PencilSquareIcon className="h-4 w-4" />
+                                            <PencilSquareIcon className="h-5 w-5" />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(item.id)}
-                                            className="inline-flex items-center justify-center p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                                            className="p-3 text-slate-400 bg-white border border-slate-100 rounded-xl hover:text-red-600 hover:border-red-100 hover:shadow-lg transition-all"
                                             title="Eliminar"
                                         >
-                                            <TrashIcon className="h-4 w-4" />
+                                            <TrashIcon className="h-5 w-5" />
                                         </button>
                                     </div>
                                 </div>
