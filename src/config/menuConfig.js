@@ -22,18 +22,28 @@ import {
     ExclamationTriangleIcon,
     ClipboardDocumentCheckIcon,
     PresentationChartLineIcon,
+    ServerStackIcon,
+    Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 
 const menuConfig = [
     {
         title: "Principal",
+        icon: HomeIcon,
+        iconBg: "bg-white border border-violet-100",
+        iconColor: "text-violet-600",
+        groupBg: "bg-violet-50 border border-violet-200",
         items: [
             { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, permissions: ['all'] },
         ]
     },
     {
         title: "Gestión de Sistemas",
+        icon: ComputerDesktopIcon,
+        iconBg: "bg-white border border-blue-100",
+        iconColor: "text-blue-600",
+        groupBg: "bg-blue-50 border border-blue-200",
         items: [
             {
                 name: 'Equipos PC', href: '/pc-equipos', icon: ComputerDesktopIcon,
@@ -69,7 +79,11 @@ const menuConfig = [
         ]
     },
     {
-        title: "gestion infraestructura",
+        title: "Gestión Infraestructura",
+        icon: ServerStackIcon,
+        iconBg: "bg-white border border-emerald-100",
+        iconColor: "text-emerald-600",
+        groupBg: "bg-emerald-50 border border-emerald-200",
         items: [
             {
                 name: 'Mantenimientos', href: '/mantenimientos', icon: WrenchScrewdriverIcon,
@@ -88,6 +102,10 @@ const menuConfig = [
     },
     {
         title: "Gestión de Compras",
+        icon: ShoppingCartIcon,
+        iconBg: "bg-white border border-amber-100",
+        iconColor: "text-amber-600",
+        groupBg: "bg-amber-50 border border-amber-200",
         items: [
             {
                 name: 'Inventario', href: '/inventario', icon: ClipboardDocumentListIcon,
@@ -146,6 +164,10 @@ const menuConfig = [
     },
     {
         title: "Administración General",
+        icon: Cog6ToothIcon,
+        iconBg: "bg-white border border-rose-100",
+        iconColor: "text-rose-600",
+        groupBg: "bg-rose-50 border border-rose-200",
         items: [
             {
                 name: 'Usuarios', href: '/usuarios', icon: UserGroupIcon,
@@ -199,7 +221,11 @@ const menuConfig = [
             },
         ]
     },{
-        title: "OTROS",
+        title: "Otros",
+        icon: FolderIcon,
+        iconBg: "bg-white border border-slate-200",
+        iconColor: "text-slate-600",
+        groupBg: "bg-slate-50 border border-slate-200",
         items: [
             {
                 name: 'App DKD', href: '/coming-soon', icon: UserGroupIcon,
