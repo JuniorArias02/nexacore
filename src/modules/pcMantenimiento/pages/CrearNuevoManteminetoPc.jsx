@@ -5,6 +5,7 @@ import pcMantenimientoService from '../services/pcMantenimientoService';
 import datosEmpresaService from '../services/datosEmpresaService';
 import EquipoSearchSelect from '../../pcEntregas/components/EquipoSearchSelect';
 import SignaturePad from '../../signatures/components/SignaturePad';
+import { authService } from '../../auth/services/authService';
 import {
     WrenchScrewdriverIcon,
     ArrowLeftIcon,
@@ -16,7 +17,8 @@ import {
     CurrencyDollarIcon,
     CubeIcon,
     HashtagIcon,
-    CheckCircleIcon
+    CheckCircleIcon,
+    PencilSquareIcon
 } from '@heroicons/react/24/outline';
 
 export default function CrearNuevoManteminetoPc() {
@@ -38,6 +40,9 @@ export default function CrearNuevoManteminetoPc() {
         firma_sistemas: ''
     });
 
+    const [useStoredSignature, setUseStoredSignature] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+
     useEffect(() => {
         const loadEmpresas = async () => {
             try {
@@ -51,7 +56,19 @@ export default function CrearNuevoManteminetoPc() {
                 console.error("Error loading empresas", error);
             }
         };
+
+        const loadCurrentUser = async () => {
+            try {
+                const response = await authService.me();
+                const user = response.objeto || response;
+                setCurrentUser(user);
+            } catch (error) {
+                console.error('Error loading user:', error);
+            }
+        };
+
         loadEmpresas();
+        loadCurrentUser();
     }, []);
 
     const handleChange = (e) => {
@@ -69,15 +86,25 @@ export default function CrearNuevoManteminetoPc() {
             return Swal.fire('Error', 'Debe seleccionar un equipo', 'error');
         }
 
-        if (!formData.firma_sistemas) {
-            return Swal.fire('Firma requerida', 'El técnico de sistemas debe firmar el registro.', 'warning');
+        if (!formData.firma_sistemas && !useStoredSignature) {
+            return Swal.fire('Firma requerida', 'El técnico de sistemas debe firmar el registro o usar su firma guardada.', 'warning');
+        }
+
+        if (useStoredSignature && !currentUser?.firma_digital) {
+            return Swal.fire('Error', 'No tiene una firma guardada en su perfil', 'error');
         }
 
         try {
             setLoading(true);
             
             // Preparar payload limpio
-            const payload = { ...formData };
+            const payload = { 
+                ...formData,
+                use_stored_signature_sistemas: useStoredSignature
+            };
+            if (useStoredSignature) {
+                delete payload.firma_sistemas;
+            }
             
             // Limpiar campos opcionales que pueden ser strings vacíos
             if (!payload.empresa_responsable_id) {
@@ -342,11 +369,59 @@ export default function CrearNuevoManteminetoPc() {
                             </div>
                             
                             <div className="space-y-4">
-                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Firma de Sistemas <span className="text-rose-500">*</span></label>
-                                <SignaturePad 
-                                    title="Firma del Técnico de Sistemas"
-                                    onSave={(data) => setFormData(prev => ({ ...prev, firma_sistemas: data }))}
-                                />
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Firma de Sistemas <span className="text-rose-500">*</span></label>
+                                    <div className="flex items-center gap-3 bg-slate-50 py-1.5 px-3 rounded-full border border-slate-200">
+                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                            {useStoredSignature ? 'Usando firma guardada' : 'Dibujar firma'}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setUseStoredSignature(!useStoredSignature)}
+                                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 shadow-sm ${useStoredSignature ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                                        >
+                                            <span
+                                                aria-hidden="true"
+                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${useStoredSignature ? 'translate-x-5' : 'translate-x-0'}`}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                {useStoredSignature ? (
+                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-slate-50 min-h-[160px]">
+                                        {currentUser?.firma_digital ? (
+                                            <div className="text-center">
+                                                <img
+                                                    src={currentUser.firma_digital?.startsWith('http')
+                                                        ? currentUser.firma_digital
+                                                        : `${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${currentUser.firma_digital}`
+                                                    }
+                                                    alt="Firma Guardada"
+                                                    className="h-24 object-contain mx-auto mb-2 mix-blend-multiply"
+                                                    onError={(e) => {
+                                                        console.error('Error loading signature:', e.target.src);
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                                <p className="text-sm text-green-600 font-medium">Firma guardada lista para usar</p>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center text-gray-500">
+                                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                </svg>
+                                                <p className="mt-2 text-sm font-medium text-gray-900">No tienes una firma guardada</p>
+                                                <p className="mt-1 text-sm text-gray-500">Por favor, dibuja tu firma o configura una en tu perfil.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <SignaturePad 
+                                        title="Firma del Técnico de Sistemas"
+                                        onSave={(data) => setFormData(prev => ({ ...prev, firma_sistemas: data }))}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
