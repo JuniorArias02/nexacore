@@ -32,6 +32,7 @@ export default function PcMantenimientoList() {
         try {
             setLoading(true);
             const data = await pcMantenimientoService.getAll();
+            console.log(data);
             setMantenimientos(data || []);
         } catch (error) {
             console.error('Error loading mantenimientos:', error);
@@ -243,7 +244,7 @@ export default function PcMantenimientoList() {
                                                         {item.empresa_responsable?.nombre || 'Interno / Propio'}
                                                     </span>
                                                     <span className="text-[9px] font-black text-slate-400 tracking-widest uppercase">
-                                                        Responsable: {item.responsable_mantenimiento || 'DEPARTAMENTO SISTEMAS'}
+                                                        Responsable: {item.creador.nombre_completo || 'DEPARTAMENTO SISTEMAS'}
                                                     </span>
                                                 </div>
                                             </div>

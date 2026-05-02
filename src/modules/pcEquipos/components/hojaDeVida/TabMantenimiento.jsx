@@ -25,6 +25,7 @@ const formatDate = (dateString) => {
 };
 
 export default function TabMantenimiento({ mantenimientos, config }) {
+    console.log(mantenimientos);
     const getColor = () => {
         if (config.dias_restantes === null) return 'slate';
         if (config.dias_restantes <= 0) return 'red';
@@ -127,7 +128,7 @@ export default function TabMantenimiento({ mantenimientos, config }) {
                                             )}
                                         </td>
                                         <td className="px-8 py-6 text-sm font-bold text-slate-500">
-                                            {m.responsable_mantenimiento || m.empresa_responsable?.nombre || 'Interno'}
+                                            {m.creador.nombre_completo}
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             <p className="text-base font-black text-slate-900">
