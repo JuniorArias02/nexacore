@@ -69,6 +69,39 @@ export default function PcMantenimientoCronograma() {
         }
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString || dateString === '—') return '—';
+        try {
+            let d;
+            if (dateString.includes('T') || dateString.includes(' ')) {
+                // Si ya tiene tiempo o es un datetime
+                const cleanDate = dateString.split(' ')[0];
+                const parts = cleanDate.split('-');
+                if (parts.length >= 3) {
+                    d = new Date(parts[0], parseInt(parts[1]) - 1, parseInt(parts[2].substring(0, 2)));
+                } else {
+                    d = new Date(dateString);
+                }
+            } else {
+                const parts = dateString.split('-');
+                if (parts.length >= 3) {
+                    d = new Date(parts[0], parseInt(parts[1]) - 1, parseInt(parts[2].substring(0, 2)));
+                } else {
+                    d = new Date(dateString + 'T00:00:00');
+                }
+            }
+            if (isNaN(d.getTime())) return dateString;
+            
+            return d.toLocaleDateString('es-CO', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit' 
+            }).toUpperCase().replace('.', '');
+        } catch (e) {
+            return dateString;
+        }
+    };
+
     return (
         <div className="mx-auto max-w-full px-4 py-8 animate-fade-in font-sans">
             {/* Header */}
@@ -187,7 +220,7 @@ export default function PcMantenimientoCronograma() {
                                         </td>
                                         <td className="px-8 py-6 text-center">
                                             <div className="inline-flex flex-col items-center">
-                                                <span className="text-sm font-black text-slate-700">{item.mantenimiento.fecha_ultimo_mantenimiento || '—'}</span>
+                                                <span className="text-sm font-black text-slate-700">{formatDate(item.mantenimiento.fecha_ultimo_mantenimiento)}</span>
                                                 {item.mantenimiento.base_calculo === 'fecha_ingreso' && (
                                                     <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest mt-1">BASADO EN INGRESO</span>
                                                 )}
@@ -195,7 +228,7 @@ export default function PcMantenimientoCronograma() {
                                         </td>
                                         <td className="px-8 py-6 text-center">
                                             <div className="inline-flex flex-col items-center">
-                                                <span className="text-sm font-black text-slate-800">{item.mantenimiento.fecha_proximo_mantenimiento || '—'}</span>
+                                                <span className="text-sm font-black text-slate-800">{formatDate(item.mantenimiento.fecha_proximo_mantenimiento)}</span>
                                                 {item.mantenimiento.dias_restantes !== null && (
                                                     <span className={`text-[10px] font-bold mt-1 ${item.mantenimiento.dias_restantes <= 0 ? 'text-rose-500' : 'text-slate-400'}`}>
                                                         {item.mantenimiento.dias_restantes <= 0 
