@@ -67,6 +67,19 @@ const pcMantenimientoService = {
     },
 
     /**
+     * Actualiza firmas y/o estado de un mantenimiento
+     */
+    actualizarFirmas: async (id, data) => {
+        try {
+            const response = await api.post(`/pc-mantenimientos/${id}/actualizar-firmas`, data);
+            return response.data.objeto;
+        } catch (error) {
+            console.error('Error in pcMantenimientoService.actualizarFirmas:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Elimina un registro de mantenimiento
      */
     delete: async (id) => {

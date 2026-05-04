@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import pcMantenimientoService from '../services/pcMantenimientoService';
+import SignaturePad from '../../signatures/components/SignaturePad';
 import {
     WrenchScrewdriverIcon,
     PlusIcon,
@@ -23,6 +24,9 @@ export default function PcMantenimientoList() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
+    const [selectedMantenimiento, setSelectedMantenimiento] = useState(null);
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [currentSignature, setCurrentSignature] = useState(null);
 
     useEffect(() => {
         loadMantenimientos();
@@ -32,11 +36,55 @@ export default function PcMantenimientoList() {
         try {
             setLoading(true);
             const data = await pcMantenimientoService.getAll();
-            console.log(data);
             setMantenimientos(data || []);
         } catch (error) {
             console.error('Error loading mantenimientos:', error);
             Swal.fire('Error', 'No se pudieron cargar los mantenimientos', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCompleteClick = (mantenimiento) => {
+        setSelectedMantenimiento(mantenimiento);
+        setCurrentSignature(null);
+        setIsSignatureModalOpen(true);
+    };
+
+    const handleSignatureSave = async () => {
+        if (!currentSignature) {
+            Swal.fire({
+                title: 'No hay firma',
+                text: 'Por favor, realice su firma en el panel antes de continuar.',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl' }
+            });
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await pcMantenimientoService.actualizarFirmas(selectedMantenimiento.id, {
+                firma_personal_cargo: currentSignature,
+                estado: 'completado'
+            });
+            
+            Swal.fire({
+                title: '¡Mantenimiento Completado!',
+                text: 'Se ha guardado la firma y finalizado el mantenimiento.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-[2rem]' }
+            });
+            
+            setIsSignatureModalOpen(false);
+            setSelectedMantenimiento(null);
+            loadMantenimientos();
+        } catch (error) {
+            console.error('Error completando mantenimiento:', error);
+            Swal.fire('Error', 'No se pudo completar el mantenimiento', 'error');
         } finally {
             setLoading(false);
         }
@@ -264,6 +312,15 @@ export default function PcMantenimientoList() {
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             <div className="flex justify-end gap-2.5">
+                                                {item.estado !== 'completado' && (
+                                                    <button
+                                                        onClick={() => handleCompleteClick(item)}
+                                                        className="p-2.5 bg-slate-50 hover:bg-green-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-green-600 hover:-translate-y-0.5"
+                                                        title="Completar mantenimiento"
+                                                    >
+                                                        <CheckBadgeIcon className="h-4.5 w-4.5 stroke-[2] w-5 h-5" />
+                                                    </button>
+                                                )}
                                                 <Link
                                                     to={`/pc-mantenimientos/editar/${item.id}`}
                                                     className="p-2.5 bg-slate-50 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-indigo-600 hover:-translate-y-0.5"
@@ -297,6 +354,48 @@ export default function PcMantenimientoList() {
                     </span>
                 </div>
             </div>
+
+            {/* Modal de Firma para Completar */}
+            {isSignatureModalOpen && (
+                <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsSignatureModalOpen(false)}></div>
+                    <div className="relative w-full h-[100dvh] sm:h-auto sm:max-w-2xl bg-white sm:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Header */}
+                        <div className="p-6 sm:p-8 flex items-center justify-between border-b border-slate-50">
+                            <div>
+                                <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none uppercase tracking-[0.1em]">Firma de Conformidad</h3>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 flex items-center gap-2">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
+                                    Firma del personal a cargo
+                                </p>
+                            </div>
+                            <button type="button" onClick={() => setIsSignatureModalOpen(false)} className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Drawing Area */}
+                        <div className="p-6 sm:p-8 flex-grow">
+                            <SignaturePad embedded={true} onSave={setCurrentSignature} />
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 sm:p-8 bg-slate-50/50 border-t border-slate-50 flex gap-4">
+                            <button type="button" onClick={() => setIsSignatureModalOpen(false)} className="flex-1 py-4 bg-white text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-slate-100 hover:bg-slate-100 transition-all active:scale-95">
+                                Cancelar
+                            </button>
+                            <button type="button" onClick={handleSignatureSave} className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Completar Mantenimiento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 } 
