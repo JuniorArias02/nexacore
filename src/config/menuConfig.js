@@ -246,7 +246,7 @@ const menuConfig = [
             },
             {
                 name: 'Imagen Mensual', 
-                href: 'https://clinicalhouse.co/deparSistemApi/public/mensual.png', 
+                href: '/mensual.png', 
                 icon: PhotoIcon,
                 permissions: [],
                 external: true
