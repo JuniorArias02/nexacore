@@ -44,6 +44,30 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
         setExpandedGroups(prev => ({ ...prev, [title]: !prev[title] }));
     };
 
+    const handleExternalDownload = async (e, url, name) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = name || url.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            // Fallback
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.click();
+        }
+    };
+
     // Filter menu items based on user permissions
     const filteredNavigation = useMemo(() => {
         return menuConfig.reduce((acc, group) => {
@@ -115,6 +139,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                     </button>
                 </div>
 
+
                 {/* Navigation Links */}
                 <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar pb-8 space-y-4">
                     {filteredNavigation.map((group, groupIndex) => {
@@ -171,39 +196,65 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                             return (
                                                 <li key={item.name} className="relative">
                                                     <div className="group flex items-center">
-                                                        <Link
-                                                            to={item.href}
-                                                            className={`
-                                                                relative flex-1 flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-semibold transition-all duration-300
-                                                                ${active 
-                                                                    ? 'bg-white text-indigo-700 shadow-sm border border-white/50' 
-                                                                    : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600'
-                                                                }
-                                                                ${collapsed ? 'justify-center px-0 h-12 w-12 mx-auto rounded-2xl' : ''}
-                                                            `}
-                                                            title={collapsed ? item.name : ''}
-                                                            onClick={() => window.innerWidth < 1024 && !hasChildren && onClose()}
-                                                        >
-                                                            {/* Indicador de activo lateral */}
-                                                            {active && !collapsed && (
-                                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-indigo-600 rounded-r-full" />
-                                                            )}
+                                                        {item.external ? (
+                                                            <a
+                                                                href={item.href}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                download
+                                                                className={`
+                                                                    relative flex-1 flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-semibold transition-all duration-300
+                                                                    ${active 
+                                                                        ? 'bg-white text-indigo-700 shadow-sm border border-white/50' 
+                                                                        : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600'
+                                                                    }
+                                                                    ${collapsed ? 'justify-center px-0 h-12 w-12 mx-auto rounded-2xl' : ''}
+                                                                `}
+                                                                title={collapsed ? item.name : ''}
+                                                                onClick={(e) => handleExternalDownload(e, item.href, item.name)}
+                                                            >
+                                                                <item.icon className={`h-5 w-5 shrink-0 transition-all duration-300 ${active ? 'text-indigo-600 scale-110' : 'text-slate-400 group-hover:text-indigo-500 group-hover:scale-110'}`} />
+                                                                {!collapsed && (
+                                                                    <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                                                                        {item.name}
+                                                                    </span>
+                                                                )}
+                                                            </a>
+                                                        ) : (
+                                                            <Link
+                                                                to={item.href}
+                                                                className={`
+                                                                    relative flex-1 flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-semibold transition-all duration-300
+                                                                    ${active 
+                                                                        ? 'bg-white text-indigo-700 shadow-sm border border-white/50' 
+                                                                        : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600'
+                                                                    }
+                                                                    ${collapsed ? 'justify-center px-0 h-12 w-12 mx-auto rounded-2xl' : ''}
+                                                                `}
+                                                                title={collapsed ? item.name : ''}
+                                                                onClick={() => window.innerWidth < 1024 && !hasChildren && onClose()}
+                                                            >
+                                                                {/* Indicador de activo lateral */}
+                                                                {active && !collapsed && (
+                                                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-indigo-600 rounded-r-full" />
+                                                                )}
 
-                                                            <item.icon className={`h-5 w-5 shrink-0 transition-all duration-300 ${active ? 'text-indigo-600 scale-110' : 'text-slate-400 group-hover:text-indigo-500 group-hover:scale-110'}`} />
-                                                            
-                                                            {!collapsed && (
-                                                                <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
-                                                                    {item.name}
-                                                                </span>
-                                                            )}
+                                                                <item.icon className={`h-5 w-5 shrink-0 transition-all duration-300 ${active ? 'text-indigo-600 scale-110' : 'text-slate-400 group-hover:text-indigo-500 group-hover:scale-110'}`} />
+                                                                
+                                                                {!collapsed && (
+                                                                    <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                                                                        {item.name}
+                                                                    </span>
+                                                                )}
 
-                                                            {hasChildren && !collapsed && (
-                                                                <ChevronDownIcon 
-                                                                    onClick={(e) => toggleExpandItem(e, item.href)}
-                                                                    className={`h-4 w-4 transition-transform duration-300 hover:bg-slate-200/50 rounded-full p-0.5 ${isExpanded ? 'rotate-180' : ''} ${active ? 'text-indigo-600' : 'text-slate-400'}`} 
-                                                                />
-                                                            )}
-                                                        </Link>
+                                                                {hasChildren && !collapsed && (
+                                                                    <ChevronDownIcon 
+                                                                        onClick={(e) => toggleExpandItem(e, item.href)}
+                                                                        className={`h-4 w-4 transition-transform duration-300 hover:bg-slate-200/50 rounded-full p-0.5 ${isExpanded ? 'rotate-180' : ''} ${active ? 'text-indigo-600' : 'text-slate-400'}`} 
+                                                                    />
+                                                                )}
+                                                            </Link>
+                                                        )}
                                                     </div>
 
                                                     {/* Nested Items */}
@@ -214,23 +265,43 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                                                     const childActive = location.pathname === child.href;
                                                                     return (
                                                                         <li key={child.href}>
-                                                                            <Link
-                                                                                to={child.href}
-                                                                                className={`
-                                                                                    group/child relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200
-                                                                                    ${childActive
-                                                                                        ? 'text-indigo-700 bg-white/80 shadow-sm'
-                                                                                        : 'text-slate-500 hover:text-indigo-600 hover:bg-white/50'
-                                                                                    }
-                                                                                `}
-                                                                                onClick={() => window.innerWidth < 1024 && onClose()}
-                                                                            >
-                                                                                {/* Active Indicator line pointing to item */}
-                                                                                <div className={`absolute -left-[13px] top-1/2 h-px w-3 bg-slate-200 transition-colors ${childActive ? 'bg-indigo-300' : 'group-hover/child:bg-indigo-200'}`} />
-                                                                                
-                                                                                <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${childActive ? 'bg-indigo-600 shadow-[0_0_0_2px_rgba(79,70,229,0.2)]' : 'bg-slate-300 group-hover/child:bg-indigo-400'}`} />
-                                                                                <span className="tracking-wide">{child.name}</span>
-                                                                            </Link>
+                                                                            {child.external ? (
+                                                                                <a
+                                                                                    href={child.href}
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    download
+                                                                                    className={`
+                                                                                        group/child relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200
+                                                                                        ${childActive
+                                                                                            ? 'text-indigo-700 bg-white/80 shadow-sm'
+                                                                                            : 'text-slate-500 hover:text-indigo-600 hover:bg-white/50'
+                                                                                        }
+                                                                                    `}
+                                                                                    onClick={(e) => handleExternalDownload(e, child.href, child.name)}
+                                                                                >
+                                                                                    <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${childActive ? 'bg-indigo-600 shadow-[0_0_0_2px_rgba(79,70,229,0.2)]' : 'bg-slate-300 group-hover/child:bg-indigo-400'}`} />
+                                                                                    <span className="tracking-wide">{child.name}</span>
+                                                                                </a>
+                                                                            ) : (
+                                                                                <Link
+                                                                                    to={child.href}
+                                                                                    className={`
+                                                                                        group/child relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200
+                                                                                        ${childActive
+                                                                                            ? 'text-indigo-700 bg-white/80 shadow-sm'
+                                                                                            : 'text-slate-500 hover:text-indigo-600 hover:bg-white/50'
+                                                                                        }
+                                                                                    `}
+                                                                                    onClick={() => window.innerWidth < 1024 && onClose()}
+                                                                                >
+                                                                                    {/* Active Indicator line pointing to item */}
+                                                                                    <div className={`absolute -left-[13px] top-1/2 h-px w-3 bg-slate-200 transition-colors ${childActive ? 'bg-indigo-300' : 'group-hover/child:bg-indigo-200'}`} />
+                                                                                    
+                                                                                    <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${childActive ? 'bg-indigo-600 shadow-[0_0_0_2px_rgba(79,70,229,0.2)]' : 'bg-slate-300 group-hover/child:bg-indigo-400'}`} />
+                                                                                    <span className="tracking-wide">{child.name}</span>
+                                                                                </Link>
+                                                                            )}
                                                                         </li>
                                                                     );
                                                                 })}

@@ -24,6 +24,9 @@ import {
     PresentationChartLineIcon,
     ServerStackIcon,
     Cog6ToothIcon,
+    ArrowDownTrayIcon,
+    CloudArrowDownIcon,
+    PhotoIcon,
 } from '@heroicons/react/24/outline';
 
 
@@ -228,18 +231,25 @@ const menuConfig = [
         groupBg: "bg-slate-50 border border-slate-200",
         items: [
             {
-                name: 'App DKD', href: '/coming-soon', icon: UserGroupIcon,
+                name: 'Descargar Fondo App', 
+                href: 'https://clinicalhouse.co/deparSistemApi/public/fondoAppv1.exe', 
+                icon: ArrowDownTrayIcon,
                 permissions: [],
-                children: [
-                    { name: 'Crear App DKD', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
-                ]
+                external: true
             },
             {
-                name: 'Fondo Mensual', href: '/coming-soon', icon: UserGroupIcon,
+                name: 'Restaurar Fondo', 
+                href: 'https://clinicalhouse.co/deparSistemApi/public/RestaurarFondo.exe', 
+                icon: CloudArrowDownIcon,
                 permissions: [],
-                children: [
-                    { name: 'Crear Fondo Mensual', href: '/coming-soon', icon: PlusCircleIcon, permissions: [] },
-                ]
+                external: true
+            },
+            {
+                name: 'Imagen Mensual', 
+                href: 'https://clinicalhouse.co/deparSistemApi/public/mensual.png', 
+                icon: PhotoIcon,
+                permissions: [],
+                external: true
             }
         ]
     }
