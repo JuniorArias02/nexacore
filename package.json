@@ -18,6 +18,8 @@
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
     "browser-image-compression": "^2.0.2",
+    "laravel-echo": "^2.3.4",
+    "pusher-js": "^8.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-easy-crop": "^5.5.6",

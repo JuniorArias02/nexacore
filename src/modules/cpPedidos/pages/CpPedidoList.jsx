@@ -76,6 +76,7 @@ export default function CpPedidoList() {
         try {
             setLoading(true);
             const data = await cpPedidoService.getAll(filters);
+            console.log(data);
 
             // Pre-process data for faster filtering
             const processedData = (data || []).map(pedido => {
@@ -359,7 +360,7 @@ export default function CpPedidoList() {
                                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Info. Pedido</th>
                                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Solicitante</th>
                                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado Compras</th>
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado Gerencia</th>
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado Responsable</th>
                                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
                                 <th scope="col" className="relative px-6 py-4">
                                     <span className="sr-only">Acciones</span>

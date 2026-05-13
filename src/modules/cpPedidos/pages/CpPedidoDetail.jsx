@@ -576,7 +576,7 @@ export default function CpPedidoDetail() {
                                 </span>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500 uppercase">Gerencia</p>
+                                <p className="text-xs text-gray-500 uppercase">Responsable Aprobador</p>
                                 <span className={`inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset mt-1 ${pedido.estado_gerencia === 'aprobado' ? 'bg-green-50 text-green-700 ring-green-600/20' :
                                     pedido.estado_gerencia === 'rechazado' ? 'bg-red-50 text-red-700 ring-red-600/20' :
                                         'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
@@ -618,7 +618,7 @@ export default function CpPedidoDetail() {
                             )}
                             {pedido.responsable_aprobacion_firma && (
                                 <div>
-                                    <p className="text-xs text-gray-400 mb-1">Firma Gerencia</p>
+                                    <p className="text-xs text-gray-400 mb-1">Firma Responsable aprobador</p>
                                     <img
                                         src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${pedido.responsable_aprobacion_firma}`}
                                         className="h-12 object-contain bg-gray-50 rounded p-1"

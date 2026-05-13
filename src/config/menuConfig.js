@@ -27,6 +27,8 @@ import {
     ArrowDownTrayIcon,
     CloudArrowDownIcon,
     PhotoIcon,
+    InboxIcon,
+    ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 
 
@@ -222,6 +224,26 @@ const menuConfig = [
                 name: 'Gestión de Permisos', href: '/permisos', icon: KeyIcon,
                 permissions: ['permiso.crear', 'permiso.actualizar', 'permiso.eliminar'],
             },
+        ]
+    },
+    {
+        title: "Buzón de Sugerencias",
+        icon: InboxIcon,
+        iconBg: "bg-white border border-fuchsia-100",
+        iconColor: "text-fuchsia-600",
+        groupBg: "bg-fuchsia-50 border border-fuchsia-200",
+        items: [
+            {
+                name: 'Mis Sugerencias', href: '/buzon', icon: InboxIcon,
+                permissions: ['buzon.mias'],
+                children: [
+                    { name: 'Crear Sugerencia', href: '/buzon/nuevo', icon: PlusCircleIcon, permissions: ['buzon.mias'] },
+                ]
+            },
+            {
+                name: 'Bandeja de Agente', href: '/buzon/agente', icon: ChatBubbleLeftRightIcon,
+                permissions: ['buzon.agente']
+            }
         ]
     },{
         title: "Otros",

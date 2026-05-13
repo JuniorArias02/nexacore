@@ -13,13 +13,63 @@ import {
     BellIcon,
 } from '@heroicons/react/24/outline';
 import Swal from 'sweetalert2';
+import { buzonSugerenciasService } from '../modules/buzonSugerencias/services/buzonSugerenciasService';
 
 const Navbar = ({ onOpenSidebar }) => {
-    const { user, logout, refreshPermissions, sessionStatus } = useAuth();
+    const { user, logout, refreshPermissions, sessionStatus, hasPermission } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [syncing, setSyncing] = useState(false);
-    const dropdownRef = useRef(null);
     const navigate = useNavigate();
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadTickets, setUnreadTickets] = useState([]);
+    const [notifOpen, setNotifOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const notifRef = useRef(null);
+
+    useEffect(() => {
+        if (!user) return;
+        
+        const fetchUnread = async () => {
+            try {
+                const count = await buzonSugerenciasService.getNoLeidosCount();
+                setUnreadCount(count);
+                if (count > 0) {
+                    const tickets = await buzonSugerenciasService.getTicketsNoLeidos();
+                    setUnreadTickets(tickets || []);
+                } else {
+                    setUnreadTickets([]);
+                }
+            } catch (error) {
+                console.error("Error fetching unread count:", error);
+            }
+        };
+
+        fetchUnread();
+        
+        // Conexión WebSockets para notificación instantánea
+        import('../services/echo').then(({ default: echo }) => {
+            if (echo) {
+                const userChannel = echo.private(`usuario.${user.id}`);
+                userChannel.listen('.App\\Modules\\BuzonSugerencias\\Domain\\Events\\NuevoMensajeNoLeido', () => {
+                    fetchUnread(); // Refetch the exact count when notified
+                });
+
+                let agentChannel = null;
+                if (hasPermission && hasPermission('buzon.agente')) {
+                    agentChannel = echo.private('buzon.agentes');
+                    agentChannel.listen('.App\\Modules\\BuzonSugerencias\\Domain\\Events\\NuevoMensajeNoLeido', () => {
+                        fetchUnread();
+                    });
+                }
+                
+                return () => {
+                    echo.leaveChannel(`usuario.${user.id}`);
+                    if (agentChannel) echo.leaveChannel('buzon.agentes');
+                };
+            }
+        });
+        
+    }, [user]);
 
     // Helper for status colors
     const getStatusColor = (status) => {
@@ -88,6 +138,9 @@ const Navbar = ({ onOpenSidebar }) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setDropdownOpen(false);
             }
+            if (notifRef.current && !notifRef.current.contains(event.target)) {
+                setNotifOpen(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
@@ -113,10 +166,57 @@ const Navbar = ({ onOpenSidebar }) => {
                         <GlobalSearch />
 
                         {/* Notifications */}
-                        <button className="relative p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition-all group">
-                            <BellIcon className="h-6 w-6 stroke-[1.5] group-hover:scale-110 transition-transform" />
-                            <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
-                        </button>
+                        <div className="relative" ref={notifRef}>
+                            <button 
+                                onClick={() => setNotifOpen(!notifOpen)}
+                                className="relative p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition-all group"
+                            >
+                                <BellIcon className="h-6 w-6 stroke-[1.5] group-hover:scale-110 transition-transform" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white animate-pulse" />
+                                )}
+                            </button>
+
+                            {notifOpen && (
+                                <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl bg-white p-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 ring-1 ring-slate-900/5 transform transition-all">
+                                    <div className="px-4 py-3 border-b border-slate-100/80 mb-2">
+                                        <h3 className="text-sm font-bold text-slate-800">Notificaciones</h3>
+                                        <p className="text-[10px] uppercase font-black tracking-wider text-slate-400">Mensajes No Leídos</p>
+                                    </div>
+                                    <div className="max-h-[300px] overflow-y-auto space-y-1">
+                                        {unreadTickets.length === 0 ? (
+                                            <div className="px-4 py-6 text-center text-xs text-slate-400 font-medium">
+                                                No tienes mensajes nuevos.
+                                            </div>
+                                        ) : (
+                                            unreadTickets.map(ticket => (
+                                                <button
+                                                    key={ticket.id}
+                                                    onClick={() => {
+                                                        setNotifOpen(false);
+                                                        navigate(`/buzon/${ticket.codigo_ticket}`);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 hover:bg-indigo-50/50 rounded-xl transition-colors group relative overflow-hidden"
+                                                >
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <span className="text-xs font-black text-indigo-600 tracking-wide">{ticket.codigo_ticket}</span>
+                                                        <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full">
+                                                            {ticket.unread_count} nuevos
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-slate-700 truncate group-hover:text-indigo-900 transition-colors">
+                                                        {ticket.asunto}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-400 mt-1 font-medium">
+                                                        Último mensaje: {new Date(ticket.ultimo_mensaje).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
 
                         {/* Global Sync Permissions Button */}

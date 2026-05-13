@@ -63,6 +63,10 @@ import Error404 from '../modules/errorPage/pages/Error404';
 import Error500 from '../modules/errorPage/pages/Error500';
 import Error403 from '../modules/errorPage/pages/Error403';
 import ComingSoon from '../modules/errorPage/pages/ComingSoon';
+import BuzonSugerenciasList from '../modules/buzonSugerencias/pages/BuzonSugerenciasList';
+import BuzonAgenteList from '../modules/buzonSugerencias/pages/BuzonAgenteList';
+import BuzonSugerenciasFormPage from '../modules/buzonSugerencias/pages/BuzonSugerenciasFormPage';
+import BuzonSugerenciaDetailPage from '../modules/buzonSugerencias/pages/BuzonSugerenciaDetailPage';
 
 // Componente para proteger rutas privadas
 const ProtectedRoute = ({ children }) => {
@@ -533,6 +537,28 @@ const AppRouter = () => {
                     <Route path="/agenda-mantenimientos/editar/:id" element={
                         <PermissionProtectedRoute requiredPermissions={['agenda_mantenimiento.crear']}>
                             <AgendaMantenimientoFormPage />
+                        </PermissionProtectedRoute>
+                    } />
+
+                    {/* Buzon Sugerencias */}
+                    <Route path="/buzon" element={
+                        <PermissionProtectedRoute requiredPermissions={['buzon.mias']}>
+                            <BuzonSugerenciasList />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/buzon/nuevo" element={
+                        <PermissionProtectedRoute requiredPermissions={['buzon.mias']}>
+                            <BuzonSugerenciasFormPage />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/buzon/agente" element={
+                        <PermissionProtectedRoute requiredPermissions={['buzon.agente']}>
+                            <BuzonAgenteList />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/buzon/:codigo" element={
+                        <PermissionProtectedRoute requiredPermissions={['buzon.mias', 'buzon.agente']}>
+                            <BuzonSugerenciaDetailPage />
                         </PermissionProtectedRoute>
                     } />
 
