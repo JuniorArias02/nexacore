@@ -85,7 +85,7 @@ const LoginPage = () => {
                     </div>
 
                     <div className="flex items-center gap-8 border-t border-white/10 pt-8">
-                        <div>
+                        {/* <div>
                             <div className="text-2xl font-bold text-white">100%</div>
                             <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Cloud-Native</div>
                         </div>
@@ -93,7 +93,7 @@ const LoginPage = () => {
                         <div>
                             <div className="text-2xl font-bold text-white">2.0.x</div>
                             <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Latest Alpha</div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -211,12 +211,6 @@ const LoginPage = () => {
                     </div>
                 </div>
 
-                {/* Footer Brand */}
-                <div className="p-8 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
-                        Powered by NexaCore Ecosystem &copy; 2026
-                    </p>
-                </div>
             </div>
         </div>
     );

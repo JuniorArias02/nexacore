@@ -28,7 +28,7 @@ const InformacionWebPage = () => {
                                 <span className="text-white font-bold text-xl">N</span>
                             </div>
                             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-                                NexaCore <span className="text-blue-600 font-extrabold">2.0</span>
+                                NexaCore 
                             </span>
                         </div>
                         <Link
@@ -91,7 +91,7 @@ const InformacionWebPage = () => {
                             <RocketLaunchIcon className="h-64 w-64" />
                         </div>
                         <h3 className="text-xl font-bold text-blue-200 mb-2 uppercase tracking-widest text-sm">Actual</h3>
-                        <h2 className="text-4xl font-black text-white mb-6">NexaCore <span className="font-light italic">v2</span></h2>
+                        <h2 className="text-4xl font-black text-white mb-6">NexaCore </h2>
                         <ul className="space-y-4 text-blue-50 text-lg">
                             <li className="flex items-center gap-3 font-medium">
                                 <div className="h-2 w-2 bg-blue-300 rounded-full animate-pulse"></div>
@@ -159,7 +159,7 @@ const InformacionWebPage = () => {
                 {/* Footer Message */}
                 <div className="text-center py-12 border-t border-gray-200">
                     <p className="text-gray-400 text-sm">
-                        &copy; 2026 Ecosistema NEXA. Construido para el mañana.
+                        &copy; 2026  NEXA
                     </p>
                 </div>
             </main>

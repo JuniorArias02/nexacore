@@ -370,7 +370,7 @@ export default function CpPedidoForm({ initialData = null }) {
                                 <div>
                                     <h4 className="font-bold text-slate-800 text-sm tracking-wide mb-1 uppercase">Unidad de Medida</h4>
                                     <p className="text-slate-600 leading-relaxed text-sm font-medium">
-                                        Puede representarse en <span className="text-indigo-600 font-bold border-b border-indigo-200 pb-0.5">Unidad</span> o <span className="text-indigo-600 font-bold border-b border-indigo-200 pb-0.5">Paquete</span> según aplique a su proceso.
+                                        Puede representarse en <span className="text-indigo-600 font-bold border-b border-indigo-200 pb-0.5">Unidad</span>, <span className="text-indigo-600 font-bold border-b border-indigo-200 pb-0.5">Paquete</span>, <span className="text-indigo-600 font-bold border-b border-indigo-200 pb-0.5">Kilogramos</span> o <span className="text-indigo-600 font-bold border-b border-indigo-200 pb-0.5">Gramos</span> según aplique a su proceso.
                                     </p>
                                 </div>
                             </div>

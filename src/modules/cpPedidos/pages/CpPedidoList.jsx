@@ -234,7 +234,7 @@ export default function CpPedidoList() {
                         GESTIÓN DE COMPRAS
                     </span>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
-                        Pedidos de Compra
+                        SOLICITUD DE PEDIDOS PRO PROCESOS PCO-FO-09
                     </h1>
                     <p className="text-indigo-50 max-w-2xl text-lg">
                         Gestiona, aprueba y da seguimiento a las solicitudes de compra de la organización.

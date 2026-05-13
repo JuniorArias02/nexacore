@@ -210,6 +210,8 @@ export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem, isFar
                         <option value="">Seleccione...</option>
                         <option value="Unidad">Unidad</option>
                         <option value="Paquete">Paquete</option>
+                        <option value="Kilogramos">Kilogramos</option>
+                        <option value="Gramos">Gramos</option>
                     </select>
                 </div>
 
