@@ -144,18 +144,18 @@ export default function MantenimientoList() {
     };
 
     return (
-        <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
             {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 p-8 md:p-12 text-white shadow-2xl mb-8">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 p-6 sm:p-8 md:p-12 text-white shadow-2xl mb-6 sm:mb-8">
                 <div className="relative z-10">
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-white mb-4">
                         <WrenchScrewdriverIcon className="h-4 w-4" />
                         MANTENIMIENTO
                     </span>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
                         Gestión de Mantenimientos
                     </h1>
-                    <p className="mt-2 text-white/80 max-w-2xl">
+                    <p className="mt-2 text-white/80 text-xs sm:text-sm md:text-base max-w-2xl">
                         Administra todos los mantenimientos registrados, revisa su estado y agenda las actividades necesarias.
                     </p>
                 </div>
@@ -164,61 +164,68 @@ export default function MantenimientoList() {
             </div>
 
             {/* Filters Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-                {/* Search */}
-                <div className="relative flex-1 max-w-sm">
-                    <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Buscar título, código, dependencia..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="block w-full rounded-xl border border-gray-200 py-2.5 pl-11 pr-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
-                    />
+            <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                    {/* Search */}
+                    <div className="relative w-full">
+                        <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar título, código, dependencia..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="block w-full rounded-xl border border-gray-200 py-2.5 pl-11 pr-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
+                        />
+                    </div>
+
+                    {/* Sede Filter */}
+                    <div className="relative w-full">
+                        <FunnelIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <select
+                            value={sedeFilter}
+                            onChange={(e) => setSedeFilter(e.target.value)}
+                            className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-8 text-gray-900 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition appearance-none bg-white"
+                        >
+                            <option value="">Todas las sedes</option>
+                            {sedes.map((s) => (
+                                <option key={s.id} value={s.id}>{s.nombre}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                {/* Sede Filter */}
-                <div className="relative max-w-[220px] w-full">
-                    <FunnelIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <select
-                        value={sedeFilter}
-                        onChange={(e) => setSedeFilter(e.target.value)}
-                        className="block w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-8 text-gray-900 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition appearance-none bg-white"
-                    >
-                        <option value="">Todas las sedes</option>
-                        {sedes.map((s) => (
-                            <option key={s.id} value={s.id}>{s.nombre}</option>
-                        ))}
-                    </select>
+                <div className="flex items-center justify-between gap-3 sm:justify-end">
+                    {/* Counter */}
+                    <span className="text-sm text-gray-500 font-medium">
+                        {filtered.length} registro{filtered.length !== 1 ? 's' : ''}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                        {/* Report button */}
+                        <button
+                            onClick={() => setShowReportModal(true)}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition"
+                        >
+                            <ArrowDownTrayIcon className="h-4 w-4 text-blue-600" />
+                            Reporte
+                        </button>
+
+                        {/* New button */}
+                        <Link
+                            to="/mantenimientos/nuevo"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 hover:from-blue-700 hover:to-cyan-600 transition"
+                        >
+                            <PlusIcon className="h-4 w-4" />
+                            Nuevo
+                        </Link>
+                    </div>
                 </div>
-
-                {/* Counter */}
-                <span className="text-sm text-gray-500 font-medium whitespace-nowrap">
-                    {filtered.length} registro{filtered.length !== 1 ? 's' : ''}
-                </span>
-
-                {/* Report button */}
-                <button
-                    onClick={() => setShowReportModal(true)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition sm:ml-auto"
-                >
-                    <ArrowDownTrayIcon className="h-4 w-4 text-blue-600" />
-                    Reporte
-                </button>
-
-                {/* New button */}
-                <Link
-                    to="/mantenimientos/nuevo"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 hover:from-blue-700 hover:to-cyan-600 transition"
-                >
-                    <PlusIcon className="h-4 w-4" />
-                    Nuevo
-                </Link>
             </div>
 
-            {/* Table */}
+            {/* Table Container */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/80">
                             <tr>
@@ -320,19 +327,111 @@ export default function MantenimientoList() {
                     </table>
                 </div>
 
+                {/* Mobile Cards View */}
+                <div className="block md:hidden divide-y divide-gray-100">
+                    {loading ? (
+                        <div className="text-center py-16">
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                                <span className="text-sm text-gray-500">Cargando mantenimientos...</span>
+                            </div>
+                        </div>
+                    ) : paginatedData.length === 0 ? (
+                        <div className="text-center py-16 px-4">
+                            <WrenchScrewdriverIcon className="mx-auto h-12 w-12 text-gray-300" />
+                            <p className="mt-3 text-sm font-medium text-gray-500">No hay mantenimientos registrados</p>
+                            <p className="text-xs text-gray-400 mt-1">Crea uno nuevo con el botón de arriba</p>
+                        </div>
+                    ) : (
+                        paginatedData.map((item) => (
+                            <div key={item.id} className="p-4 hover:bg-blue-50/40 transition-colors flex flex-col gap-3">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-semibold text-gray-400">#{item.id}</span>
+                                            <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">
+                                                {item.titulo}
+                                            </h3>
+                                        </div>
+                                        {item.codigo && (
+                                            <span className="inline-block font-mono text-[10px] bg-gray-100 rounded px-1.5 py-0.5 mt-1 text-gray-600">
+                                                {item.codigo}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex-shrink-0">
+                                        {item.esta_revisado ? (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                                <CheckCircleIcon className="h-3 w-3" />
+                                                Revisado
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                                <ClockIcon className="h-3 w-3" />
+                                                Pendiente
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                                    <div>
+                                        <span className="block text-[9px] uppercase tracking-wider text-gray-400">Sede</span>
+                                        <span className="font-medium text-gray-700">{item.sede?.nombre || '—'}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-[9px] uppercase tracking-wider text-gray-400">Receptor</span>
+                                        <span className="font-medium text-gray-700 truncate block max-w-[120px]">{item.coordinador?.nombre_completo || '—'}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-[9px] uppercase tracking-wider text-gray-400">Fecha</span>
+                                        <span className="font-medium text-gray-700">{formatDate(item.fecha_creacion)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-end border-t border-gray-50 pt-2 mt-1">
+                                    {item.esta_revisado ? (
+                                        <span className="inline-flex items-center gap-1 text-xs text-gray-400 px-2 py-1" title="No se puede modificar, ya fue revisado">
+                                            <LockClosedIcon className="h-3.5 w-3.5" />
+                                            Bloqueado
+                                        </span>
+                                    ) : (
+                                        <div className="flex items-center gap-1">
+                                            <Link
+                                                to={`/mantenimientos/editar/${item.id}`}
+                                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+                                                title="Editar"
+                                            >
+                                                <PencilIcon className="h-5 w-5" />
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(item.id)}
+                                                className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                                                title="Eliminar"
+                                            >
+                                                <TrashIcon className="h-5 w-5" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
                 {/* Pagination */}
                 {!loading && filtered.length > ITEMS_PER_PAGE && (
-                    <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5 bg-gray-50/50">
-                        <p className="text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 px-5 py-3.5 bg-gray-50/50 gap-3">
+                        <p className="text-sm text-gray-500 text-center sm:text-left">
                             Mostrando <span className="font-semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> a{' '}
                             <span className="font-semibold">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> de{' '}
                             <span className="font-semibold">{filtered.length}</span>
                         </p>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-center gap-1 w-full sm:w-auto overflow-x-auto py-1">
                             <button
                                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition flex-shrink-0"
                             >
                                 <ChevronLeftIcon className="h-5 w-5" />
                             </button>
@@ -340,7 +439,7 @@ export default function MantenimientoList() {
                                 <button
                                     key={page}
                                     onClick={() => setCurrentPage(page)}
-                                    className={`min-w-[36px] h-9 rounded-lg text-sm font-medium transition ${currentPage === page
+                                    className={`min-w-[36px] h-9 rounded-lg text-sm font-medium transition flex-shrink-0 ${currentPage === page
                                         ? 'bg-blue-600 text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-200'
                                         }`}
@@ -351,7 +450,7 @@ export default function MantenimientoList() {
                             <button
                                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition flex-shrink-0"
                             >
                                 <ChevronRightIcon className="h-5 w-5" />
                             </button>
