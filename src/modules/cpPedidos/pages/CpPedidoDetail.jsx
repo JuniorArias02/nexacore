@@ -8,7 +8,8 @@ import {
     ExclamationTriangleIcon,
     PencilIcon,
     PhotoIcon,
-    TableCellsIcon
+    TableCellsIcon,
+    LinkIcon
 } from '@heroicons/react/24/outline';
 import Swal from 'sweetalert2';
 import SignatureCanvas from 'react-signature-canvas';
@@ -35,6 +36,29 @@ export default function CpPedidoDetail() {
     const [approvalStage, setApprovalStage] = useState(null); // 'compras' | 'gerencia'
 
     const sigPad = useRef({});
+
+    const getSignatureUrl = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        const baseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '');
+        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        return `${baseUrl}/${cleanPath}`;
+    };
+
+    const getDaysText = (dateStr1, dateStr2) => {
+        if (!dateStr1 || !dateStr2) return '';
+        const d1 = new Date(dateStr1);
+        const d2 = new Date(dateStr2);
+        d1.setHours(0,0,0,0);
+        d2.setHours(0,0,0,0);
+        const diffTime = d2 - d1;
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays <= 0) return 'Mismo día';
+        if (diffDays === 1) return '1 día';
+        return `${diffDays} días`;
+    };
 
     useEffect(() => {
         loadPedido();
@@ -347,14 +371,25 @@ export default function CpPedidoDetail() {
                                                 <td className="px-3 py-4 text-sm font-medium text-indigo-600">{item.producto?.codigo || 'N/A'}</td>
                                                 <td className="px-3 py-4 text-sm text-gray-900">
                                                     <div className="font-medium">{item.nombre}</div>
-                                                    <div className="text-xs text-gray-500">{item.referencia_items}</div>
+                                                    {item.referencia_items ? (
+                                                        <a
+                                                            href={item.referencia_items.startsWith('http') ? item.referencia_items : `https://${item.referencia_items}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="text-xs text-indigo-600 hover:text-indigo-800 hover:underline break-all inline-flex items-center gap-1 mt-0.5"
+                                                        >
+                                                            <LinkIcon className="h-3.5 w-3.5" />
+                                                            Fuente
+                                                        </a>
+                                                    ) : null}
                                                 </td>
                                                 <td className="px-3 py-4 text-sm text-gray-500">{item.cantidad}</td>
                                                 <td className="px-3 py-4 text-sm text-gray-500">{item.unidad_medida}</td>
                                                 <td className="px-3 py-4 text-sm">
                                                     {item.comprado === 1 ? (
                                                         <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                            Comprado
+                                                            Entregado
                                                         </span>
                                                     ) : (
                                                         <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
@@ -589,45 +624,74 @@ export default function CpPedidoDetail() {
                         {/* Signatures Display */}
                         <div className="mt-6 space-y-4 pt-4 border-t border-gray-100">
                             {pedido.elaborado_por_firma && (
-                                <div>
-                                    <p className="text-xs text-gray-400 mb-1">Firma Elaboración</p>
-                                    <img
-                                        src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${pedido.elaborado_por_firma}`}
-                                        className="h-12 object-contain bg-gray-50 rounded p-1"
-                                        alt="Firma Elaboración"
-                                        onError={(e) => {
-                                            console.error('Error loading signature:', e.target.src);
-                                            e.target.style.display = 'none';
-                                        }}
-                                    />
+                                <div className="flex flex-col gap-1 p-2 rounded-lg bg-gray-50/50 border border-gray-100">
+                                    <p className="text-xs font-semibold text-gray-500 uppercase">Firma Elaboración</p>
+                                    <div className="flex items-center justify-between mt-1">
+                                        <img
+                                            src={getSignatureUrl(pedido.elaborado_por_firma)}
+                                            className="h-12 object-contain bg-white rounded border border-gray-200 p-1"
+                                            alt="Firma Elaboración"
+                                            onError={(e) => {
+                                                console.error('Error loading signature:', e.target.src);
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                        <span className="text-xs text-gray-500 bg-white px-2.5 py-1 rounded-full border border-gray-200 shadow-sm font-medium">
+                                            {formatDate(pedido.fecha_solicitud)}
+                                        </span>
+                                    </div>
                                 </div>
                             )}
                             {pedido.proceso_compra_firma && (
-                                <div>
-                                    <p className="text-xs text-gray-400 mb-1">Firma Compras</p>
-                                    <img
-                                        src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${pedido.proceso_compra_firma}`}
-                                        className="h-12 object-contain bg-gray-50 rounded p-1"
-                                        alt="Firma Compras"
-                                        onError={(e) => {
-                                            console.error('Error loading signature:', e.target.src);
-                                            e.target.style.display = 'none';
-                                        }}
-                                    />
+                                <div className="flex flex-col gap-1 p-2 rounded-lg bg-gray-50/50 border border-gray-100">
+                                    <p className="text-xs font-semibold text-gray-500 uppercase">Firma Compras</p>
+                                    <div className="flex items-center justify-between mt-1">
+                                        <img
+                                            src={getSignatureUrl(pedido.proceso_compra_firma)}
+                                            className="h-12 object-contain bg-white rounded border border-gray-200 p-1"
+                                            alt="Firma Compras"
+                                            onError={(e) => {
+                                                console.error('Error loading signature:', e.target.src);
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                        <div className="flex flex-col items-end gap-0.5">
+                                            <span className="text-xs text-gray-500 bg-white px-2.5 py-1 rounded-full border border-gray-200 shadow-sm font-medium">
+                                                {formatDate(pedido.fecha_compra)}
+                                            </span>
+                                            {pedido.fecha_solicitud && pedido.fecha_compra && (
+                                                <span className="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
+                                                    Respuesta: {getDaysText(pedido.fecha_solicitud, pedido.fecha_compra)}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {pedido.responsable_aprobacion_firma && (
-                                <div>
-                                    <p className="text-xs text-gray-400 mb-1">Firma Responsable aprobador</p>
-                                    <img
-                                        src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${pedido.responsable_aprobacion_firma}`}
-                                        className="h-12 object-contain bg-gray-50 rounded p-1"
-                                        alt="Firma Gerencia"
-                                        onError={(e) => {
-                                            console.error('Error loading signature:', e.target.src);
-                                            e.target.style.display = 'none';
-                                        }}
-                                    />
+                                <div className="flex flex-col gap-1 p-2 rounded-lg bg-gray-50/50 border border-gray-100">
+                                    <p className="text-xs font-semibold text-gray-500 uppercase">Firma Responsable aprobador</p>
+                                    <div className="flex items-center justify-between mt-1">
+                                        <img
+                                            src={getSignatureUrl(pedido.responsable_aprobacion_firma)}
+                                            className="h-12 object-contain bg-white rounded border border-gray-200 p-1"
+                                            alt="Firma Gerencia"
+                                            onError={(e) => {
+                                                console.error('Error loading signature:', e.target.src);
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                        <div className="flex flex-col items-end gap-0.5">
+                                            <span className="text-xs text-gray-500 bg-white px-2.5 py-1 rounded-full border border-gray-200 shadow-sm font-medium">
+                                                {formatDate(pedido.fecha_gerencia)}
+                                            </span>
+                                            {pedido.fecha_compra && pedido.fecha_gerencia && (
+                                                <span className="text-[10px] text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
+                                                    Aprobación: {getDaysText(pedido.fecha_compra, pedido.fecha_gerencia)}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -46,6 +46,16 @@ export default function CpPedidoForm({ initialData = null }) {
         elaborado_por: '',
     });
 
+    const getSignatureUrl = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        const baseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '');
+        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        return `${baseUrl}/${cleanPath}`;
+    };
+
     // Signature state
     const [useStoredSignature, setUseStoredSignature] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
@@ -464,7 +474,7 @@ export default function CpPedidoForm({ initialData = null }) {
                             <div className="text-center">
                                 <h3 className="text-sm font-bold text-slate-700 mb-3">Firma Actual del Pedido</h3>
                                 <img
-                                    src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${initialData.elaborado_por_firma}`}
+                                    src={getSignatureUrl(initialData.elaborado_por_firma)}
                                     alt="Firma Guardada"
                                     className="h-24 object-contain mx-auto mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-sm"
                                     onError={(e) => {
@@ -487,10 +497,7 @@ export default function CpPedidoForm({ initialData = null }) {
                             {currentUser?.firma_digital ? (
                                 <div className="text-center">
                                     <img
-                                        src={currentUser.firma_digital?.startsWith('http')
-                                            ? currentUser.firma_digital
-                                            : `${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${currentUser.firma_digital}`
-                                        }
+                                        src={getSignatureUrl(currentUser.firma_digital)}
                                         alt="Firma Guardada"
                                         className="h-24 object-contain mx-auto mb-2"
                                         onError={(e) => {

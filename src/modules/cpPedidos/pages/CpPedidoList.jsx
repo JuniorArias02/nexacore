@@ -76,7 +76,6 @@ export default function CpPedidoList() {
         try {
             setLoading(true);
             const data = await cpPedidoService.getAll(filters);
-            console.log(data);
 
             // Pre-process data for faster filtering
             const processedData = (data || []).map(pedido => {
@@ -519,7 +518,7 @@ export default function CpPedidoList() {
                                                                         <td className="px-4 py-2 text-sm">
                                                                             {item.comprado === 1 ? (
                                                                                 <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                                                    Comprado
+                                                                                    Entregado
                                                                                 </span>
                                                                             ) : (
                                                                                 <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
