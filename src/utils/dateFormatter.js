@@ -13,18 +13,54 @@
 export const formatDate = (utcDateString, locale = 'es-CO') => {
     if (!utcDateString) return 'N/A';
 
-    let date;
-    // Check if it's a date-only string (YYYY-MM-DD)
-    // JS parses YYYY-MM-DD as UTC, which causes shifts in local display.
-    // By splitting and using the Date(y, m, d) constructor, it's treated as local.
-    if (typeof utcDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(utcDateString)) {
-        const [year, month, day] = utcDateString.split('-').map(Number);
-        date = new Date(year, month - 1, day);
-    } else {
-        date = new Date(utcDateString);
+    const dateStr = String(utcDateString).trim();
+    const datePattern = /^(\d{4})-(\d{2})-(\d{2})/;
+    const match = dateStr.match(datePattern);
+
+    if (match) {
+        const [_, yearStr, monthStr, dayStr] = match;
+        const year = Number(yearStr);
+        const month = Number(monthStr);
+        const day = Number(dayStr);
+
+        let timePart = '';
+        if (dateStr.includes('T')) {
+            timePart = dateStr.split('T')[1];
+        } else if (dateStr.includes(' ')) {
+            timePart = dateStr.split(' ')[1];
+        }
+
+        const isMidnight = !timePart || timePart.startsWith('00:00:00') || timePart.startsWith('00:00');
+
+        if (isMidnight) {
+            const dateObj = new Date(year, month - 1, day);
+            return dateObj.toLocaleDateString(locale, {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        } else {
+            let parsedDateStr = dateStr;
+            if (!dateStr.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+                parsedDateStr = dateStr.replace(' ', 'T') + 'Z';
+            }
+            const dateObj = new Date(parsedDateStr);
+            if (isNaN(dateObj.getTime())) return 'N/A';
+
+            return dateObj.toLocaleString(locale, {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
     }
 
-    return date.toLocaleDateString(locale, {
+    const fallbackDate = new Date(utcDateString);
+    if (isNaN(fallbackDate.getTime())) return 'N/A';
+    return fallbackDate.toLocaleDateString(locale, {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
