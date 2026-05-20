@@ -163,7 +163,9 @@ const Navbar = ({ onOpenSidebar }) => {
                 <div className="flex flex-1 gap-x-6 justify-end items-center">
                     <div className="flex items-center gap-x-3">
                         {/* Global Dynamic Search */}
-                        <GlobalSearch />
+                        <div className="hidden sm:block">
+                            <GlobalSearch />
+                        </div>
 
                         {/* Notifications */}
                         <div className="relative" ref={notifRef}>

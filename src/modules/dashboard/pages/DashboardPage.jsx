@@ -52,36 +52,36 @@ const DashboardPage = () => {
     const showTabs = availableViews.length > 1;
 
     return (
-        <div className="min-h-screen bg-gray-50/50 p-6 md:p-8 font-sans">
-            <div className="mx-auto max-w-7xl space-y-8">
+        <div className="min-h-screen bg-gray-50/50 p-4 sm:p-6 md:p-8 font-sans">
+            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Hero Section */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-8 shadow-2xl md:p-12 text-white">
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 sm:p-8 md:p-12 text-white shadow-2xl">
                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="space-y-2">
                             <span className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-md">
                                 {user?.rol?.nombre || 'Panel de Control'}
                             </span>
-                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
                                 {getGreeting()}, <span className="opacity-90">{user?.nombre_completo?.split(' ')[0]}</span>
                             </h1>
-                            <p className="max-w-xl text-lg text-indigo-100 font-medium">
+                            <p className="max-w-xl text-sm sm:text-base md:text-lg text-indigo-100 font-medium opacity-90">
                                 Bienvenido a tu panel de gestión. Aquí tienes un resumen de la actividad reciente y accesos rápidos.
                             </p>
                         </div>
 
                         {/* Decorative Circle */}
-                        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-                        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl"></div>
+                        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl pointer-events-none"></div>
                     </div>
 
                     {showTabs && (
-                        <div className="mt-8 relative z-10">
-                            <div className="inline-flex rounded-xl bg-white/10 p-1 backdrop-blur-md border border-white/20 flex-wrap gap-1">
+                        <div className="mt-6 sm:mt-8 relative z-10">
+                            <div className="flex sm:inline-flex overflow-x-auto rounded-xl bg-white/10 p-1 backdrop-blur-md border border-white/20 gap-1 max-w-full no-scrollbar">
                                 {availableViews.map((v) => (
                                     <button
                                         key={v.key}
                                         onClick={() => setView(v.key)}
-                                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${view === v.key
+                                        className={`whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0 ${view === v.key
                                             ? 'bg-white text-indigo-600 shadow-lg scale-105'
                                             : 'text-white/80 hover:bg-white/10 hover:text-white'
                                             }`}
