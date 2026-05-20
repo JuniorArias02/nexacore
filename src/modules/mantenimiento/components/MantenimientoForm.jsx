@@ -160,18 +160,18 @@ export default function MantenimientoForm() {
     const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 
     return (
-        <div className="max-w-4xl mx-auto p-4 md:p-10 animate-fade-in">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden transform transition-all duration-500">
+        <div className="max-w-4xl mx-auto p-0 sm:p-4 md:p-10 animate-fade-in">
+            <div className="bg-white rounded-none sm:rounded-[2.5rem] shadow-none sm:shadow-2xl border-0 sm:border border-slate-100 overflow-hidden transform transition-all duration-500">
                 {/* Header */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 px-8 py-10 md:px-12 md:py-14 text-white">
+                <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 px-6 py-8 sm:px-8 sm:py-10 md:px-12 md:py-14 text-white">
                     <div className="relative z-10">
                         <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-4 backdrop-blur-md">
                             Mantenimiento
                         </span>
-                        <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-2">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white mb-2">
                             {isEditing ? 'Editar Registro' : 'Nuevo Mantenimiento'}
                         </h2>
-                        <p className="text-indigo-100 text-sm md:text-base font-medium opacity-90 max-w-xl">
+                        <p className="text-indigo-100 text-xs sm:text-sm md:text-base font-medium opacity-90 max-w-xl">
                             {isEditing 
                                 ? 'Actualiza los detalles técnicos y el estado del equipo para mantener la trazabilidad.' 
                                 : 'Ingresa la información detallada para programar y registrar un nuevo servicio técnico.'}
@@ -186,7 +186,7 @@ export default function MantenimientoForm() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 md:p-12 space-y-8 bg-white">
+                <form onSubmit={handleSubmit} className="p-5 sm:p-8 md:p-12 space-y-8 bg-white">
                     {/* Section: General Info */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-2">

@@ -9,6 +9,7 @@ import api from '../../../services/api';
 import Swal from 'sweetalert2';
 import AgendaMantenimientoCreateModal from '../components/AgendaMantenimientoCreateModal';
 import AgendaMantenimientoDetailModal from '../components/AgendaMantenimientoDetailModal';
+import AgendaMantenimientoMobileView from '../components/AgendaMantenimientoMobileView';
 import '../resources/calendar-styles.css';
 import {
     CalendarDaysIcon,
@@ -42,6 +43,17 @@ export default function AgendaMantenimientoList() {
     const [selectedEvent, setSelectedEvent] = useState(null);
 
     const calendarRef = useRef(null);
+
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         loadAll();
@@ -118,6 +130,18 @@ export default function AgendaMantenimientoList() {
         });
         setShowModal(true);
         // NOTE: do NOT unselect here — let the user re-drag the same slot after closing
+    };
+
+    const handleNewEvent = (startStr, endStr) => {
+        setModalData({
+            titulo: '',
+            descripcion: '',
+            sede_id: '',
+            tecnicos: [],
+            fecha_inicio: startStr,
+            fecha_fin: endStr,
+        });
+        setShowModal(true);
     };
 
     // ─── Close create modal → reset calendar selection so drag works again ───
@@ -229,33 +253,35 @@ export default function AgendaMantenimientoList() {
     return (
         <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
             {/* ── Hero ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-5 sm:p-8 shadow-2xl">
                 <div className="absolute inset-0">
                     <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-pink-400/20 blur-3xl" />
                 </div>
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-sm">
-                            <CalendarDaysIcon className="h-8 w-8 text-white" />
+                    <div className="flex flex-row items-center gap-3 sm:gap-4">
+                        <div className="flex items-center justify-center h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-white/20 backdrop-blur-sm flex-shrink-0">
+                            <CalendarDaysIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold text-white tracking-tight">
+                            <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                                 Agenda de Mantenimientos
                             </h1>
-                            <p className="text-white/70 mt-1 text-sm">
-                                Haz clic en un día para ver su horario · Arrastra para agendar · Múltiples técnicos por sesión
+                            <p className="text-white/70 mt-1 text-xs sm:text-sm">
+                                {isMobile 
+                                    ? "Toca un día para agendar o ver horarios · Múltiples técnicos" 
+                                    : "Haz clic en un día para ver su horario · Arrastra para agendar · Múltiples técnicos por sesión"}
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                         {/* Sede filter */}
-                        <div className="relative">
+                        <div className="relative flex-1 sm:flex-initial">
                             <FunnelIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
                             <select
                                 value={sedeFilter}
                                 onChange={(e) => setSedeFilter(e.target.value)}
-                                className="rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 text-white pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-white/40 appearance-none min-w-[160px]"
+                                className="w-full rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 text-white pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-white/40 appearance-none min-w-[140px] sm:min-w-[160px]"
                             >
                                 <option value="" className="text-gray-900">Todas las sedes</option>
                                 {sedes.map((s) => (
@@ -265,9 +291,9 @@ export default function AgendaMantenimientoList() {
                                 ))}
                             </select>
                         </div>
-                        <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                            <p className="text-2xl font-bold text-white">{filteredEvents.length}</p>
-                            <p className="text-xs text-white/70">Agendados</p>
+                        <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2 text-center flex-shrink-0">
+                            <p className="text-xl sm:text-2xl font-bold text-white">{filteredEvents.length}</p>
+                            <p className="text-xxs sm:text-xs text-white/70">Agendados</p>
                         </div>
                     </div>
                 </div>
@@ -279,6 +305,13 @@ export default function AgendaMantenimientoList() {
                     <div className="flex items-center justify-center py-24">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
                     </div>
+                ) : isMobile ? (
+                    <AgendaMantenimientoMobileView
+                        events={filteredEvents}
+                        canCreate={canCreate}
+                        onEventClick={handleEventClick}
+                        onNewEvent={handleNewEvent}
+                    />
                 ) : (
                     <FullCalendar
                         ref={calendarRef}
