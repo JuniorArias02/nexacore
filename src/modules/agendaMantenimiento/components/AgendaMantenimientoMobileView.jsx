@@ -248,7 +248,7 @@ export default function AgendaMantenimientoMobileView({
     };
 
     return (
-        <div style={{ background: '#fff', borderRadius: '1.25rem', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', overflow: 'hidden', width: '100%' }}>
 
             {/* ── Top bar: month/year + view toggle ── */}
             <div style={{ padding: '1rem 1rem 0' }}>

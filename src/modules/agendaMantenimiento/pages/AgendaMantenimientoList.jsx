@@ -251,9 +251,9 @@ export default function AgendaMantenimientoList() {
     }
 
     return (
-        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="px-0 sm:px-6 lg:px-8 py-0 sm:py-6 space-y-4 sm:space-y-6">
             {/* ── Hero ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-5 sm:p-8 shadow-2xl">
+            <div className="mx-4 sm:mx-0 mt-4 sm:mt-0 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-5 sm:p-8 shadow-2xl">
                 <div className="absolute inset-0">
                     <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-pink-400/20 blur-3xl" />
@@ -300,68 +300,76 @@ export default function AgendaMantenimientoList() {
             </div>
 
             {/* ── Calendar ── */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
-                {loading ? (
-                    <div className="flex items-center justify-center py-24">
+            {isMobile ? (
+                loading ? (
+                    <div className="flex items-center justify-center py-24 bg-white border-t border-b border-gray-100">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
                     </div>
-                ) : isMobile ? (
+                ) : (
                     <AgendaMantenimientoMobileView
                         events={filteredEvents}
                         canCreate={canCreate}
                         onEventClick={handleEventClick}
                         onNewEvent={handleNewEvent}
                     />
-                ) : (
-                    <FullCalendar
-                        ref={calendarRef}
-                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                        initialView="dayGridMonth"
-                        headerToolbar={{
-                            left: 'prev,next today',
-                            center: 'title',
-                            right: 'dayGridMonth,timeGridWeek,timeGridDay',
-                        }}
-                        locale="es"
-                        // ── Interaction ──────────────────────────────────────
-                        selectable={canCreate}
-                        selectMirror={canCreate}
-                        dateClick={handleDateClick}   // click single day → go to timeGridDay
-                        select={handleDateSelect}      // drag selects range → open modal
-                        eventClick={handleEventClick}
-                        // ────────────────────────────────────────────────────
-                        events={filteredEvents}
-                        height="auto"
-                        dayMaxEvents={3}
-                        navLinks={true}               // number links also navigate to day view
-                        navLinkDayClick={(date) => {
-                            const calApi = calendarRef.current?.getApi();
-                            calApi?.changeView('timeGridDay', date);
-                        }}
-                        buttonText={{
-                            today: 'Hoy',
-                            month: 'Mes',
-                            week: 'Semana',
-                            day: 'Día',
-                        }}
-                        eventDisplay="block"
-                        allDayText="Todo el día"
-                        slotLabelFormat={{
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        }}
-                        eventTimeFormat={{
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        }}
-                        slotMinTime="06:00:00"
-                        slotMaxTime="21:00:00"
-                        scrollTime="07:00:00"
-                    />
-                )}
-            </div>
+                )
+            ) : (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-24">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
+                        </div>
+                    ) : (
+                        <FullCalendar
+                            ref={calendarRef}
+                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                            initialView="dayGridMonth"
+                            headerToolbar={{
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                            }}
+                            locale="es"
+                            // ── Interaction ──────────────────────────────────────
+                            selectable={canCreate}
+                            selectMirror={canCreate}
+                            dateClick={handleDateClick}   // click single day → go to timeGridDay
+                            select={handleDateSelect}      // drag selects range → open modal
+                            eventClick={handleEventClick}
+                            // ────────────────────────────────────────────────────
+                            events={filteredEvents}
+                            height="auto"
+                            dayMaxEvents={3}
+                            navLinks={true}               // number links also navigate to day view
+                            navLinkDayClick={(date) => {
+                                const calApi = calendarRef.current?.getApi();
+                                calApi?.changeView('timeGridDay', date);
+                            }}
+                            buttonText={{
+                                today: 'Hoy',
+                                month: 'Mes',
+                                week: 'Semana',
+                                day: 'Día',
+                            }}
+                            eventDisplay="block"
+                            allDayText="Todo el día"
+                            slotLabelFormat={{
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true,
+                            }}
+                            eventTimeFormat={{
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true,
+                            }}
+                            slotMinTime="06:00:00"
+                            slotMaxTime="21:00:00"
+                            scrollTime="07:00:00"
+                        />
+                    )}
+                </div>
+            )}
 
             {/* ── Create Modal ── */}
             <AgendaMantenimientoCreateModal

@@ -41,7 +41,7 @@ const MainLayout = () => {
             <div className={`flex flex-col min-h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'lg:pl-24' : 'lg:pl-80'}`}>
                 <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
 
-                <main className="flex-1 p-6 lg:p-10 w-full max-w-[1600px] mx-auto">
+                <main className="flex-1 lg:p-10 w-full max-w-[1600px] mx-auto">
                     <Outlet />
                 </main>
             </div>
