@@ -51,34 +51,34 @@ const menuConfig = [
         groupBg: "bg-blue-50 border border-blue-200",
         items: [
             {
-                name: 'Equipos PC', href: '/pc-equipos', icon: ComputerDesktopIcon,
+                name: 'Equipos PC', href: '/gestion-sistemas/pc-equipos', icon: ComputerDesktopIcon,
                 permissions: ['pc_equipo.crear', 'pc_equipo.actualizar', 'pc_equipo.eliminar'],
                 children: [
-                    { name: 'Crear Equipo PC', href: '/pc-equipos/nuevo', icon: PlusCircleIcon, permissions: ['pc_equipo.crear'] },
-                    { name: 'Hoja de Vida', href: '/pc-equipos', icon: DocumentChartBarIcon, permissions: ['pc_equipo.crear', 'pc_equipo.actualizar'] },
+                    { name: 'Crear Equipo PC', href: '/gestion-sistemas/pc-equipos/nuevo', icon: PlusCircleIcon, permissions: ['pc_equipo.crear'] },
+                    { name: 'Hoja de Vida', href: '/gestion-sistemas/pc-equipos', icon: DocumentChartBarIcon, permissions: ['pc_equipo.crear', 'pc_equipo.actualizar'] },
                 ]
             },
             {
-                name: 'Entregas PC', href: '/pc-entregas', icon: TruckIcon,
+                name: 'Actas de Entrega', href: '/gestion-sistemas/actas-entrega', icon: TruckIcon,
                 permissions: ['pc_entrega.crear', 'pc_entrega.actualizar', 'pc_entrega.eliminar'],
                 children: [
-                    { name: 'Crear Entrega PC', href: '/pc-entregas/crear', icon: PlusCircleIcon, permissions: ['pc_entrega.crear'] },
+                    { name: 'Nueva Acta', href: '/gestion-sistemas/actas-entrega/nuevo', icon: PlusCircleIcon, permissions: ['pc_entrega.crear'] },
                 ]
             },
             {
-                name: 'Devoluciones PC', href: '/pc-devueltos', icon: ArrowPathRoundedSquareIcon,
+                name: 'Actas de Devolución', href: '/gestion-sistemas/actas-devolucion', icon: ArrowPathRoundedSquareIcon,
                 permissions: ['pc_devuelto.crear', 'pc_devuelto.actualizar', 'pc_devuelto.eliminar'],
                 children: [
-                    { name: 'Crear Devolución PC', href: '/pc-devueltos/crear', icon: PlusCircleIcon, permissions: ['pc_devuelto.crear'] },
+                    { name: 'Nueva Devolución', href: '/gestion-sistemas/actas-devolucion/nuevo', icon: PlusCircleIcon, permissions: ['pc_devuelto.crear'] },
                 ]
             },
             {
-                name: 'Mantenimientos PC', href: '/pc-mantenimientos', icon: WrenchScrewdriverIcon,
+                name: 'Mantenimientos PC', href: '/gestion-sistemas/pc-mantenimientos', icon: WrenchScrewdriverIcon,
                 permissions: ['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar'],
                 children: [
-                    { name: 'Crear Mantenimiento', href: '/pc-mantenimientos/nuevo', icon: PlusCircleIcon, permissions: ['pc_mantenimiento.crear'] },
-                    { name: 'Cronograma', href: '/pc-mantenimientos/cronograma', icon: CalendarDaysIcon, permissions: ['pc_mantenimiento.listar'] },
-                    { name: 'Historial', href: '/pc-mantenimientos', icon: DocumentTextIcon, permissions: ['pc_mantenimiento.listar'] },
+                    { name: 'Crear Mantenimiento', href: '/gestion-sistemas/pc-mantenimientos/nuevo', icon: PlusCircleIcon, permissions: ['pc_mantenimiento.crear'] },
+                    { name: 'Cronograma', href: '/gestion-sistemas/pc-mantenimientos/cronograma', icon: CalendarDaysIcon, permissions: ['pc_mantenimiento.listar'] },
+                    { name: 'Historial', href: '/gestion-sistemas/pc-mantenimientos', icon: DocumentTextIcon, permissions: ['pc_mantenimiento.listar'] },
                 ]
             }
         ]

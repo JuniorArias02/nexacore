@@ -38,13 +38,7 @@ import EntregaActivosFijosHistory from '../modules/entregaActivosFijos/pages/Ent
 
 import AreasList from '../modules/areas/pages/AreasList';
 import AreasForm from '../modules/areas/pages/AreasForm';
-import PcEquiposList from '../modules/pcEquipos/pages/PcEquiposList';
-import PcEquiposForm from '../modules/pcEquipos/pages/PcEquiposForm';
-import HojaDeVidaEquipoPage from '../modules/pcEquipos/pages/HojaDeVidaEquipoPage';
-import PcEntregasList from '../modules/pcEntregas/pages/PcEntregasList';
-import PcEntregasForm from '../modules/pcEntregas/pages/PcEntregasForm';
-import PcDevueltoList from '../modules/pcDevuelto/pages/PcDevueltoList';
-import PcDevueltoForm from '../modules/pcDevuelto/pages/PcDevueltoForm';
+
 import ProfilePage from '../modules/profile/pages/ProfilePage';
 import ConfigurationPage from '../modules/configuration/pages/ConfigurationPage';
 import PermisosPage from '../modules/configuration/pages/PermisosPage';
@@ -54,9 +48,7 @@ import MantenimientoReceptorPage from '../modules/mantenimiento/pages/Mantenimie
 import AgendaMantenimientoList from '../modules/agendaMantenimiento/pages/AgendaMantenimientoList';
 import AgendaMantenimientoFormPage from '../modules/agendaMantenimiento/pages/AgendaMantenimientoFormPage';
 import ReportesMantenimientos from '../modules/agendaMantenimiento/pages/ReportesMantenimientos';
-import PcMantenimientoList from '../modules/pcMantenimiento/pages/PcMantenimientoList';
-import CrearNuevoManteminetoPc from '../modules/pcMantenimiento/pages/CrearNuevoManteminetoPc';
-import PcMantenimientoCronograma from '../modules/pcMantenimiento/pages/PcMantenimientoCronograma';
+
 import MainLayout from '../layout/MainLayout';
 import PermissionProtectedRoute from '../components/common/PermissionProtectedRoute';
 import Error404 from '../modules/errorPage/pages/Error404';
@@ -67,6 +59,9 @@ import BuzonSugerenciasList from '../modules/buzonSugerencias/pages/BuzonSugeren
 import BuzonAgenteList from '../modules/buzonSugerencias/pages/BuzonAgenteList';
 import BuzonSugerenciasFormPage from '../modules/buzonSugerencias/pages/BuzonSugerenciasFormPage';
 import BuzonSugerenciaDetailPage from '../modules/buzonSugerencias/pages/BuzonSugerenciaDetailPage';
+
+// Nuevo Módulo DDD (Vertical Slices)
+import GestionSistemasRouter from '../modules/GestionSistemas/router/GestionSistemasRouter';
 
 // Componente para proteger rutas privadas
 const ProtectedRoute = ({ children }) => {
@@ -146,78 +141,11 @@ const AppRouter = () => {
                 >
                     <Route path="/dashboard" element={<DashboardPage />} />
 
-                    {/* PC Equipos */}
-                    <Route path="/pc-equipos" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_equipo.crear', 'pc_equipo.actualizar', 'pc_equipo.eliminar']}>
-                            <PcEquiposList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-equipos/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_equipo.crear']}>
-                            <PcEquiposForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-equipos/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_equipo.actualizar']}>
-                            <PcEquiposForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-equipos/hoja-de-vida/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_equipo.crear', 'pc_equipo.actualizar']}>
-                            <HojaDeVidaEquipoPage />
-                        </PermissionProtectedRoute>
-                    } />
 
-                    {/* PcEntregas */}
-                    <Route path="/pc-entregas" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_entrega.crear', 'pc_entrega.actualizar', 'pc_entrega.eliminar']}>
-                            <PcEntregasList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-entregas/crear" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_entrega.crear']}>
-                            <PcEntregasForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-entregas/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_entrega.actualizar']}>
-                            <PcEntregasForm />
-                        </PermissionProtectedRoute>
-                    } />
 
-                    {/* PcDevueltos */}
-                    <Route path="/pc-devueltos" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_devuelto.crear', 'pc_devuelto.actualizar', 'pc_devuelto.eliminar']}>
-                            <PcDevueltoList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-devueltos/crear" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_devuelto.crear']}>
-                            <PcDevueltoForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-devueltos/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_devuelto.actualizar']}>
-                            <PcDevueltoForm />
-                        </PermissionProtectedRoute>
-                    } />
 
-                    {/* PcMantenimiento */}
-                    <Route path="/pc-mantenimientos/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.crear']}>
-                            <CrearNuevoManteminetoPc />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-mantenimientos" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar']}>
-                            <PcMantenimientoList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/pc-mantenimientos/cronograma" element={
-                        <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar']}>
-                            <PcMantenimientoCronograma />
-                        </PermissionProtectedRoute>
-                    } />
+
+
 
                     {/* Inventario */}
                     <Route path="/inventario" element={
@@ -561,6 +489,9 @@ const AppRouter = () => {
                             <BuzonSugerenciaDetailPage />
                         </PermissionProtectedRoute>
                     } />
+
+                    {/* Gestión de Sistemas (Nuevo Módulo Vertical Slices) */}
+                    <Route path="/gestion-sistemas/*" element={<GestionSistemasRouter />} />
 
                     {/* Rutas de Estado y Error */}
                     <Route path="/mantenimiento" element={<Error500 />} />

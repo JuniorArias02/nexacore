@@ -37,4 +37,7 @@ api.interceptors.response.use(
     }
 );
 
+// Exportamos la URL base (sin /api) para imágenes y archivos estáticos
+export const API_STORAGE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
+
 export default api;

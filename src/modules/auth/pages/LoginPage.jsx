@@ -85,15 +85,6 @@ const LoginPage = () => {
                     </div>
 
                     <div className="flex items-center gap-8 border-t border-white/10 pt-8">
-                        {/* <div>
-                            <div className="text-2xl font-bold text-white">100%</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Cloud-Native</div>
-                        </div>
-                        <div className="h-8 w-px bg-white/10"></div>
-                        <div>
-                            <div className="text-2xl font-bold text-white">2.0.x</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Latest Alpha</div>
-                        </div> */}
                     </div>
                 </div>
             </div>
@@ -136,7 +127,7 @@ const LoginPage = () => {
 
                         <form className="space-y-6" onSubmit={handleLogin}>
                             <div className="space-y-2">
-                                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Cédula o Usuario</label>
+                                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Usuario</label>
                                 <div className="group relative">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <UserIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
@@ -146,7 +137,7 @@ const LoginPage = () => {
                                         name="usuario"
                                         required
                                         className="block w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-medium"
-                                        placeholder="Ej. usuario@house.com"
+                                        placeholder="Ej. usuario@house"
                                         value={formData.usuario}
                                         onChange={handleChange}
                                     />

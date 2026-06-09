@@ -160,7 +160,7 @@ export default function SignaturePad({
 
             <div 
                 ref={containerRef}
-                className="relative flex-grow min-h-[250px] bg-slate-50 rounded-3xl border-2 border-slate-100 shadow-inner overflow-hidden cursor-crosshair touch-none"
+                className="relative flex-grow min-h-[250px] bg-white rounded-3xl border-2 border-dashed border-slate-300 shadow-sm overflow-hidden cursor-crosshair touch-none"
             >
                 <SignatureCanvas
                     ref={sigPadRef}
