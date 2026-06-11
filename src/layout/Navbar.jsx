@@ -13,7 +13,7 @@ import {
     BellIcon,
 } from '@heroicons/react/24/outline';
 import Swal from 'sweetalert2';
-import { buzonSugerenciasService } from '../modules/buzonSugerencias/services/buzonSugerenciasService';
+import { buzonSugerenciasService } from '../modules/BuzonSugerencias/services/buzonSugerenciasService';
 
 const Navbar = ({ onOpenSidebar }) => {
     const { user, logout, refreshPermissions, sessionStatus, hasPermission } = useAuth();

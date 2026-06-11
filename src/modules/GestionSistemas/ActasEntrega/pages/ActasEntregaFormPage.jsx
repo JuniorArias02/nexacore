@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import PersonalSearchSelect from '../components/PersonalSearchSelect';
 import EquipoSearchSelect from '../components/EquipoSearchSelect';
 import InventarioSearchSelect from '../components/InventarioSearchSelect';
-import SignaturePad from '../../../signatures/components/SignaturePad';
+import SignaturePad from '../../../Firmas/components/SignaturePad';
 import {
     TruckIcon,
     ArrowLeftIcon,

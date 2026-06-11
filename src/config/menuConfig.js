@@ -120,49 +120,49 @@ const menuConfig = [
                 ]
             },
             {
-                name: 'Pedidos de Compra', href: '/cp-pedidos', icon: ShoppingCartIcon,
+                name: 'Pedidos de Compra', href: '/gestion-compras/cp-pedidos', icon: ShoppingCartIcon,
                 permissions: ['cp_pedido.listar', 'cp_pedido.listar.compras', 'cp_pedido.listar.responsable', 'cp_pedido.crear'],
                 children: [
-                    { name: 'Crear Pedido', href: '/cp-pedidos/nuevo', icon: PlusCircleIcon, permissions: ['cp_pedido.crear'] },
+                    { name: 'Crear Pedido', href: '/gestion-compras/cp-pedidos/nuevo', icon: PlusCircleIcon, permissions: ['cp_pedido.crear'] },
                 ]
             },
             {
-                name: 'Informe Consolidado', href: '/informe-consolidado-pedidos', icon: DocumentChartBarIcon,
+                name: 'Informe Consolidado', href: '/gestion-compras/informe-consolidado-pedidos', icon: DocumentChartBarIcon,
                 permissions: ['cp_pedido.consolidado'],
             }, {
-                name: 'Entrega Activos Fijos', href: '/entrega-activos-fijos', icon: DocumentTextIcon,
+                name: 'Entrega Activos Fijos', href: '/gestion-compras/entrega-activos-fijos', icon: DocumentTextIcon,
                 permissions: ['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar'],
                 children: [
-                    { name: 'Crear Entrega Activos', href: '/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
-                    { name: 'Historial', href: '/entrega-activos-fijos/historial', icon: FolderIcon, permissions: ['cp_entrega_activos_fijos.listar'] },
+                    { name: 'Crear Entrega Activos', href: '/gestion-compras/entrega-activos-fijos/nuevo', icon: PlusCircleIcon, permissions: ['cp_entrega_activos_fijos.crear'] },
+                    { name: 'Historial', href: '/gestion-compras/entrega-activos-fijos/historial', icon: FolderIcon, permissions: ['cp_entrega_activos_fijos.listar'] },
                 ]
 
             },
             {
-                name: 'Productos', href: '/cp-productos', icon: TagIcon,
+                name: 'Productos', href: '/gestion-compras/cp-productos', icon: TagIcon,
                 permissions: ['cp_producto.crear', 'cp_producto.actualizar', 'cp_producto.eliminar'],
                 children: [
-                    { name: 'Crear Producto', href: '/cp-productos/nuevo', icon: PlusCircleIcon, permissions: ['cp_producto.crear'] },
+                    { name: 'Crear Producto', href: '/gestion-compras/cp-productos/nuevo', icon: PlusCircleIcon, permissions: ['cp_producto.crear'] },
                 ]
             },
             {
-                name: 'Proveedores', href: '/cp-proveedores', icon: UsersIcon,
+                name: 'Proveedores', href: '/gestion-compras/cp-proveedores', icon: UsersIcon,
                 permissions: ['cp_proveedor.crear', 'cp_proveedor.actualizar', 'cp_proveedor.eliminar'],
             },
             {
-                name: 'Centro de Costos', href: '/cp-centro-costos', icon: BuildingOfficeIcon,
+                name: 'Centro de Costos', href: '/gestion-compras/cp-centro-costos', icon: BuildingOfficeIcon,
                 permissions: ['cp_centro_costo.crear', 'cp_centro_costo.actualizar', 'cp_centro_costo.eliminar'],
             },
             {
-                name: 'Dependencias', href: '/cp-dependencias', icon: BuildingOfficeIcon,
+                name: 'Dependencias', href: '/gestion-compras/cp-dependencias', icon: BuildingOfficeIcon,
                 permissions: ['cp_dependencia.crear', 'cp_dependencia.actualizar', 'cp_dependencia.eliminar'],
             },
             {
-                name: 'Tipos Solicitud', href: '/cp-tipos-solicitud', icon: DocumentTextIcon,
+                name: 'Tipos Solicitud', href: '/gestion-compras/cp-tipos-solicitud', icon: DocumentTextIcon,
                 permissions: ['cp_tipo_solicitud.crear', 'cp_tipo_solicitud.actualizar', 'cp_tipo_solicitud.eliminar'],
             },
             {
-                name: 'Producto / Servicios', href: '/cp-productos-servicios', icon: WrenchScrewdriverIcon,
+                name: 'Producto / Servicios', href: '/gestion-compras/cp-productos-servicios', icon: WrenchScrewdriverIcon,
                 permissions: ['cp_producto_servicio.crear', 'cp_producto_servicio.actualizar', 'cp_producto_servicio.eliminar'],
             }
         ]
@@ -198,6 +198,9 @@ const menuConfig = [
             {
                 name: 'Sedes', href: '/sedes', icon: BuildingOfficeIcon,
                 permissions: ['sede.crear', 'sede.actualizar', 'sede.eliminar'],
+                children: [
+                    { name: 'Crear Sede', href: '/sedes/nuevo', icon: PlusCircleIcon, permissions: ['sede.crear'] },
+                ]
             },
             {
                 name: 'Dependencias Sedes', href: '/dependencias-sedes', icon: BuildingOfficeIcon,

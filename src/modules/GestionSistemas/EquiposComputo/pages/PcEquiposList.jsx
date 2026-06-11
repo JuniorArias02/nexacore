@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import pcEquiposService from '../services/pcEquiposService';
-import { sedeService } from '../../../users/services/sedeService';
+import { sedeService } from '../../../Configuracion/sede/services/sedeService';
 import {
     ComputerDesktopIcon,
     DeviceTabletIcon,

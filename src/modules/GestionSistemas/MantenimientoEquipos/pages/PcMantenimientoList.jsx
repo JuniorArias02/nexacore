@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import pcMantenimientoService from '../services/pcMantenimientoService';
-import SignaturePad from '../../../signatures/components/SignaturePad';
+import SignaturePad from '../../../Firmas/components/SignaturePad';
 import {
     WrenchScrewdriverIcon,
     PlusIcon,

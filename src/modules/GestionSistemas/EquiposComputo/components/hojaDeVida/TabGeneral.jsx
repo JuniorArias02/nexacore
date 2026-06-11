@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
     ComputerDesktopIcon, 
-    CalendarDaysIcon 
+    CalendarDaysIcon,
+    PhotoIcon
 } from '@heroicons/react/24/outline';
 
 const formatDate = (dateString) => {
@@ -26,16 +27,54 @@ const InfoRow = ({ label, value }) => (
 );
 
 export default function TabGeneral({ equipo }) {
+    // Resolver URL de la imagen
+    const getImageUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http')) return url;
+        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
+        return `${baseUrl}/${url}`;
+    };
+
+    const imageUrl = getImageUrl(equipo.imagen_url);
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {/* Foto del Equipo */}
+            <div className="lg:col-span-1 space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-pink-50 rounded-xl">
+                        <PhotoIcon className="h-5 w-5 text-pink-500" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Fotografía</h3>
+                </div>
+                
+                <div className="bg-slate-50/50 rounded-3xl p-4 border border-slate-100 shadow-sm flex flex-col items-center justify-center min-h-[300px] h-[calc(100%-4rem)]">
+                    {imageUrl ? (
+                        <div className="w-full aspect-square rounded-2xl overflow-hidden border border-slate-200 shadow-inner relative group">
+                            <img 
+                                src={imageUrl} 
+                                alt={`Equipo ${equipo.numero_inventario || equipo.serial}`} 
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                        </div>
+                    ) : (
+                        <div className="w-full h-full min-h-[250px] rounded-2xl border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400">
+                            <PhotoIcon className="h-16 w-16 mb-4 text-slate-300" />
+                            <span className="font-bold tracking-widest text-xs uppercase text-center px-4">Sin registro fotográfico</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Identificación del Activo */}
+            <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-50 rounded-xl">
                         <ComputerDesktopIcon className="h-5 w-5 text-indigo-500" />
                     </div>
                     <h3 className="text-xl font-black text-slate-900 tracking-tight">Identificación del Activo</h3>
                 </div>
-                <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100 shadow-sm">
+                <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100 shadow-sm h-[calc(100%-4rem)] flex flex-col justify-between">
                     <InfoRow label="Nombre del Equipo" value={equipo.nombre_equipo} />
                     <InfoRow label="Marca / Fabricante" value={equipo.marca} />
                     <InfoRow label="Modelo / Referencia" value={equipo.modelo} />
@@ -46,26 +85,34 @@ export default function TabGeneral({ equipo }) {
                     <InfoRow label="Tipo de Propiedad" value={equipo.propiedad} />
                 </div>
             </div>
-            <div className="space-y-6">
+
+            {/* Detalles Administrativos */}
+            <div className="lg:col-span-3 space-y-6 mt-4">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-50 rounded-xl">
                         <CalendarDaysIcon className="h-5 w-5 text-blue-500" />
                     </div>
                     <h3 className="text-xl font-black text-slate-900 tracking-tight">Detalles Administrativos</h3>
                 </div>
-                <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100 shadow-sm">
-                    <InfoRow label="Sede de Operación" value={equipo.sede?.nombre} />
-                    <InfoRow label="Área / Departamento" value={equipo.area?.nombre} />
-                    <InfoRow label="Responsable Asignado" value={equipo.responsable?.nombre_completo} />
-                    <InfoRow label="Fecha de Ingreso" value={formatDate(equipo.fecha_ingreso)} />
-                    <InfoRow label="Fecha de Entrega" value={formatDate(equipo.fecha_entrega)} />
-                    <InfoRow label="Periodo de Garantía" value={equipo.garantia_meses ? `${equipo.garantia_meses} meses` : null} />
-                    <InfoRow label="Modo de Adquisición" value={equipo.forma_adquisicion} />
-                    <InfoRow label="Sincronizado por" value={equipo.creador?.nombre_completo || equipo.creador?.usuario} />
+                <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                    <div>
+                        <InfoRow label="Sede de Operación" value={equipo.sede?.nombre} />
+                        <InfoRow label="Área / Departamento" value={equipo.area?.nombre} />
+                        <InfoRow label="Responsable Asignado" value={equipo.responsable?.nombre_completo} />
+                        <InfoRow label="Sincronizado por" value={equipo.creador?.nombre_completo || equipo.creador?.usuario} />
+                    </div>
+                    <div>
+                        <InfoRow label="Fecha de Ingreso" value={formatDate(equipo.fecha_ingreso)} />
+                        <InfoRow label="Fecha de Entrega" value={formatDate(equipo.fecha_entrega)} />
+                        <InfoRow label="Periodo de Garantía" value={equipo.garantia_meses ? `${equipo.garantia_meses} meses` : null} />
+                        <InfoRow label="Modo de Adquisición" value={equipo.forma_adquisicion} />
+                    </div>
                 </div>
             </div>
+
+            {/* Notas Adicionales */}
             {(equipo.descripcion_general || equipo.observaciones || equipo.repuestos_principales || equipo.recomendaciones || equipo.equipos_adicionales) && (
-                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     {equipo.descripcion_general && (
                         <div className="bg-indigo-50/30 border border-indigo-100 rounded-3xl p-6 shadow-sm">
                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-3">Descripción General</h4>

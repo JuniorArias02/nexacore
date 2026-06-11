@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import pcCaracteristicasTecnicasService from '../services/pcCaracteristicasTecnicasService';
 import InventorySearchSelect from './InventorySearchSelect';
+import { CpuChipIcon, ServerStackIcon, SpeakerWaveIcon, SquaresPlusIcon } from '@heroicons/react/24/outline';
 
 export default function PcCaracteristicasTecnicasForm({ equipoId }) {
     const [formData, setFormData] = useState({
@@ -80,110 +80,143 @@ export default function PcCaracteristicasTecnicasForm({ equipoId }) {
     };
 
     if (initialLoading) {
-        return <div className="text-center py-4">Cargando características...</div>;
+        return (
+            <div className="flex flex-col items-center justify-center py-12">
+                <div className="h-8 w-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
+                <p className="text-slate-500 font-medium text-sm animate-pulse">Cargando características...</p>
+            </div>
+        );
     }
 
     const renderInput = (label, name, type = 'text', placeholder = '', colSpan = 1) => (
-        <div className={colSpan > 1 ? `md: col - span - ${colSpan} ` : ''}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <div className={`group ${colSpan > 1 ? `md:col-span-${colSpan}` : ''}`}>
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">{label}</label>
             <input
                 type={type}
                 name={name}
                 value={formData[name] || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder={placeholder}
+                className="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 hover:bg-slate-100"
             />
         </div>
     );
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="md:col-span-3 pb-2 border-b border-gray-200 mb-2">
-                    <h3 className="text-lg font-medium text-gray-900">Procesamiento y Almacenamiento</h3>
-                </div>
-                {renderInput('Procesador', 'procesador', 'text', 'Ej: Intel Core i5')}
-                {renderInput('Memoria RAM', 'memoria_ram', 'text', 'Ej: 8GB DDR4')}
-                {renderInput('Disco Duro (Marca/Tipo)', 'disco_duro', 'text', 'Ej: Kingston SSD')}
-                {renderInput('Capacidad Disco', 'capacidad_disco', 'text', 'Ej: 500GB')}
-
-                <div className="md:col-span-3 pb-2 border-b border-gray-200 mb-2 mt-4">
-                    <h3 className="text-lg font-medium text-gray-900">Multimedia y Red</h3>
-                </div>
-                {renderInput('Tarjeta de Video', 'tarjeta_video', 'text', 'Ej: NVIDIA GeForce')}
-                {renderInput('Tarjeta de Red', 'tarjeta_red', 'text', 'Ej: Realtek PCIe')}
-                {renderInput('Velocidad Red', 'velocidad_red', 'text', 'Ej: 100/1000 Mbps')}
-                {renderInput('Internet', 'internet', 'text', 'Ej: Wifi / Ethernet')}
-                {renderInput('Tarjeta de Sonido', 'tarjeta_sonido', 'text', 'Ej: Realtek High Definition')}
-                {renderInput('Parlantes', 'parlantes', 'text', 'Ej: Genéricos')}
-
-                <div className="md:col-span-3 pb-2 border-b border-gray-200 mb-2 mt-4">
-                    <h3 className="text-lg font-medium text-gray-900">Puertos y Periféricos</h3>
-                </div>
-                {renderInput('Puertos USB', 'usb', 'text', 'Ej: 2.0 / 3.0')}
-                {renderInput('Unidad CD/DVD', 'unidad_cd', 'text', 'Ej: LG DVD-RW')}
-                {renderInput('Drive/Lector Tarjetas', 'drive', 'text', 'Ej: Multi-card reader')}
-
-                <div className="md:col-span-3 pb-2 border-b border-gray-200 mb-2 mt-4">
-                    <h3 className="text-lg font-medium text-gray-900">Periféricos de Entrada/Salida</h3>
-                </div>
-
-                {/* Custom Search Selects for Inventory Linked Items */}
-                <div className="relative">
-                    {/* Reuse renderInput logic just for display if we wanted, but we use custom component */}
-                    <div className="mb-2">
-                        {/* Show current text value if we want to confirm what is saved */}
-                        {/* But the component handles search. We can pass existing name to it? */}
-                        {/* In InventorySearchSelect, I relied on 'value' which is ID. */}
-                        {/* To show the name correctly on load, I need to pass the name. */}
-                        {/* Let's update InventorySearchSelect to accept 'initialText' or use 'value' as object? */}
-                        {/* Or just handle it here: if I have a name, I show it. */}
-                        {/* Actually, let's create a wrapper that manages the display. */}
+        <form onSubmit={handleSubmit} className="relative bg-white rounded-3xl overflow-hidden">
+            <div className="p-4 md:p-8 space-y-10">
+                
+                {/* Procesamiento y Almacenamiento */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                        <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                            <CpuChipIcon className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800">Procesamiento y Almacenamiento</h3>
                     </div>
-                    <InventorySearchSelect
-                        label="Monitor (Buscar Inventario)"
-                        value={formData.monitor_id}
-                        onChange={(item) => handleInventorySelect('monitor', item)}
-                        placeholder="Buscar monitor..."
-                    />
-                    <div className="mt-2">
-                        <label className="text-xs text-gray-500">Valor actual: {formData.monitor || 'Ninguno'}</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {renderInput('Procesador', 'procesador', 'text', 'Ej: Intel Core i5')}
+                        {renderInput('Memoria RAM', 'memoria_ram', 'text', 'Ej: 8GB DDR4')}
+                        {renderInput('Disco Duro', 'disco_duro', 'text', 'Ej: Kingston SSD')}
+                        {renderInput('Capacidad', 'capacidad_disco', 'text', 'Ej: 500GB')}
                     </div>
                 </div>
 
-                <div className="relative">
-                    <InventorySearchSelect
-                        label="Teclado (Buscar Inventario)"
-                        value={formData.teclado_id}
-                        onChange={(item) => handleInventorySelect('teclado', item)}
-                        placeholder="Buscar teclado..."
-                    />
-                    <div className="mt-2">
-                        <label className="text-xs text-gray-500">Valor actual: {formData.teclado || 'Ninguno'}</label>
+                {/* Multimedia y Red */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                        <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+                            <SpeakerWaveIcon className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800">Multimedia y Red</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {renderInput('Tarjeta de Video', 'tarjeta_video', 'text', 'Ej: NVIDIA GeForce')}
+                        {renderInput('Tarjeta de Red', 'tarjeta_red', 'text', 'Ej: Realtek PCIe')}
+                        {renderInput('Velocidad Red', 'velocidad_red', 'text', 'Ej: 100/1000 Mbps')}
+                        {renderInput('Internet', 'internet', 'text', 'Ej: Wifi / Ethernet')}
+                        {renderInput('Tarjeta de Sonido', 'tarjeta_sonido', 'text', 'Ej: Realtek High Definition')}
+                        {renderInput('Parlantes', 'parlantes', 'text', 'Ej: Genéricos')}
                     </div>
                 </div>
 
-                <div className="relative">
-                    <InventorySearchSelect
-                        label="Mouse (Buscar Inventario)"
-                        value={formData.mouse_id}
-                        onChange={(item) => handleInventorySelect('mouse', item)}
-                        placeholder="Buscar mouse..."
-                    />
-                    <div className="mt-2">
-                        <label className="text-xs text-gray-500">Valor actual: {formData.mouse || 'Ninguno'}</label>
+                {/* Puertos y Periféricos */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                        <div className="p-2 rounded-xl bg-violet-50 text-violet-600">
+                            <ServerStackIcon className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800">Puertos y Lectores</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {renderInput('Puertos USB', 'usb', 'text', 'Ej: 2.0 / 3.0')}
+                        {renderInput('Unidad CD/DVD', 'unidad_cd', 'text', 'Ej: LG DVD-RW')}
+                        {renderInput('Lector de Tarjetas', 'drive', 'text', 'Ej: Multi-card reader')}
                     </div>
                 </div>
 
+                {/* Componentes Externos (Inventario) */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                        <div className="p-2 rounded-xl bg-pink-50 text-pink-600">
+                            <SquaresPlusIcon className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800">Dispositivos Externos (Inventario)</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="group">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Monitor</label>
+                            <InventorySearchSelect
+                                value={formData.monitor_id}
+                                onChange={(item) => handleInventorySelect('monitor', item)}
+                                placeholder="Buscar monitor..."
+                            />
+                            {formData.monitor && (
+                                <p className="mt-2 ml-1 text-xs font-semibold text-indigo-600 bg-indigo-50 inline-block px-2 py-1 rounded-md">
+                                    ✓ {formData.monitor}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="group">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Teclado</label>
+                            <InventorySearchSelect
+                                value={formData.teclado_id}
+                                onChange={(item) => handleInventorySelect('teclado', item)}
+                                placeholder="Buscar teclado..."
+                            />
+                            {formData.teclado && (
+                                <p className="mt-2 ml-1 text-xs font-semibold text-indigo-600 bg-indigo-50 inline-block px-2 py-1 rounded-md">
+                                    ✓ {formData.teclado}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="group">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Mouse</label>
+                            <InventorySearchSelect
+                                value={formData.mouse_id}
+                                onChange={(item) => handleInventorySelect('mouse', item)}
+                                placeholder="Buscar mouse..."
+                            />
+                            {formData.mouse && (
+                                <p className="mt-2 ml-1 text-xs font-semibold text-indigo-600 bg-indigo-50 inline-block px-2 py-1 rounded-md">
+                                    ✓ {formData.mouse}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="mt-8 flex justify-end">
+            {/* Footer Formulario */}
+            <div className="bg-slate-50 px-8 py-5 border-t border-slate-100 flex justify-end">
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`px - 6 py - 2 bg - indigo - 600 text - white font - medium rounded - lg shadow hover: bg - indigo - 700 focus: outline - none focus: ring - 2 focus: ring - offset - 2 focus: ring - indigo - 500 transition - colors ${loading ? 'opacity-50 cursor-not-allowed' : ''
-                        } `}
+                    className={`w-full sm:w-auto px-8 py-3 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-indigo-300 transition-all ${
+                        loading ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5'
+                    }`}
                 >
                     {loading ? 'Guardando...' : 'Guardar Características'}
                 </button>

@@ -4,8 +4,8 @@ import Swal from 'sweetalert2';
 import pcMantenimientoService from '../services/pcMantenimientoService';
 import datosEmpresaService from '../services/datosEmpresaService';
 import EquipoSearchSelect from '../../ActasEntrega/components/EquipoSearchSelect';
-import SignaturePad from '../../../signatures/components/SignaturePad';
-import { authService } from '../../../auth/services/authService';
+import SignaturePad from '../../../Firmas/components/SignaturePad';
+import { authService } from '../../../Autenticacion/services/authService';
 import {
     WrenchScrewdriverIcon,
     ArrowLeftIcon,

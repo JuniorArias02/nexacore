@@ -22,7 +22,7 @@ const EquipoSearchSelect = ({ label, value, onChange, placeholder = "Buscar por 
 
     const fetchItemById = async (id) => {
         try {
-            const response = await api.get(`/pc-equipos/${id}`);
+            const response = await api.get(`/gestion-sistemas/pc-equipos/${id}`);
             const item = response.data.objeto || response.data;
             if (item) {
                 setSelectedItem(item);
@@ -52,7 +52,7 @@ const EquipoSearchSelect = ({ label, value, onChange, placeholder = "Buscar por 
 
         setLoading(true);
         try {
-            const response = await api.get(`/pc-equipos/buscar?q=${term}`);
+            const response = await api.get(`/gestion-sistemas/pc-equipos/buscar?q=${term}`);
             let data = response.data.objeto || response.data || [];
             setResults(data);
             setShowResults(true);

@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import SignaturePad from '../../../signatures/components/SignaturePad';
+import SignaturePad from '../../../Firmas/components/SignaturePad';
 import useActasDevolucionForm from '../hooks/useActasDevolucionForm';
 import { API_STORAGE_URL } from '../../../../services/api';
 import {

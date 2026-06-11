@@ -75,8 +75,8 @@ export default function HojaDeVidaEquipoPage() {
 
     const equipo = data.equipo;
     const mantoConfig = data.mantenimiento_config;
-    const specs = equipo.caracteristicas_tecnicas;
-    const licencias = equipo.licencias_software;
+    const specs = equipo.caracteristicas_tecnicas || equipo.caracteristicasTecnicas;
+    const licencias = equipo.licencias_software || equipo.licenciasSoftware;
 
     const estadoConfig = {
         operativo: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-500', border: 'border-emerald-500/20' },

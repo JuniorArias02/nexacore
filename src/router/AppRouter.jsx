@@ -1,67 +1,55 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import LoginPage from '../modules/auth/pages/LoginPage';
-import ForgotPasswordPage from '../modules/auth/pages/ForgotPasswordPage';
-import InformacionWebPage from '../modules/informacionWeb/pages/InformacionWebPage';
-import DashboardPage from '../modules/dashboard/pages/DashboardPage';
-import InventoryFormPage from '../modules/inventario/pages/InventoryFormPage';
-import InventoryListPage from '../modules/inventario/pages/InventoryListPage';
-import InventoryDetailPage from '../modules/inventario/pages/InventoryDetailPage';
-import DependenciaSedeList from '../modules/dependenciaSede/pages/DependenciaSedeList';
-import DependenciaSedeFormPage from '../modules/dependenciaSede/pages/DependenciaSedeFormPage';
-import CpDependenciaList from '../modules/cpDependencia/pages/CpDependenciaList';
-import CpDependenciaFormPage from '../modules/cpDependencia/pages/CpDependenciaFormPage';
-import CpCentroCostoList from '../modules/cpCentroCosto/pages/CpCentroCostoList';
-import CpCentroCostoFormPage from '../modules/cpCentroCosto/pages/CpCentroCostoFormPage';
-import CpProductoList from '../modules/cpProducto/pages/CpProductoList';
-import CpProductoFormPage from '../modules/cpProducto/pages/CpProductoFormPage';
-import CpProductoServicioList from '../modules/cpProductoServicio/pages/CpProductoServicioList';
-import CpProductoServicioFormPage from '../modules/cpProductoServicio/pages/CpProductoServicioFormPage';
-import CpTipoSolicitudList from '../modules/cpTipoSolicitud/pages/CpTipoSolicitudList';
-import CpTipoSolicitudFormPage from '../modules/cpTipoSolicitud/pages/CpTipoSolicitudFormPage';
-import PCargoList from '../modules/pCargo/pages/PCargoList';
-import PCargoFormPage from '../modules/pCargo/pages/PCargoFormPage';
-import PersonalList from '../modules/personal/pages/PersonalList';
-import PersonalFormPage from '../modules/personal/pages/PersonalFormPage';
-import RoleList from '../modules/roles/pages/RoleList';
-import RoleFormPage from '../modules/roles/pages/RoleFormPage';
-import UserList from '../modules/users/pages/UserList';
-import UserFormPage from '../modules/users/pages/UserFormPage';
-import CpPedidoCreatePage from '../modules/cpPedidos/pages/CpPedidoCreatePage';
-import CpPedidoEditPage from '../modules/cpPedidos/pages/CpPedidoEditPage';
-import CpPedidoList from '../modules/cpPedidos/pages/CpPedidoList';
-import CpPedidoDetail from '../modules/cpPedidos/pages/CpPedidoDetail';
-import InformeConsolidadoPage from '../modules/cpPedidos/pages/InformeConsolidadoPage';
-import EntregaActivosFijosList from '../modules/entregaActivosFijos/pages/EntregaActivosFijosList';
-import EntregaActivosFijosForm from '../modules/entregaActivosFijos/pages/EntregaActivosFijosForm';
-import EntregaActivosFijosHistory from '../modules/entregaActivosFijos/pages/EntregaActivosFijosHistory';
+import LoginPage from '../modules/Autenticacion/pages/LoginPage';
+import ForgotPasswordPage from '../modules/Autenticacion/pages/ForgotPasswordPage';
+import InformacionWebPage from '../modules/InformacionWeb/pages/InformacionWebPage';
+import DashboardPage from '../modules/Tablero/pages/DashboardPage';
+import InventoryFormPage from '../modules/GestionCompras/Inventario/pages/InventoryFormPage';
+import InventoryListPage from '../modules/GestionCompras/Inventario/pages/InventoryListPage';
+import InventoryDetailPage from '../modules/GestionCompras/Inventario/pages/InventoryDetailPage';
+import DependenciaSedeList from '../modules/Configuracion/DependenciaSede/pages/DependenciaSedeList';
+import DependenciaSedeFormPage from '../modules/Configuracion/DependenciaSede/pages/DependenciaSedeFormPage';
 
-import AreasList from '../modules/areas/pages/AreasList';
-import AreasForm from '../modules/areas/pages/AreasForm';
+import PCargoList from '../modules/Configuracion/PCargo/pages/PCargoList';
+import PCargoFormPage from '../modules/Configuracion/PCargo/pages/PCargoFormPage';
+import PersonalList from '../modules/Configuracion/Personal/pages/PersonalList';
+import PersonalFormPage from '../modules/Configuracion/Personal/pages/PersonalFormPage';
+import RoleList from '../modules/Configuracion/Roles/pages/RoleList';
+import RoleFormPage from '../modules/Configuracion/Roles/pages/RoleFormPage';
+import UserList from '../modules/Configuracion/Usuarios/pages/UserList';
+import UserFormPage from '../modules/Configuracion/Usuarios/pages/UserFormPage';
 
-import ProfilePage from '../modules/profile/pages/ProfilePage';
-import ConfigurationPage from '../modules/configuration/pages/ConfigurationPage';
-import PermisosPage from '../modules/configuration/pages/PermisosPage';
-import MantenimientoList from '../modules/mantenimiento/pages/MantenimientoList';
-import MantenimientoFormPage from '../modules/mantenimiento/pages/MantenimientoFormPage';
-import MantenimientoReceptorPage from '../modules/mantenimiento/pages/MantenimientoReceptorPage';
-import AgendaMantenimientoList from '../modules/agendaMantenimiento/pages/AgendaMantenimientoList';
-import AgendaMantenimientoFormPage from '../modules/agendaMantenimiento/pages/AgendaMantenimientoFormPage';
-import ReportesMantenimientos from '../modules/agendaMantenimiento/pages/ReportesMantenimientos';
+
+import AreasList from '../modules/Configuracion/Areas/pages/AreasList';
+import AreasForm from '../modules/Configuracion/Areas/pages/AreasForm';
+
+import SedesList from '../modules/Configuracion/Sede/pages/SedesList';
+import SedesForm from '../modules/Configuracion/Sede/pages/SedesForm';
+
+import ProfilePage from '../modules/PerfilUsuario/pages/ProfilePage';
+import ConfigurationPage from '../modules/Configuracion/Tablero/pages/ConfigurationPage';
+import PermisosPage from '../modules/Configuracion/Permisos/pages/PermisosPage';
+import MantenimientoList from '../modules/GestionInfraestructura/Mantenimiento/pages/MantenimientoList';
+import MantenimientoFormPage from '../modules/GestionInfraestructura/Mantenimiento/pages/MantenimientoFormPage';
+import MantenimientoReceptorPage from '../modules/GestionInfraestructura/Mantenimiento/pages/MantenimientoReceptorPage';
+import AgendaMantenimientoList from '../modules/GestionInfraestructura/AgendaMantenimiento/pages/AgendaMantenimientoList';
+import AgendaMantenimientoFormPage from '../modules/GestionInfraestructura/AgendaMantenimiento/pages/AgendaMantenimientoFormPage';
+import ReportesMantenimientos from '../modules/GestionInfraestructura/AgendaMantenimiento/pages/ReportesMantenimientos';
 
 import MainLayout from '../layout/MainLayout';
 import PermissionProtectedRoute from '../components/common/PermissionProtectedRoute';
-import Error404 from '../modules/errorPage/pages/Error404';
-import Error500 from '../modules/errorPage/pages/Error500';
-import Error403 from '../modules/errorPage/pages/Error403';
-import ComingSoon from '../modules/errorPage/pages/ComingSoon';
-import BuzonSugerenciasList from '../modules/buzonSugerencias/pages/BuzonSugerenciasList';
-import BuzonAgenteList from '../modules/buzonSugerencias/pages/BuzonAgenteList';
-import BuzonSugerenciasFormPage from '../modules/buzonSugerencias/pages/BuzonSugerenciasFormPage';
-import BuzonSugerenciaDetailPage from '../modules/buzonSugerencias/pages/BuzonSugerenciaDetailPage';
+import Error404 from '../modules/PaginasError/pages/Error404';
+import Error500 from '../modules/PaginasError/pages/Error500';
+import Error403 from '../modules/PaginasError/pages/Error403';
+import ComingSoon from '../modules/PaginasError/pages/ComingSoon';
+import BuzonSugerenciasList from '../modules/BuzonSugerencias/pages/BuzonSugerenciasList';
+import BuzonAgenteList from '../modules/BuzonSugerencias/pages/BuzonAgenteList';
+import BuzonSugerenciasFormPage from '../modules/BuzonSugerencias/pages/BuzonSugerenciasFormPage';
+import BuzonSugerenciaDetailPage from '../modules/BuzonSugerencias/pages/BuzonSugerenciaDetailPage';
 
 // Nuevo Módulo DDD (Vertical Slices)
 import GestionSistemasRouter from '../modules/GestionSistemas/router/GestionSistemasRouter';
+import GestionComprasRouter from '../modules/GestionCompras/router/GestionComprasRouter';
 
 // Componente para proteger rutas privadas
 const ProtectedRoute = ({ children }) => {
@@ -186,90 +174,7 @@ const AppRouter = () => {
                         </PermissionProtectedRoute>
                     } />
 
-                    {/* CP Dependencias */}
-                    <Route path="/cp-dependencias" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_dependencia.crear', 'cp_dependencia.actualizar', 'cp_dependencia.eliminar']}>
-                            <CpDependenciaList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-dependencias/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_dependencia.crear']}>
-                            <CpDependenciaFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-dependencias/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_dependencia.actualizar']}>
-                            <CpDependenciaFormPage />
-                        </PermissionProtectedRoute>
-                    } />
 
-                    {/* CP Centro Costos */}
-                    <Route path="/cp-centro-costos" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_centro_costo.crear', 'cp_centro_costo.actualizar', 'cp_centro_costo.eliminar']}>
-                            <CpCentroCostoList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-centro-costos/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_centro_costo.crear']}>
-                            <CpCentroCostoFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-centro-costos/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_centro_costo.actualizar']}>
-                            <CpCentroCostoFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-
-                    {/* CP Productos */}
-                    <Route path="/cp-productos" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_producto.crear', 'cp_producto.actualizar', 'cp_producto.eliminar']}>
-                            <CpProductoList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-productos/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_producto.crear']}>
-                            <CpProductoFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-productos/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_producto.actualizar']}>
-                            <CpProductoFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-
-                    {/* CP Productos Servicios */}
-                    <Route path="/cp-productos-servicios" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_producto_servicio.crear', 'cp_producto_servicio.actualizar', 'cp_producto_servicio.eliminar']}>
-                            <CpProductoServicioList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-productos-servicios/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_producto_servicio.crear']}>
-                            <CpProductoServicioFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-productos-servicios/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_producto_servicio.actualizar']}>
-                            <CpProductoServicioFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-
-                    {/* CP Tipos Solicitud */}
-                    <Route path="/cp-tipos-solicitud" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_tipo_solicitud.crear', 'cp_tipo_solicitud.actualizar', 'cp_tipo_solicitud.eliminar']}>
-                            <CpTipoSolicitudList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-tipos-solicitud/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_tipo_solicitud.crear']}>
-                            <CpTipoSolicitudFormPage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-tipos-solicitud/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_tipo_solicitud.actualizar']}>
-                            <CpTipoSolicitudFormPage />
-                        </PermissionProtectedRoute>
-                    } />
 
                     {/* P Cargos */}
                     <Route path="/p-cargos" element={
@@ -339,59 +244,7 @@ const AppRouter = () => {
                         </PermissionProtectedRoute>
                     } />
 
-                    {/* Pedidos de Compra */}
-                    <Route path="/cp-pedidos" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.listar', 'cp_pedido.listar.compras', 'cp_pedido.listar.responsable', 'cp_pedido.crear']}>
-                            <CpPedidoList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-pedidos/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.crear']}>
-                            <CpPedidoCreatePage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-pedidos/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.listar', 'cp_pedido.crear']}>
-                            <CpPedidoDetail />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/cp-pedidos/:id/editar" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.crear']}>
-                            <CpPedidoEditPage />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/informe-consolidado-pedidos" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_pedido.consolidado']}>
-                            <InformeConsolidadoPage />
-                        </PermissionProtectedRoute>
-                    } />
 
-                    {/* Entrega de Activos Fijos */}
-                    <Route path="/entrega-activos-fijos" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.crear', 'cp_entrega_activos_fijos.actualizar', 'cp_entrega_activos_fijos.eliminar']}>
-                            <EntregaActivosFijosList />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/entrega-activos-fijos/nuevo" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.crear']}>
-                            <EntregaActivosFijosForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/entrega-activos-fijos/editar/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.actualizar']}>
-                            <EntregaActivosFijosForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/entrega-activos-fijos/actualizar-firma/:id" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.actualizar']}>
-                            <EntregaActivosFijosForm />
-                        </PermissionProtectedRoute>
-                    } />
-                    <Route path="/entrega-activos-fijos/historial" element={
-                        <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.listar']}>
-                            <EntregaActivosFijosHistory />
-                        </PermissionProtectedRoute>
-                    } />
 
 
                     {/* Áreas */}
@@ -408,6 +261,23 @@ const AppRouter = () => {
                     <Route path="/areas/editar/:id" element={
                         <PermissionProtectedRoute requiredPermissions={['area.actualizar']}>
                             <AreasForm />
+                        </PermissionProtectedRoute>
+                    } />
+
+                    {/* Sedes */}
+                    <Route path="/sedes" element={
+                        <PermissionProtectedRoute requiredPermissions={['sede.crear', 'sede.actualizar', 'sede.eliminar']}>
+                            <SedesList />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/sedes/nuevo" element={
+                        <PermissionProtectedRoute requiredPermissions={['sede.crear']}>
+                            <SedesForm />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/sedes/editar/:id" element={
+                        <PermissionProtectedRoute requiredPermissions={['sede.actualizar']}>
+                            <SedesForm />
                         </PermissionProtectedRoute>
                     } />
 
@@ -492,6 +362,7 @@ const AppRouter = () => {
 
                     {/* Gestión de Sistemas (Nuevo Módulo Vertical Slices) */}
                     <Route path="/gestion-sistemas/*" element={<GestionSistemasRouter />} />
+                    <Route path="/gestion-compras/*" element={<GestionComprasRouter />} />
 
                     {/* Rutas de Estado y Error */}
                     <Route path="/mantenimiento" element={<Error500 />} />

@@ -3,8 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import pcEquiposService from '../services/pcEquiposService';
 import PcCaracteristicasTecnicasForm from '../components/PcCaracteristicasTecnicasForm';
+import PcEquipoGeneralTab from '../components/PcEquipoGeneralTab';
+import PcEquipoImagenTab from '../components/PcEquipoImagenTab';
+import PcLicenciasForm from '../components/PcLicenciasForm';
 
 import api from '../../../../services/api';
+import { ComputerDesktopIcon } from '@heroicons/react/24/outline';
 
 export default function PcEquiposForm() {
     const { id } = useParams();
@@ -36,8 +40,19 @@ export default function PcEquiposForm() {
         numero_inventario: '',
         sede_id: '',
         area_id: '',
-        responsable_id: '', // Personal ID
-        estado: 'operativo'
+        responsable_id: '',
+        estado: 'operativo',
+        propiedad: 'empresa',
+        ip_fija: '',
+        fecha_ingreso: '',
+        fecha_entrega: '',
+        garantia_meses: '',
+        forma_adquisicion: 'compra',
+        descripcion_general: '',
+        observaciones: '',
+        repuestos_principales: '',
+        recomendaciones: '',
+        equipos_adicionales: ''
     });
 
     useEffect(() => {
@@ -49,10 +64,8 @@ export default function PcEquiposForm() {
 
     const loadCatalogs = async () => {
         try {
-            // Fetch Sedes
             const sedesRes = await api.get('/sedes');
             setSedes(sedesRes.data.objeto || sedesRes.data || []);
-
         } catch (error) {
             console.error('Error loading catalogs', error);
         }
@@ -63,25 +76,20 @@ export default function PcEquiposForm() {
             setInitialLoading(true);
             const response = await pcEquiposService.getById(equipoId);
             if (response && response.objeto) {
-                // Map backend fields to form fields if needed, but they should match now
                 setFormData(response.objeto);
                 
-                // Set initial search string for autocomplete
                 if (response.objeto.responsable) {
                     setPersonalSearch(response.objeto.responsable.nombre);
                 }
 
-                // Trigger area load if sede is selected
                 if (response.objeto.sede_id) {
                     loadAreas(response.objeto.sede_id);
                 }
 
                 if (response.objeto.imagen_url) {
-                    // Check if it's a full URL or relative
                     if (response.objeto.imagen_url.startsWith('http')) {
                         setPreviewUrl(response.objeto.imagen_url);
                     } else {
-                        // Assuming public folder access via base URL
                         setPreviewUrl(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${response.objeto.imagen_url}`);
                     }
                 }
@@ -126,7 +134,6 @@ export default function PcEquiposForm() {
                 params: { termino: query }
             });
             const results = response.data.objeto || response.data || [];
-            // Show only first 5 as requested (or a handful)
             setPersonalResults(results.slice(0, 8));
             setShowPersonalResults(true);
         } catch (error) {
@@ -145,7 +152,6 @@ export default function PcEquiposForm() {
         
         setFormData(prev => {
             const newData = { ...prev, [name]: value };
-            // Clear area_id if sede_id changes to avoid inconsistent data
             if (name === 'sede_id') {
                 newData.area_id = '';
             }
@@ -161,7 +167,6 @@ export default function PcEquiposForm() {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            // Create preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewUrl(reader.result);
@@ -176,29 +181,13 @@ export default function PcEquiposForm() {
             return;
         }
 
-        const data = new FormData();
-        data.append('imagen', imageFile);
-        data.append('_method', 'PUT'); // For Laravel partial update via POST/PUT with method spoofing if needed, but here we can stick to api.put if we send FormData properly, but usually axios put with formData works differently in Laravel sometimes.
-        // Actually, for file uploads in Laravel with PUT/PATCH, it's safer to use POST with _method=PUT.
-        // But let's try calling update service.
-        // Wait, pcEquiposService.update sends JSON by default in axios if we pass object? 
-        // We need to modify the service call or call API directly here for FormData.
-
-        // Let's call api directly for image upload to be safe and specific.
         try {
             const uploadData = new FormData();
             uploadData.append('imagen', imageFile);
-            uploadData.append('_method', 'PUT'); // Trick for Laravel PUT file upload
-
-            // We also need to send other required fields if validation is strict?
-            // Validation said 'sometimes', so we should be good sending just image?
-            // Controller validation: unique serial...
-            // If we don't send serial, it might fail if 'sometimes' rules trigger or if 'required' rules trigger.
-            // But validation says: 'serial' => 'sometimes|string...'.
-            // So if we don't send 'serial', it won't check it?
+            uploadData.append('_method', 'PUT');
 
             setLoading(true);
-            const response = await api.post(`/pc-equipos/${id}`, uploadData, {
+            await api.post(`/gestion-sistemas/pc-equipos/${id}`, uploadData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -243,295 +232,151 @@ export default function PcEquiposForm() {
     };
 
     if (initialLoading) {
-        return <div className="text-center py-10">Cargando...</div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh]">
+                <div className="h-12 w-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                <p className="text-slate-500 font-medium animate-pulse">Cargando datos del equipo...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
-                {isEditMode ? 'Editar Equipo' : 'Nuevo Equipo'}
-            </h1>
-
-            {/* Tabs */}
-            <div className="border-b border-gray-200 mb-6">
-                <nav className="-mb-px flex space-x-8">
-                    <button
-                        onClick={() => setActiveTab('general')}
-                        className={`${activeTab === 'general'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                    >
-                        Información General
-                    </button>
-                    <button
-                        onClick={() => {
-                            if (!isEditMode) {
-                                Swal.fire('Atención', 'Debes guardar la información general primero', 'warning');
-                                return;
-                            }
-                            setActiveTab('caracteristicas');
-                        }}
-                        className={`${activeTab === 'caracteristicas'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${!isEditMode ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                        Características Técnicas
-                    </button>
-                    <button
-                        onClick={() => {
-                            if (!isEditMode) {
-                                Swal.fire('Atención', 'Debes guardar la información general primero', 'warning');
-                                return;
-                            }
-                            setActiveTab('imagen');
-                        }}
-                        className={`${activeTab === 'imagen'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${!isEditMode ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                        Imagen del Equipo
-                    </button>
-                </nav>
+        <div className="max-w-8xl mx-auto p-4 md:p-8 animate-fade-in-up">
+            
+            {/* Hero Header NexaCore Premium */}
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
+                        MÓDULO DE SISTEMAS
+                    </span>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
+                        {isEditMode ? 'Gestión de Equipo' : 'Nuevo Equipo'}
+                    </h1>
+                    <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
+                        {isEditMode 
+                            ? 'Actualiza la información, características, licencias e imagen del dispositivo de cómputo en el inventario.'
+                            : 'Registra un nuevo dispositivo de cómputo para comenzar a rastrear su ciclo de vida y mantenimientos.'}
+                    </p>
+                </div>
+                {/* Icono Decorativo Flotante */}
+                <ComputerDesktopIcon className="absolute right-12 bottom-0 h-64 w-64 text-white/5 -mb-20 pointer-events-none transform -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
             </div>
 
-            {/* Content */}
-            {activeTab === 'general' && (
-                <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Equipo</label>
-                            <select
-                                name="tipo"
-                                value={formData.tipo}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            >
-                                <option value="">Seleccione...</option>
-                                <option value="desktop">Desktop</option>
-                                <option value="laptop">Laptop</option>
-                                <option value="servidor">Servidor</option>
-                                <option value="todo_en_uno">Todo en Uno</option>
-                            </select>
-                        </div>
+            {/* Tabs Premium */}
+            <div className="flex overflow-x-auto hide-scrollbar mb-8 pb-2 space-x-2">
+                <button
+                    onClick={() => setActiveTab('general')}
+                    className={`whitespace-nowrap px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'general'
+                            ? 'bg-slate-800 text-white shadow-lg shadow-slate-300'
+                            : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200'
+                    }`}
+                >
+                    Información General
+                </button>
+                <button
+                    onClick={() => {
+                        if (!isEditMode) {
+                            Swal.fire('Atención', 'Debes guardar la información general primero', 'warning');
+                            return;
+                        }
+                        setActiveTab('caracteristicas');
+                    }}
+                    className={`whitespace-nowrap px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'caracteristicas'
+                            ? 'bg-slate-800 text-white shadow-lg shadow-slate-300'
+                            : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200'
+                    } ${!isEditMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    Características Técnicas
+                </button>
+                <button
+                    onClick={() => {
+                        if (!isEditMode) {
+                            Swal.fire('Atención', 'Debes guardar la información general primero', 'warning');
+                            return;
+                        }
+                        setActiveTab('licencias');
+                    }}
+                    className={`whitespace-nowrap px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'licencias'
+                            ? 'bg-slate-800 text-white shadow-lg shadow-slate-300'
+                            : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200'
+                    } ${!isEditMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    Licencias Software
+                </button>
+                <button
+                    onClick={() => {
+                        if (!isEditMode) {
+                            Swal.fire('Atención', 'Debes guardar la información general primero', 'warning');
+                            return;
+                        }
+                        setActiveTab('imagen');
+                    }}
+                    className={`whitespace-nowrap px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'imagen'
+                            ? 'bg-slate-800 text-white shadow-lg shadow-slate-300'
+                            : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200'
+                    } ${!isEditMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    Imagen del Equipo
+                </button>
+            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Marca</label>
-                            <input
-                                type="text"
-                                name="marca"
-                                value={formData.marca}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
-                            <input
-                                type="text"
-                                name="modelo"
-                                value={formData.modelo}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Serial</label>
-                            <input
-                                type="text"
-                                name="serial"
-                                value={formData.serial}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Activo Fijo</label>
-                            <input
-                                type="text"
-                                name="numero_inventario"
-                                value={formData.numero_inventario}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                            <select
-                                name="estado"
-                                value={formData.estado}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                <option value="operativo">Operativo</option>
-                                <option value="en_reparacion">En Reparación</option>
-                                <option value="baja">Baja</option>
-                                <option value="asignado">Asignado</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Sede</label>
-                            <select
-                                name="sede_id"
-                                value={formData.sede_id}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                <option value="">Seleccione Sede...</option>
-                                {sedes.map(sede => (
-                                    <option key={sede.id} value={sede.id}>{sede.nombre}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Área</label>
-                            <select
-                                name="area_id"
-                                value={formData.area_id}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                <option value="">Seleccione Área...</option>
-                                {areas.map(area => (
-                                    <option key={area.id} value={area.id}>{area.nombre}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="md:col-span-2 relative">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={personalSearch}
-                                    onChange={(e) => handlePersonalSearch(e.target.value)}
-                                    placeholder="Escribe el nombre del responsable..."
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                                    autoComplete="off"
-                                />
-                                {personalSearch && (
-                                    <button 
-                                        type="button"
-                                        onClick={() => {
-                                            setPersonalSearch('');
-                                            setPersonalResults([]);
-                                            setFormData(prev => ({...prev, responsable_id: ''}));
-                                        }}
-                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                                    >
-                                        &times;
-                                    </button>
-                                )}
-                            </div>
-
-                            {showPersonalResults && personalResults.length > 0 && (
-                                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                                    {personalResults.map(p => (
-                                        <div
-                                            key={p.id}
-                                            onClick={() => selectPersonal(p)}
-                                            className="px-4 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-b-0"
-                                        >
-                                            <div className="text-sm font-medium text-gray-900">{p.nombre}</div>
-                                            {p.cargo && (
-                                                <div className="text-xs text-gray-500">{p.cargo.nombre}</div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {!showPersonalResults && personalSearch.length >= 2 && personalResults.length === 0 && (
-                                // This could be used for "no results" but often it's better to just hide it
-                                null
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={() => navigate('/gestion-sistemas/pc-equipos')}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                        >
-                            {loading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar y Continuar')}
-                        </button>
-                    </div>
-                </form>
-            )}
-
-            {/* Características Tab */}
-            {activeTab === 'caracteristicas' && isEditMode && (
-                <PcCaracteristicasTecnicasForm equipoId={id} />
-            )}
-
-            {/* Imagen Tab */}
-            {activeTab === 'imagen' && isEditMode && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                    <h2 className="text-xl font-semibold mb-4 text-center">Imagen del Equipo</h2>
-                    <div className="flex flex-col items-center">
-                        <div className="mb-6">
-                            {/* Preview */}
-                            {previewUrl ? (
-                                <div className="mb-4 relative w-64 h-64 border rounded-lg overflow-hidden">
-                                    <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                                </div>
-                            ) : (
-                                <div className="mb-4 w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400">
-                                    Sin Imagen
-                                </div>
-                            )}
-
-                            {/* Upload Input */}
-                            <div className="w-full max-w-xs">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Seleccionar Imagen</label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="block w-full text-sm text-gray-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-indigo-50 file:text-indigo-700
-                                            hover:file:bg-indigo-100"
-                                />
-                            </div>
-
-                            {/* Save Button */}
-                            <button
-                                type="button"
-                                onClick={handleImageUpload}
-                                disabled={!imageFile || loading}
-                                className={`px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow ${(!imageFile || loading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-700'
-                                    }`}
-                            >
-                                {loading ? 'Subiendo...' : 'Actualizar Imagen'}
-                            </button>
-                        </div>
-                    </div>
+            {/* Tab Contents */}
+            <div className="animate-fade-in-up">
+                <div className={activeTab === 'general' ? 'block' : 'hidden'}>
+                    <PcEquipoGeneralTab
+                        formData={formData}
+                        handleChange={handleChange}
+                        sedes={sedes}
+                        areas={areas}
+                        personalSearch={personalSearch}
+                        handlePersonalSearch={handlePersonalSearch}
+                        showPersonalResults={showPersonalResults}
+                        personalResults={personalResults}
+                        selectPersonal={selectPersonal}
+                        setPersonalSearch={setPersonalSearch}
+                        setFormData={setFormData}
+                        handleSubmit={handleSubmit}
+                        loading={loading}
+                        isEditMode={isEditMode}
+                        navigate={navigate}
+                    />
                 </div>
-            )}
 
+                {isEditMode && (
+                    <div className={activeTab === 'caracteristicas' ? 'block' : 'hidden'}>
+                        <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 overflow-hidden relative">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500"></div>
+                            <PcCaracteristicasTecnicasForm equipoId={id} />
+                        </div>
+                    </div>
+                )}
 
+                {isEditMode && (
+                    <div className={activeTab === 'licencias' ? 'block' : 'hidden'}>
+                        <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 overflow-hidden relative">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-emerald-500 to-green-500"></div>
+                            <PcLicenciasForm equipoId={id} />
+                        </div>
+                    </div>
+                )}
+
+                {isEditMode && (
+                    <div className={activeTab === 'imagen' ? 'block' : 'hidden'}>
+                        <PcEquipoImagenTab
+                            previewUrl={previewUrl}
+                            handleImageChange={handleImageChange}
+                            handleImageUpload={handleImageUpload}
+                            imageFile={imageFile}
+                            loading={loading}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
+
