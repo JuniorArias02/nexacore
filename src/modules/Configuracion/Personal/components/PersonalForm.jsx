@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { personalService } from '../services/personalService';
-import { pCargoService } from '../../pCargo/services/pCargoService';
+import { pCargoService } from '../../PCargo/services/pCargoService';
 import Swal from 'sweetalert2';
 import {
     UserIcon,

@@ -5,8 +5,8 @@ import CpPedidoItemForm from './CpPedidoItemForm';
 import SignaturePad from '../../../Firmas/components/SignaturePad';
 import { cpPedidoService } from '../services/cpPedidoService';
 import { cpTipoSolicitudService } from '../../TipoSolicitud/services/cpTipoSolicitudService';
-import { sedeService } from '../../../Configuracion/sede/services/sedeService';
-import { dependenciaSedeService } from '../../../Configuracion/dependenciaSede/services/dependenciaSedeService';
+import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
+import { dependenciaSedeService } from '../../../Configuracion/DependenciaSede/services/dependenciaSedeService';
 // import { userService } from '../../users/services/userService'; // Removed
 import { authService } from '../../../Autenticacion/services/authService';
 

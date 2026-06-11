@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { userService } from '../services/userService';
-import { roleService } from '../../roles/services/roleService';
-import { sedeService } from '../../sede/services/sedeService';
+import { roleService } from '../../Roles/services/roleService';
+import { sedeService } from '../../Sede/services/sedeService';
 import Swal from 'sweetalert2';
 import {
     UserCircleIcon,

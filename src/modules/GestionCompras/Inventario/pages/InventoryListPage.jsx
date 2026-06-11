@@ -12,8 +12,8 @@ import {
     XMarkIcon
 } from '@heroicons/react/24/outline';
 import { inventoryService } from '../services/inventoryService';
-import { sedeService } from '../../../Configuracion/sede/services/sedeService';
-import { personalService } from '../../../Configuracion/personal/services/personalService';
+import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
+import { personalService } from '../../../Configuracion/Personal/services/personalService';
 import { useAuth } from '../../../../context/AuthContext';
 import ContextMenu from '../../../../components/common/ContextMenu';
 import SearchableSelect from '../components/SearchableSelect';

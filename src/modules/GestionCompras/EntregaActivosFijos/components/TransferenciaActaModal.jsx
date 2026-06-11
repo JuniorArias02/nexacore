@@ -7,7 +7,7 @@ import {
     ArrowsRightLeftIcon,
     UserGroupIcon
 } from '@heroicons/react/24/outline';
-import { personalService } from '../../../Configuracion/personal/services/personalService';
+import { personalService } from '../../../Configuracion/Personal/services/personalService';
 import Swal from 'sweetalert2';
 
 export default function TransferenciaActaModal({ isOpen, onClose, onConfirm, acta, mode = 'individual' }) {
