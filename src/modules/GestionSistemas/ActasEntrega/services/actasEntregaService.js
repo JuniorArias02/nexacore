@@ -23,6 +23,17 @@ const actasEntregaService = {
         });
         return response.data;
     },
+
+    update: async (id, formData) => {
+        // Enviar con _method=PUT para simular el PUT con FormData
+        formData.append('_method', 'PUT');
+        const response = await api.post(`${BASE_URL}/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    },
     
     search: async (query) => {
         const response = await api.get(`${BASE_URL}?q=${query}`);

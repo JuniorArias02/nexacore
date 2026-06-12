@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import pcMantenimientoService from '../services/pcMantenimientoService';
 import datosEmpresaService from '../services/datosEmpresaService';
@@ -22,6 +22,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function CrearNuevoManteminetoPc() {
+    const { id } = useParams();
+    const isEditMode = !!id;
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [empresas, setEmpresas] = useState([]);
@@ -42,14 +44,14 @@ export default function CrearNuevoManteminetoPc() {
 
     const [useStoredSignature, setUseStoredSignature] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
+    const [initialEquipo, setInitialEquipo] = useState(null);
 
     useEffect(() => {
         const loadEmpresas = async () => {
             try {
                 const data = await datosEmpresaService.getAll();
                 setEmpresas(data);
-                // Si solo hay una empresa, seleccionarla automáticamente
-                if (data.length === 1) {
+                if (data.length === 1 && !isEditMode) {
                     setFormData(prev => ({ ...prev, empresa_responsable_id: data[0].id }));
                 }
             } catch (error) {
@@ -67,9 +69,45 @@ export default function CrearNuevoManteminetoPc() {
             }
         };
 
+        const loadMantenimiento = async () => {
+            if (isEditMode) {
+                try {
+                    setLoading(true);
+                    const response = await pcMantenimientoService.getById(id);
+                    const m = response;
+                    setFormData({
+                        equipo_id: m.equipo_id || '',
+                        tipo_mantenimiento: m.tipo_mantenimiento || 'preventivo',
+                        descripcion: m.descripcion || '',
+                        fecha: m.fecha ? m.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
+                        empresa_responsable_id: m.empresa_responsable_id || '',
+                        repuesto: m.repuesto === 1 || m.repuesto === true,
+                        cantidad_repuesto: m.cantidad_repuesto || 0,
+                        costo_repuesto: m.costo_repuesto || 0,
+                        nombre_repuesto: m.nombre_repuesto || '',
+                        estado: m.estado || 'completado',
+                        firma_personal_cargo: '', 
+                        firma_sistemas: '',
+                        firma_personal_cargo_existente: m.firma_personal_cargo || null,
+                        firma_sistemas_existente: m.firma_sistemas || null
+                    });
+                    if (m.equipo) {
+                        setInitialEquipo(m.equipo);
+                    }
+                } catch (error) {
+                    console.error("Error loading mantenimiento", error);
+                    Swal.fire('Error', 'No se pudo cargar el mantenimiento para editar', 'error');
+                    navigate('/gestion-sistemas/pc-mantenimientos');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
         loadEmpresas();
         loadCurrentUser();
-    }, []);
+        loadMantenimiento();
+    }, [id, isEditMode, navigate]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -86,7 +124,7 @@ export default function CrearNuevoManteminetoPc() {
             return Swal.fire('Error', 'Debe seleccionar un equipo', 'error');
         }
 
-        if (!formData.firma_sistemas && !useStoredSignature) {
+        if (!isEditMode && !formData.firma_sistemas && !useStoredSignature) {
             return Swal.fire('Firma requerida', 'El técnico de sistemas debe firmar el registro o usar su firma guardada.', 'warning');
         }
 
@@ -97,7 +135,6 @@ export default function CrearNuevoManteminetoPc() {
         try {
             setLoading(true);
             
-            // Preparar payload limpio
             const payload = { 
                 ...formData,
                 use_stored_signature_sistemas: useStoredSignature
@@ -105,8 +142,9 @@ export default function CrearNuevoManteminetoPc() {
             if (useStoredSignature) {
                 delete payload.firma_sistemas;
             }
+            if (!payload.firma_personal_cargo) delete payload.firma_personal_cargo;
+            if (!payload.firma_sistemas) delete payload.firma_sistemas;
             
-            // Limpiar campos opcionales que pueden ser strings vacíos
             if (!payload.empresa_responsable_id) {
                 delete payload.empresa_responsable_id;
             } else {
@@ -115,11 +153,15 @@ export default function CrearNuevoManteminetoPc() {
 
             if (!payload.nombre_repuesto) delete payload.nombre_repuesto;
 
-            await pcMantenimientoService.create(payload);
+            if (isEditMode) {
+                await pcMantenimientoService.update(id, payload);
+            } else {
+                await pcMantenimientoService.create(payload);
+            }
             
             await Swal.fire({
                 title: '¡Éxito!',
-                text: 'El mantenimiento ha sido registrado correctamente',
+                text: isEditMode ? 'El mantenimiento ha sido actualizado correctamente' : 'El mantenimiento ha sido registrado correctamente',
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false,
@@ -128,10 +170,9 @@ export default function CrearNuevoManteminetoPc() {
             
             navigate('/gestion-sistemas/pc-mantenimientos');
         } catch (error) {
-            console.error('Error creating maintenance:', error);
+            console.error('Error saving maintenance:', error);
             
-            // Extraer mensaje detallado si es un error de validación (422)
-            let errorMessage = error.response?.data?.mensaje || 'No se pudo registrar el mantenimiento';
+            let errorMessage = error.response?.data?.mensaje || 'No se pudo guardar el mantenimiento';
             
             if (error.response?.status === 422 && error.response.data.errors) {
                 const errors = error.response.data.errors;
@@ -175,12 +216,12 @@ export default function CrearNuevoManteminetoPc() {
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl ring-1 ring-white/20">
-                                <WrenchScrewdriverIcon className="h-8 w-8 text-white" />
+                                {isEditMode ? <PencilSquareIcon className="h-8 w-8 text-white" /> : <WrenchScrewdriverIcon className="h-8 w-8 text-white" />}
                             </div>
                             <div>
-                                <h1 className="text-3xl font-black tracking-tight">Nuevo Mantenimiento</h1>
+                                <h1 className="text-3xl font-black tracking-tight">{isEditMode ? 'Editar Mantenimiento' : 'Nuevo Mantenimiento'}</h1>
                                 <p className="text-indigo-100 text-sm font-medium opacity-80 mt-1">
-                                    Registra los detalles técnicos y repuestos utilizados.
+                                    {isEditMode ? 'Actualiza los detalles técnicos y repuestos utilizados.' : 'Registra los detalles técnicos y repuestos utilizados.'}
                                 </p>
                             </div>
                         </div>
@@ -362,10 +403,34 @@ export default function CrearNuevoManteminetoPc() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Firma Personal a Cargo (Opcional)</label>
-                                <SignaturePad 
-                                    title="Firma del Funcionario / Delegado"
-                                    onSave={(data) => setFormData(prev => ({ ...prev, firma_personal_cargo: data }))}
-                                />
+                                
+                                {isEditMode && formData.firma_personal_cargo_existente && !formData.firma_personal_cargo ? (
+                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-slate-50 min-h-[160px]">
+                                        <div className="text-center">
+                                            <img
+                                                src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${formData.firma_personal_cargo_existente}`}
+                                                alt="Firma Funcionario Existente"
+                                                className="h-24 object-contain mx-auto mb-2 mix-blend-multiply"
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                            <p className="text-sm text-green-600 font-medium">Firma del funcionario previamente registrada</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, firma_personal_cargo_existente: null }))}
+                                            className="mt-4 text-xs font-bold text-rose-500 hover:text-rose-700 uppercase tracking-widest transition-colors"
+                                        >
+                                            Eliminar y Re-firmar
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <SignaturePad 
+                                        title="Firma del Funcionario / Delegado"
+                                        onSave={(data) => setFormData(prev => ({ ...prev, firma_personal_cargo: data }))}
+                                    />
+                                )}
                             </div>
                             
                             <div className="space-y-4">
@@ -415,6 +480,27 @@ export default function CrearNuevoManteminetoPc() {
                                                 <p className="mt-1 text-sm text-gray-500">Por favor, dibuja tu firma o configura una en tu perfil.</p>
                                             </div>
                                         )}
+                                    </div>
+                                ) : isEditMode && formData.firma_sistemas_existente && !formData.firma_sistemas ? (
+                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-slate-50 min-h-[160px]">
+                                        <div className="text-center">
+                                            <img
+                                                src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/${formData.firma_sistemas_existente}`}
+                                                alt="Firma Sistemas Existente"
+                                                className="h-24 object-contain mx-auto mb-2 mix-blend-multiply"
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                            <p className="text-sm text-indigo-600 font-medium">Firma del técnico registrada previamente</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, firma_sistemas_existente: null }))}
+                                            className="mt-4 text-xs font-bold text-rose-500 hover:text-rose-700 uppercase tracking-widest transition-colors"
+                                        >
+                                            Eliminar y Re-firmar
+                                        </button>
                                     </div>
                                 ) : (
                                     <SignaturePad 

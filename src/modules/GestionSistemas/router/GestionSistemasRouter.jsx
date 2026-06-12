@@ -90,6 +90,11 @@ const GestionSistemasRouter = () => {
                     <CrearNuevoManteminetoPc />
                 </PermissionProtectedRoute>
             } />
+            <Route path="pc-mantenimientos/editar/:id" element={
+                <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.actualizar']}>
+                    <CrearNuevoManteminetoPc />
+                </PermissionProtectedRoute>
+            } />
             <Route path="pc-mantenimientos" element={
                 <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar']}>
                     <PcMantenimientoList />

@@ -129,7 +129,16 @@ export default function useActasEntregaForm(id) {
             if (firmaRecibe) payload.append('firma_recibe', base64ToFile(firmaRecibe, 'firma_recibe.png'));
 
             if (isEditMode) {
-                Swal.fire('¡Aviso!', 'Actualización en desarrollo (DDD endpoint)', 'info');
+                await actasEntregaService.update(id, payload);
+                Swal.fire({
+                    title: '¡Actualizado!',
+                    text: 'Se ha actualizado el acta de entrega con éxito.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                navigate('/gestion-sistemas/actas-entrega');
             } else {
                 await actasEntregaService.create(payload);
                 Swal.fire({

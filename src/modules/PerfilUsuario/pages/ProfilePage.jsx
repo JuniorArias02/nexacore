@@ -95,25 +95,39 @@ const ProfilePage = () => {
 
                     {/* Left Sidebar / Navigation */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                                <h3 className="font-semibold text-gray-900">Configuración de Cuenta</h3>
+                        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden">
+                            <div className="p-5 border-b border-slate-100 bg-slate-50/50">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">Configuración de Cuenta</h3>
                             </div>
-                            <nav className="p-2 space-y-1">
+                            <nav className="p-3 space-y-2">
                                 {navItems.map((item) => (
                                     <button
                                         key={item.id}
                                         onClick={() => setActiveSection(item.id)}
-                                        className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 group ${activeSection === item.id
-                                            ? 'bg-indigo-50 text-indigo-700 shadow-sm'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        className={`group/item relative w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${activeSection === item.id
+                                            ? 'text-indigo-600'
+                                            : 'text-slate-600 hover:text-slate-900'
                                             }`}
                                     >
-                                        <div className="flex items-center">
-                                            <item.icon className={`h-6 w-6 mr-3 ${activeSection === item.id ? 'text-indigo-500' : 'text-gray-400 group-hover:text-gray-500'}`} />
-                                            <span className="font-medium">{item.label}</span>
+                                        {/* Background active/hover effect */}
+                                        <div 
+                                            className={`absolute inset-0 rounded-2xl transition-all duration-500 pointer-events-none ${
+                                                activeSection === item.id 
+                                                ? 'bg-white shadow-[0_4px_20px_-4px_rgba(79,70,229,0.15)] border border-indigo-100/50 opacity-100 scale-100' 
+                                                : 'opacity-0 scale-[0.98] group-hover/item:opacity-100 group-hover/item:scale-100 bg-slate-50 border border-slate-200/50'
+                                            }`}
+                                        />
+
+                                        <div className="relative z-10 flex items-center">
+                                            <div className={`p-2.5 rounded-xl mr-4 transition-colors duration-300 ${activeSection === item.id ? 'bg-indigo-50 text-indigo-500 shadow-inner' : 'bg-slate-50 text-slate-400 group-hover/item:bg-slate-100 group-hover/item:text-slate-500'}`}>
+                                                <item.icon className={`h-5 w-5 ${activeSection === item.id ? 'scale-110' : ''} transition-transform duration-300`} />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="font-bold text-sm tracking-tight">{item.label}</p>
+                                                <p className={`text-[10px] font-bold mt-0.5 ${activeSection === item.id ? 'text-indigo-400' : 'text-slate-400'}`}>{item.description}</p>
+                                            </div>
                                         </div>
-                                        <ChevronRightIcon className={`h-5 w-5 ${activeSection === item.id ? 'text-indigo-400' : 'text-gray-300 group-hover:text-gray-400'}`} />
+                                        <ChevronRightIcon className={`relative z-10 h-4 w-4 transition-transform duration-300 ${activeSection === item.id ? 'text-indigo-500 translate-x-1' : 'text-slate-300 group-hover/item:text-slate-400'}`} />
                                     </button>
                                 ))}
                             </nav>
@@ -122,17 +136,17 @@ const ProfilePage = () => {
 
                     {/* Right Content Area */}
                     <div className="lg:col-span-8">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+                        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 md:p-8 space-y-6">
                             {/* Message Display */}
                             {message.text && (
-                                <div className={`p-4 rounded-xl flex items-center ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                                    {message.type === 'success' ? <CheckCircleIcon className="h-6 w-6 mr-3" /> : <ExclamationTriangleIcon className="h-6 w-6 mr-3" />}
-                                    <p className="text-sm font-medium">{message.text}</p>
+                                <div className={`p-4 rounded-2xl flex items-center shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
+                                    {message.type === 'success' ? <CheckCircleIcon className="h-6 w-6 mr-3 text-emerald-500" /> : <ExclamationTriangleIcon className="h-6 w-6 mr-3 text-rose-500" />}
+                                    <p className="text-sm font-bold">{message.text}</p>
                                 </div>
                             )}
 
                             {/* Section Content */}
-                            <div className="animate-fade-in">
+                            <div className="animate-fade-in-up">
                                 {activeSection === 'info' && (
                                     <ProfileInfoForm user={user} onSubmit={handleInfoSubmit} loading={loading} />
                                 )}

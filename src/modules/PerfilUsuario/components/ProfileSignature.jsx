@@ -73,7 +73,6 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
             {/* Context Header */}
             <div className="flex items-center gap-3 mb-2">
                 <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Protocolo de Identidad v2.0</span>
             </div>
 
             {/* Current Signature Display */}
@@ -94,9 +93,6 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
                                     alt="Firma actual"
                                     className="h-32 object-contain"
                                 />
-                            </div>
-                            <div className="absolute -bottom-4 bg-white px-4 py-2 rounded-full shadow-lg border border-slate-50 text-[9px] font-black text-indigo-600 uppercase tracking-widest">
-                                Estatus: Encriptada y Activa
                             </div>
                         </div>
                     ) : (
