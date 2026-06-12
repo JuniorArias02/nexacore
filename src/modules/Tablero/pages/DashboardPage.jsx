@@ -52,7 +52,7 @@ const DashboardPage = () => {
     const showTabs = availableViews.length > 1;
 
     return (
-        <div className="min-h-screen bg-gray-50/50 p-4 sm:p-6 md:p-8 font-sans">
+        <div className="min-h-screen p-4 sm:p-6 md:p-8 font-sans">
             <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Hero Section */}
                 <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 sm:p-8 md:p-12 text-white shadow-2xl">

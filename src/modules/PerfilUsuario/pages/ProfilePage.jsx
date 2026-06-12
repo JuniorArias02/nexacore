@@ -84,7 +84,7 @@ const ProfilePage = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50/50 p-6 md:p-8 font-sans">
+        <div className="min-h-screen p-6 md:p-8 font-sans">
             <div className="mx-auto max-w-7xl space-y-8 animate-fade-in-up">
 
                 {/* 1. Header Section */}

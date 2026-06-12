@@ -92,36 +92,6 @@ export default function CpPedidoForm({ initialData = null }) {
         return false;
     };
 
-    const [isTimeAllowed, setIsTimeAllowed] = useState(true);
-
-    useEffect(() => {
-        if (!initialData) {
-            const allowed = checkTimeAllowed();
-            setIsTimeAllowed(allowed);
-            if (!allowed) {
-                Swal.fire({
-                    title: 'Horario Restringido',
-                    html: `
-                        <div class="text-left text-sm space-y-2 mt-4 text-slate-600">
-                            <p>El sistema para crear pedidos solo está habilitado en los siguientes horarios:</p>
-                            <ul class="list-disc pl-5 font-bold text-slate-800">
-                                <li>Lunes a Viernes: 7:30 AM - 8:30 AM / 2:00 PM - 3:00 PM</li>
-                                <li>Sábados: 8:00 AM - 9:00 PM</li>
-                            </ul>
-                        </div>
-                    `,
-                    icon: 'warning',
-                    confirmButtonColor: '#4f46e5',
-                    confirmButtonText: 'Entendido',
-                    allowOutsideClick: false
-                }).then(() => {
-                    navigate('/gestion-compras/cp-pedidos');
-                });
-            }
-        }
-    }, [initialData, navigate]);
-
-    // Load initial data for editing
     useEffect(() => {
         if (initialData) {
             setHeaderData({
@@ -207,6 +177,39 @@ export default function CpPedidoForm({ initialData = null }) {
 
     const handleHeaderChange = (e) => {
         const { name, value } = e.target;
+        
+        if (name === 'tipo_solicitud' && value) {
+            const selectedType = tipoSolicitudes.find(t => t.id == value);
+            const isPrioritario = selectedType && selectedType.nombre.toLowerCase().includes('prioritari');
+            
+            if (!isPrioritario && !checkTimeAllowed() && !initialData) {
+                Swal.fire({
+                    title: '<span class="text-xl font-extrabold text-slate-800">Horario Restringido</span>',
+                    html: `
+                        <div class="text-left text-sm mt-2 text-slate-600 leading-relaxed">
+                            <p class="mb-4">Los pedidos de tipo <strong>${selectedType?.nombre || 'Recurrente'}</strong> solo pueden crearse en los siguientes horarios habilitados:</p>
+                            <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                                <ul class="space-y-2 font-medium text-slate-700">
+                                    <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Lunes a Viernes: 7:30 AM - 8:30 AM / 2:00 PM - 3:00 PM</li>
+                                    <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Sábados: 8:00 AM - 9:00 PM</li>
+                                </ul>
+                            </div>
+                            <p class="mt-4 text-xs text-slate-500">Nota: Los pedidos prioritarios pueden realizarse en cualquier horario.</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    iconColor: '#6366f1',
+                    confirmButtonColor: '#4f46e5',
+                    confirmButtonText: 'Entendido',
+                    customClass: {
+                        popup: 'rounded-2xl shadow-2xl border border-slate-100',
+                        confirmButton: 'rounded-xl px-6 font-bold tracking-wide'
+                    }
+                });
+                return; // Do not update the state with this value, so it remains unselected
+            }
+        }
+
         setHeaderData(prev => ({
             ...prev,
             [name]: value
@@ -224,8 +227,11 @@ export default function CpPedidoForm({ initialData = null }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!initialData && !checkTimeAllowed()) {
-            Swal.fire('Horario Restringido', 'El horario para crear pedidos ha finalizado.', 'warning');
+        const selectedType = tipoSolicitudes.find(t => t.id == headerData.tipo_solicitud);
+        const isPrioritario = selectedType && selectedType.nombre.toLowerCase().includes('prioritari');
+
+        if (!initialData && !isPrioritario && !checkTimeAllowed()) {
+            Swal.fire('Horario Restringido', 'El horario para crear pedidos no prioritarios ha finalizado.', 'warning');
             return;
         }
 
@@ -299,10 +305,6 @@ export default function CpPedidoForm({ initialData = null }) {
             setLoading(false);
         }
     };
-
-    if (!initialData && !isTimeAllowed) {
-        return null;
-    }
 
     return (
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">

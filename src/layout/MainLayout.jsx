@@ -20,17 +20,13 @@ const MainLayout = () => {
 
         // Send immediately on mount
         sendHeartbeat();
-
-        // Then every 2 minutes (120000 ms)
-        // The backend considers "online" if active within 5 minutes.
-        // Middleware updates throttle is 1 minute.
         const interval = setInterval(sendHeartbeat, 120000);
 
         return () => clearInterval(interval);
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#fcfcfd]">
+        <div className="min-h-screen" style={{background: 'linear-gradient(135deg, #eef2ff 0%, #f5f3ff 25%, #fdf2f8 50%, #eff6ff 75%, #f0fdf4 100%)'}}>
             <Sidebar
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
