@@ -49,6 +49,11 @@ const actasEntregaService = {
     exportExcel: async (id) => {
         const response = await api.get(`${BASE_URL}/${id}/exportar-excel`);
         return response.data;
+    },
+
+    exportPdf: async (id) => {
+        const response = await api.get(`${BASE_URL}/${id}/exportar-pdf`);
+        return response.data;
     }
 };
 

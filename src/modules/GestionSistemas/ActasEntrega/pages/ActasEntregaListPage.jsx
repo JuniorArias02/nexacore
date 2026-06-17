@@ -22,6 +22,8 @@ export default function ActasEntregaListPage() {
     const [entregas, setEntregas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
 
     useEffect(() => {
         loadEntregas();
@@ -78,20 +80,10 @@ export default function ActasEntregaListPage() {
 
     const handleExportExcel = async (id) => {
         try {
-            Swal.fire({
-                title: 'Generando Excel...',
-                text: 'Por favor, espera un momento.',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
+            setExportingExcelIds(prev => [...prev, id]);
             const response = await actasEntregaService.exportExcel(id);
             
             if (response.success && response.data && response.data.file_url) {
-                Swal.close();
-                // Open file in new tab to trigger download
                 window.open(response.data.file_url, '_blank');
             } else {
                 throw new Error(response.message || 'Error desconocido al exportar');
@@ -99,6 +91,26 @@ export default function ActasEntregaListPage() {
         } catch (error) {
             console.error('Error exporting acta to Excel:', error);
             Swal.fire('Error', 'No se pudo generar el archivo Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(exportId => exportId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await actasEntregaService.exportPdf(id);
+            
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar');
+            }
+        } catch (error) {
+            console.error('Error exporting acta to PDF:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(exportId => exportId !== id));
         }
     };
 
@@ -247,10 +259,27 @@ export default function ActasEntregaListPage() {
                                                 </Link>
                                                 <button
                                                     onClick={() => handleExportExcel(item.id)}
+                                                    disabled={exportingExcelIds.includes(item.id)}
                                                     title="Exportar a Excel"
-                                                    className="p-2.5 bg-slate-50 hover:bg-emerald-500 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-emerald-500"
+                                                    className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${exportingExcelIds.includes(item.id) ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-slate-50 hover:bg-emerald-500 text-slate-400 hover:text-white border-slate-100 hover:border-emerald-500'}`}
                                                 >
-                                                    <DocumentArrowDownIcon className="h-5 w-5 stroke-[2]" />
+                                                    {exportingExcelIds.includes(item.id) ? (
+                                                        <div className="h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <DocumentArrowDownIcon className="h-5 w-5 stroke-[2]" />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleExportPdf(item.id)}
+                                                    disabled={exportingPdfIds.includes(item.id)}
+                                                    title="Exportar a PDF"
+                                                    className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${exportingPdfIds.includes(item.id) ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-slate-50 hover:bg-red-500 text-slate-400 hover:text-white border-slate-100 hover:border-red-500'}`}
+                                                >
+                                                    {exportingPdfIds.includes(item.id) ? (
+                                                        <div className="h-5 w-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <DocumentArrowDownIcon className="h-5 w-5 stroke-[2]" />
+                                                    )}
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(item.id)}
