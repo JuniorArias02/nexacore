@@ -98,11 +98,11 @@ export default function SearchableSelect({
 
     return (
         <div className="relative group" ref={wrapperRef}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label} *</label>
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{label} *</label>
             <div className="relative">
                 <input
                     type="text"
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400 ${uppercase ? 'uppercase' : ''}`}
+                    className={`w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all duration-300 text-slate-700 font-medium placeholder:text-slate-400 ${uppercase ? 'uppercase' : ''}`}
                     placeholder={placeholder}
                     value={isOpen ? query : (selectedName || query)}
                     onChange={(event) => {
@@ -118,16 +118,16 @@ export default function SearchableSelect({
                         setQuery('');
                     }}
                 />
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 gap-1">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 gap-2">
                     {searching && (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
                     )}
-                    <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <ChevronDownIcon className={`h-5 w-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`} aria-hidden="true" />
                 </div>
 
                 {/* Dropdown Options */}
                 {isOpen && (
-                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                    <div className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 py-2 text-base shadow-[0_20px_60px_-10px_rgba(79,70,229,0.15)] focus:outline-none sm:text-sm flex flex-col gap-1">
                         {searching && (
                             <div className="flex items-center gap-2 px-4 py-2 text-sm text-indigo-600 bg-indigo-50">
                                 <MagnifyingGlassIcon className="h-4 w-4 animate-pulse" />
@@ -135,10 +135,12 @@ export default function SearchableSelect({
                             </div>
                         )}
                         {!searching && filteredOptions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-6 px-4 text-center">
-                                <MagnifyingGlassIcon className="h-8 w-8 text-slate-300 mb-2" />
-                                <p className="text-sm font-semibold text-slate-600 mb-1">Personal no encontrado</p>
-                                <p className="text-xs text-slate-400 mb-4">No se encuentra en la base de datos local.</p>
+                            <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                                <div className="p-3 bg-slate-50 rounded-2xl mb-3">
+                                    <MagnifyingGlassIcon className="h-8 w-8 text-slate-400" />
+                                </div>
+                                <p className="text-sm font-bold text-slate-700 mb-1">Personal no encontrado</p>
+                                <p className="text-[10px] font-medium tracking-widest uppercase text-slate-400 mb-4">No se encuentra en la base de datos local.</p>
                                 
                                 {onSearch && query.length >= 3 && (
                                     <button
@@ -148,10 +150,10 @@ export default function SearchableSelect({
                                             e.stopPropagation();
                                             handleExternalSearch();
                                         }}
-                                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:scale-105 transition-all duration-300 shadow-lg shadow-indigo-200"
                                     >
-                                        <MagnifyingGlassIcon className="h-3.5 w-3.5" />
-                                        Agregarlo en servicios externos
+                                        <MagnifyingGlassIcon className="h-4 w-4" />
+                                        Buscar en Servicios Externos
                                     </button>
                                 )}
                                 {onSearch && query.length > 0 && query.length < 3 && (
@@ -163,9 +165,9 @@ export default function SearchableSelect({
                         ) : (
                             <>
                                 {showKubappBadge && (
-                                    <div className="px-4 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border-b border-emerald-100 flex items-center gap-1">
+                                    <div className="mx-2 mb-1 px-4 py-2 text-[10px] font-black tracking-widest uppercase text-emerald-700 bg-emerald-50/80 rounded-xl border border-emerald-100 flex items-center gap-2">
                                         <MagnifyingGlassIcon className="h-3.5 w-3.5" />
-                                        Resultados desde servicios de terceros (se guardarán automáticamente)
+                                        Resultados Externos
                                     </div>
                                 )}
                                 {filteredOptions.map((option) => {
@@ -173,9 +175,9 @@ export default function SearchableSelect({
                                     return (
                                         <div
                                             key={option.id}
-                                            className={`relative cursor-pointer select-none py-2 pl-4 pr-9 ${String(value) === String(option.id)
-                                                    ? 'bg-indigo-50 text-indigo-900'
-                                                    : 'text-gray-900 hover:bg-gray-100'
+                                            className={`relative cursor-pointer select-none py-3 px-4 mx-2 rounded-xl transition-all duration-200 group/item flex items-center justify-between ${String(value) === String(option.id)
+                                                    ? 'bg-indigo-50/80 text-indigo-900 font-bold'
+                                                    : 'text-slate-600 hover:bg-indigo-50/50 hover:text-indigo-700'
                                                 }`}
                                             onClick={() => {
                                                 onChange(option.id);
@@ -183,17 +185,17 @@ export default function SearchableSelect({
                                                 setIsOpen(false);
                                             }}
                                         >
-                                            <span className={`block truncate ${String(value) === String(option.id) ? 'font-semibold' : 'font-normal'
+                                            <span className={`block truncate ${String(value) === String(option.id) ? 'font-extrabold' : 'font-medium group-hover/item:scale-[1.02] origin-left transition-transform duration-300'
                                                 }`}>
                                                 {formatName(option.nombre)}
                                                 {option.cedula && (
-                                                    <span className="ml-2 text-xs text-gray-400">
+                                                    <span className="ml-2 text-[10px] text-slate-400 font-black tracking-widest">
                                                         CC: {option.cedula}
                                                     </span>
                                                 )}
                                             </span>
                                             {isFromKubapp && (
-                                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                                                <span className="text-[9px] font-black tracking-widest px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-sm">
                                                     API
                                                 </span>
                                             )}

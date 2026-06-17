@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { getStorageUrl } from '../../../../services/api';
 import CpPedidoItemForm from './CpPedidoItemForm';
 import SignaturePad from '../../../Firmas/components/SignaturePad';
+import CpPremiumSelect from './CpPremiumSelect';
 import { cpPedidoService } from '../services/cpPedidoService';
 import { cpTipoSolicitudService } from '../../TipoSolicitud/services/cpTipoSolicitudService';
 import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
@@ -45,16 +47,6 @@ export default function CpPedidoForm({ initialData = null }) {
         sede_id: '',
         elaborado_por: '',
     });
-
-    const getSignatureUrl = (path) => {
-        if (!path) return '';
-        if (path.startsWith('http://') || path.startsWith('https://')) {
-            return path;
-        }
-        const baseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '');
-        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-        return `${baseUrl}/${cleanPath}`;
-    };
 
     // Signature state
     const [useStoredSignature, setUseStoredSignature] = useState(false);
@@ -331,7 +323,7 @@ export default function CpPedidoForm({ initialData = null }) {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Header Section */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative">
                     <div className="flex items-center mb-6 border-b border-slate-50 pb-4">
                         <div className="bg-blue-50 p-2 rounded-xl mr-3">
                             <BuildingOfficeIcon className="h-5 w-5 text-blue-600" />
@@ -341,52 +333,34 @@ export default function CpPedidoForm({ initialData = null }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center">
-                                <MapPinIcon className="h-4 w-4 mr-1.5 text-slate-400" />
-                                Sede *
-                            </label>
-                            <select
-                                name="sede_id"
+                            <CpPremiumSelect
+                                label={<span className="flex items-center"><MapPinIcon className="h-4 w-4 mr-1.5" /> Sede</span>}
+                                options={sedes}
                                 value={headerData.sede_id}
-                                onChange={handleHeaderChange}
-                                className="mt-1 block w-full rounded-2xl border-slate-200 bg-slate-50 py-3 px-4 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-800 font-medium sm:text-sm transition-all"
-                            >
-                                <option value="">Seleccione...</option>
-                                {sedes.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-                            </select>
+                                onChange={(value) => handleHeaderChange({ target: { name: 'sede_id', value } })}
+                                placeholder="Seleccione..."
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center">
-                                <BriefcaseIcon className="h-4 w-4 mr-1.5 text-slate-400" />
-                                Proceso Solicitante *
-                            </label>
-                            <select
-                                name="proceso_solicitante"
+                            <CpPremiumSelect
+                                label={<span className="flex items-center"><BriefcaseIcon className="h-4 w-4 mr-1.5" /> Proceso Solicitante</span>}
+                                options={dependencias}
                                 value={headerData.proceso_solicitante}
-                                onChange={handleHeaderChange}
+                                onChange={(value) => handleHeaderChange({ target: { name: 'proceso_solicitante', value } })}
+                                placeholder={headerData.sede_id ? 'Seleccione...' : 'Primero seleccione una sede'}
                                 disabled={!headerData.sede_id}
-                                className={`mt-1 block w-full rounded-2xl border-slate-200 py-3 px-4 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-800 font-medium sm:text-sm transition-all ${!headerData.sede_id ? 'bg-slate-100 cursor-not-allowed opacity-70' : 'bg-slate-50'}`}
-                            >
-                                <option value="">{headerData.sede_id ? 'Seleccione...' : 'Primero seleccione una sede'}</option>
-                                {dependencias.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
-                            </select>
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center">
-                                <ClockIcon className="h-4 w-4 mr-1.5 text-slate-400" />
-                                Tipo Solicitud *
-                            </label>
-                            <select
-                                name="tipo_solicitud"
+                            <CpPremiumSelect
+                                label={<span className="flex items-center"><ClockIcon className="h-4 w-4 mr-1.5" /> Tipo Solicitud</span>}
+                                options={tipoSolicitudes}
                                 value={headerData.tipo_solicitud}
-                                onChange={handleHeaderChange}
-                                className="mt-1 block w-full rounded-2xl border-slate-200 bg-slate-50 py-3 px-4 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-800 font-medium sm:text-sm transition-all"
-                            >
-                                <option value="">Seleccione...</option>
-                                {tipoSolicitudes.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                            </select>
+                                onChange={(value) => handleHeaderChange({ target: { name: 'tipo_solicitud', value } })}
+                                placeholder="Seleccione..."
+                            />
                         </div>
                     </div>
                 </div>
@@ -531,7 +505,7 @@ export default function CpPedidoForm({ initialData = null }) {
                             <div className="text-center">
                                 <h3 className="text-sm font-bold text-slate-700 mb-3">Firma Actual del Pedido</h3>
                                 <img
-                                    src={getSignatureUrl(initialData.elaborado_por_firma)}
+                                    src={getStorageUrl(initialData.elaborado_por_firma)}
                                     alt="Firma Guardada"
                                     className="h-24 object-contain mx-auto mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-sm"
                                     onError={(e) => {
@@ -554,7 +528,7 @@ export default function CpPedidoForm({ initialData = null }) {
                             {currentUser?.firma_digital ? (
                                 <div className="text-center">
                                     <img
-                                        src={getSignatureUrl(currentUser.firma_digital)}
+                                        src={getStorageUrl(currentUser.firma_digital)}
                                         alt="Firma Guardada"
                                         className="h-24 object-contain mx-auto mb-2"
                                         onError={(e) => {
@@ -572,7 +546,7 @@ export default function CpPedidoForm({ initialData = null }) {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                     <p className="mt-2 text-sm font-medium text-gray-900">No tienes una firma guardada</p>
-                                    <p className="mt-1 text-sm text-gray-500">Por favor, dibuja tu firma o configura una en tu perfil.</p>
+                                    <p className="mt-1 text-sm text-gray-500">Apaga el botón de "Usar firma guardada" para dibujarla, o configúrala en tu perfil.</p>
                                 </div>
                             )}
                         </div>

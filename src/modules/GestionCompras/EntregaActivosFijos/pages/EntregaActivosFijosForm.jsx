@@ -300,24 +300,40 @@ export default function EntregaActivosFijosForm() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">
-                    {isUpdatingSignature ? 'Actualizar Firma del Acta' : (isEditing ? 'Nueva Versión (Desde Plantilla)' : 'Nueva Entrega')} de Activos Fijos
-                </h1>
-                <p className="text-gray-600 mt-2">
-                    {isUpdatingSignature 
-                        ? 'Actualice las firmas de este acta y guarde los cambios.' 
-                        : (isEditing ? 'Revise los datos y el inventario actualizado antes de generar la nueva acta.' : 'Complete el formulario para registrar una nueva entrega')
-                    }
-                </p>
+        <div className="max-w-8xl mx-auto p-6 lg:p-8">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
+                <div className="relative z-10">
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
+                        ACTIVOS FIJOS
+                    </span>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
+                        {isUpdatingSignature ? 'Actualizar Firma' : (isEditing ? 'Nueva Versión' : 'Nueva Entrega')}
+                    </h1>
+                    <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
+                        {isUpdatingSignature 
+                            ? 'Actualice las firmas de este acta y guarde los cambios.' 
+                            : (isEditing ? 'Revise los datos y el inventario actualizado antes de generar la nueva acta.' : 'Complete el formulario para registrar una nueva entrega')
+                        }
+                    </p>
+                </div>
+                {/* Decorativo */}
+                <svg className="absolute right-12 bottom-0 h-64 w-64 text-white/5 -mb-20 pointer-events-none transform -rotate-12 group-hover:rotate-0 transition-transform duration-700" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z" />
+                </svg>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* General Information */}
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-700">Información General</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative">
+                    <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-100">
+                        <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-2xl font-extrabold tracking-tight text-slate-800">Información General</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <SearchableSelect
                                 label="Personal (Quien Recibe)"
@@ -331,38 +347,23 @@ export default function EntregaActivosFijosForm() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Sede *
-                            </label>
-                            <select
+                            <SearchableSelect
+                                label="Sede"
+                                options={sedes}
                                 value={formData.sede_id}
-                                onChange={(e) => setFormData({ ...formData, sede_id: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            >
-                                <option value="">Seleccione sede</option>
-                                {sedes.map((s) => (
-                                    <option key={s.id} value={s.id}>{s.nombre}</option>
-                                ))}
-                            </select>
+                                onChange={(value) => setFormData({ ...formData, sede_id: value })}
+                                placeholder="Seleccione sede..."
+                            />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Proceso Solicitante *
-                            </label>
-                            <select
+                        <div className={!formData.sede_id ? "opacity-60 pointer-events-none transition-opacity duration-300" : "transition-opacity duration-300"}>
+                            <SearchableSelect
+                                label="Proceso Solicitante"
+                                options={filteredDependencias}
                                 value={formData.proceso_solicitante}
-                                onChange={(e) => setFormData({ ...formData, proceso_solicitante: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                                disabled={!formData.sede_id}
-                            >
-                                <option value="">{formData.sede_id ? 'Seleccione proceso' : 'Seleccione sede primero'}</option>
-                                {filteredDependencias.map((d) => (
-                                    <option key={d.id} value={d.id}>{d.nombre}</option>
-                                ))}
-                            </select>
+                                onChange={(value) => setFormData({ ...formData, proceso_solicitante: value })}
+                                placeholder={formData.sede_id ? 'Seleccione proceso...' : 'Seleccione sede primero...'}
+                            />
                         </div>
 
                         <div>
@@ -378,14 +379,14 @@ export default function EntregaActivosFijosForm() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
                                 Fecha de Entrega *
                             </label>
                             <input
                                 type="date"
                                 value={formData.fecha_entrega}
                                 onChange={(e) => setFormData({ ...formData, fecha_entrega: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all duration-300 text-slate-700 font-medium"
                                 required
                             />
                         </div>
@@ -393,14 +394,21 @@ export default function EntregaActivosFijosForm() {
                 </div>
 
                 {/* Items Section */}
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                        <h2 className="text-xl font-semibold text-gray-700">Items de Inventario</h2>
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-slate-100 gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                </svg>
+                            </div>
+                            <h2 className="text-2xl font-extrabold tracking-tight text-slate-800">Items de Inventario</h2>
+                        </div>
                         <button
                             type="button"
                             onClick={fetchInventarioItems}
                             disabled={loadingItems || !formData.personal_id || !formData.coordinador_id}
-                            className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center px-6 py-2.5 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-100 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 shadow-sm"
                         >
                             <svg className={`-ml-1 mr-2 h-4 w-4 ${loadingItems ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -420,32 +428,32 @@ export default function EntregaActivosFijosForm() {
                                 Se encontraron <span className="font-semibold text-indigo-600">{inventarioItems.length}</span> items asignados a este personal y coordinador.
                             </p>
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                                <table className="min-w-full divide-y divide-slate-100">
+                                    <thead className="bg-slate-50/50">
                                         <tr>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Marca</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Modelo</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Serial</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tiene Accesorio</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">#</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Código</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nombre</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Marca</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Modelo</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Serial</th>
+                                            <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Tiene Accesorio</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody className="bg-white divide-y divide-slate-50">
                                         {inventarioItems.map((item, index) => (
-                                            <tr key={item.id} className="hover:bg-gray-50">
-                                                <td className="px-4 py-2 text-sm text-gray-900">{index + 1}</td>
-                                                <td className="px-4 py-2 text-sm font-medium text-gray-900">{item.codigo}</td>
-                                                <td className="px-4 py-2 text-sm text-gray-900">{item.nombre || item.nombre_activo}</td>
-                                                <td className="px-4 py-2 text-sm text-gray-500">{item.marca || '-'}</td>
-                                                <td className="px-4 py-2 text-sm text-gray-500">{item.modelo || '-'}</td>
-                                                <td className="px-4 py-2 text-sm text-gray-500">{item.serial || item.serial_inventario || '-'}</td>
-                                                <td className="px-4 py-2 text-sm">
+                                            <tr key={item.id} className="hover:bg-indigo-50/30 transition-colors duration-200">
+                                                <td className="px-6 py-4 text-sm text-slate-600 font-medium">{index + 1}</td>
+                                                <td className="px-6 py-4 text-sm font-bold text-slate-900">{item.codigo}</td>
+                                                <td className="px-6 py-4 text-sm text-slate-700">{item.nombre || item.nombre_activo}</td>
+                                                <td className="px-6 py-4 text-sm text-slate-500">{item.marca || '-'}</td>
+                                                <td className="px-6 py-4 text-sm text-slate-500">{item.modelo || '-'}</td>
+                                                <td className="px-6 py-4 text-sm text-slate-500">{item.serial || item.serial_inventario || '-'}</td>
+                                                <td className="px-6 py-4 text-sm">
                                                     {item.tiene_accesorio === 'Si' ? (
-                                                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Sí</span>
+                                                        <span className="inline-flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/50 text-[10px] font-black uppercase tracking-wider rounded-full">Sí</span>
                                                     ) : (
-                                                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">No</span>
+                                                        <span className="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-600 border border-slate-200/50 text-[10px] font-black uppercase tracking-wider rounded-full">No</span>
                                                     )}
                                                 </td>
                                             </tr>
@@ -455,11 +463,11 @@ export default function EntregaActivosFijosForm() {
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center py-8 bg-gray-50 rounded-lg">
-                            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            <svg className="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                             </svg>
-                            <p className="mt-2 text-sm text-gray-600">
+                            <p className="mt-4 text-sm font-medium text-slate-500">
                                 Seleccione un personal y coordinador para ver los items de inventario
                             </p>
                         </div>
@@ -468,11 +476,18 @@ export default function EntregaActivosFijosForm() {
 
                 {/* Signatures */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-                            <h2 className="text-xl font-semibold text-gray-700">Firma Quien Entrega</h2>
-                            <div className="flex items-center gap-3 bg-slate-50 py-1.5 px-3 rounded-full border border-slate-200">
-                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-slate-100 gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-violet-50 rounded-2xl text-violet-600">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-2xl font-extrabold tracking-tight text-slate-800">Quien Entrega</h2>
+                            </div>
+                            <div className="flex items-center gap-3 bg-slate-50 py-2 px-4 rounded-2xl border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
                                     {useStoredSignatureEntrega ? 'Usando firma guardada' : 'Dibujar firma'}
                                 </span>
                                 <button
@@ -541,8 +556,17 @@ export default function EntregaActivosFijosForm() {
                         )}
                     </div>
 
-                    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-700">Firma Quien Recibe</h2>
+                    <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-slate-100 gap-2">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-fuchsia-50 rounded-2xl text-fuchsia-600">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-2xl font-extrabold tracking-tight text-slate-800">Quien Recibe</h2>
+                            </div>
+                        </div>
                         {existingFirmaRecibe && !firmaRecibe && (
                             <div className="mb-4">
                                 <p className="text-sm text-gray-500 mb-2">Firma actual guardada en el acta:</p>
@@ -567,11 +591,11 @@ export default function EntregaActivosFijosForm() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-4">
+                <div className="flex justify-end gap-4 mt-8">
                     <button
                         type="button"
                         onClick={() => navigate('/gestion-compras/entrega-activos-fijos')}
-                        className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all"
+                        className="px-8 py-3 bg-white text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-2xl border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-all duration-300 shadow-sm"
                     >
                         Cancelar
                     </button>
@@ -583,7 +607,7 @@ export default function EntregaActivosFijosForm() {
                                 setSubmitMode('update');
                                 submitModeRef.current = 'update';
                             }}
-                            className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 shadow-lg shadow-emerald-200 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                         >
                             {loading && submitMode === 'update' ? 'Actualizando...' : 'Actualizar Acta Actual'}
                         </button>
@@ -595,7 +619,7 @@ export default function EntregaActivosFijosForm() {
                             setSubmitMode('create');
                             submitModeRef.current = 'create';
                         }}
-                        className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 shadow-lg shadow-indigo-200 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                     >
                         {loading && submitMode === 'create' ? 'Guardando...' : (isUpdatingSignature ? 'Actualizar Acta' : (isEditing ? 'Generar Nueva Acta' : 'Guardar Entrega'))}
                     </button>

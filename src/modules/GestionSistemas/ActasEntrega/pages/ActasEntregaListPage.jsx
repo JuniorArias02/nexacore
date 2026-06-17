@@ -14,7 +14,8 @@ import {
     ClockIcon,
     SignalIcon,
     ArrowUturnLeftIcon,
-    EyeIcon
+    EyeIcon,
+    DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
 
 export default function ActasEntregaListPage() {
@@ -72,6 +73,32 @@ export default function ActasEntregaListPage() {
                 console.error('Error deleting acta:', error);
                 Swal.fire('Error', 'No se pudo eliminar el registro', 'error');
             }
+        }
+    };
+
+    const handleExportExcel = async (id) => {
+        try {
+            Swal.fire({
+                title: 'Generando Excel...',
+                text: 'Por favor, espera un momento.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const response = await actasEntregaService.exportExcel(id);
+            
+            if (response.success && response.data && response.data.file_url) {
+                Swal.close();
+                // Open file in new tab to trigger download
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar');
+            }
+        } catch (error) {
+            console.error('Error exporting acta to Excel:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo Excel.', 'error');
         }
     };
 
@@ -206,18 +233,28 @@ export default function ActasEntregaListPage() {
                                             <div className="flex justify-end gap-2">
                                                 <Link
                                                     to={`/gestion-sistemas/actas-entrega/detalles/${item.id}`}
+                                                    title="Ver Detalles"
                                                     className="p-2.5 bg-slate-50 hover:bg-blue-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-blue-600"
                                                 >
                                                     <EyeIcon className="h-5 w-5 stroke-[2]" />
                                                 </Link>
                                                 <Link
                                                     to={`/gestion-sistemas/actas-entrega/editar/${item.id}`}
+                                                    title="Editar Acta"
                                                     className="p-2.5 bg-slate-50 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-indigo-600"
                                                 >
                                                     <PencilIcon className="h-5 w-5 stroke-[2]" />
                                                 </Link>
                                                 <button
+                                                    onClick={() => handleExportExcel(item.id)}
+                                                    title="Exportar a Excel"
+                                                    className="p-2.5 bg-slate-50 hover:bg-emerald-500 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-emerald-500"
+                                                >
+                                                    <DocumentArrowDownIcon className="h-5 w-5 stroke-[2]" />
+                                                </button>
+                                                <button
                                                     onClick={() => handleDelete(item.id)}
+                                                    title="Eliminar"
                                                     className="p-2.5 bg-slate-50 hover:bg-red-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-red-600"
                                                 >
                                                     <TrashIcon className="h-5 w-5 stroke-[2]" />

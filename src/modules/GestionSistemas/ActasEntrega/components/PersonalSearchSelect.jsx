@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import api from '../../../../services/api';
+import { personalService } from '../../../Configuracion/Personal/services/personalService';
 import { UserCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 export default function PersonalSearchSelect({ label, value, onChange, placeholder = 'Buscar funcionario...' }) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [allPersonal, setAllPersonal] = useState([]);
     const [results, setResults] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -27,31 +28,41 @@ export default function PersonalSearchSelect({ label, value, onChange, placehold
         };
     }, [wrapperRef]);
 
-    // Debounce search
     useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (searchTerm.length > 1 && !searchTerm.includes(' - ')) {
-                searchItems();
-            } else if (searchTerm.length <= 1) {
-                setResults([]);
+        const fetchPersonal = async () => {
+            setLoading(true);
+            try {
+                const data = await personalService.getAll();
+                setAllPersonal(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error('Error fetching personal', error);
+            } finally {
+                setLoading(false);
             }
-        }, 500);
+        };
+        fetchPersonal();
+    }, []);
 
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm]);
-
-    const searchItems = async () => {
-        setLoading(true);
-        try {
-            const response = await api.get(`/personal?q=${searchTerm}`);
-            setResults(response.data.objeto || []);
-            setShowDropdown(true);
-        } catch (error) {
-            console.error('Error searching personal', error);
-        } finally {
-            setLoading(false);
+    // Frontend filtering logic
+    useEffect(() => {
+        if (searchTerm.includes(' - ')) {
+            setResults([]);
+            return;
         }
-    };
+
+        if (searchTerm.length === 0) {
+            setResults(allPersonal.slice(0, 50));
+            return;
+        }
+
+        const terms = searchTerm.toLowerCase().split(' ').filter(Boolean);
+        const filtered = allPersonal.filter(p => {
+            const searchString = `${p.nombre || ''} ${p.cedula || ''}`.toLowerCase();
+            return terms.every(term => searchString.includes(term));
+        }).slice(0, 50);
+
+        setResults(filtered);
+    }, [searchTerm, allPersonal]);
 
     const handleSelect = (item) => {
         setSearchTerm(`${item.nombre} - ${item.cedula || 'S/C'}`);

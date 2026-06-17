@@ -17,7 +17,7 @@ import {
     TrashIcon
 } from '@heroicons/react/24/outline';
 import useActasEntregaForm from '../hooks/useActasEntregaForm';
-import { API_STORAGE_URL } from '../../../../services/api';
+import { getStorageUrl } from '../../../../services/api';
 
 export default function ActasEntregaFormPage() {
     const { id } = useParams();
@@ -44,8 +44,15 @@ export default function ActasEntregaFormPage() {
         handleAddPeriferico,
         handleRemovePeriferico,
         handleSubmit,
-        navigate
+        navigate,
+        currentUser,
+        useStoredSignature,
+        setUseStoredSignature,
+        showCurrentSignature,
+        setShowCurrentSignature
     } = useActasEntregaForm(id);
+
+
 
     if (loading && isEditMode && !formData.equipo_id) {
         return (
@@ -67,7 +74,7 @@ export default function ActasEntregaFormPage() {
                         <h1 className="text-3xl font-black text-slate-800 tracking-tight leading-tight">
                             {isEditMode ? 'Editar Acta de Entrega' : 'Nueva Acta de Entrega'}
                         </h1>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Control de Hardware</p>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Equipo de Computo</p>
                     </div>
                 </div>
             </div>
@@ -214,17 +221,80 @@ export default function ActasEntregaFormPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                 <div className="bg-slate-50/50 p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden">
                                     <div className="relative z-10">
-                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 mb-6 flex items-center">
-                                            <UserCircleIcon className="h-4 w-4 mr-2" /> Firma Sistemas (Emite)
-                                        </h4>
-                                        {existingFirmaEntrega && !firmaEntrega && (
-                                            <div className="mb-6 animate-fade-in group/img">
-                                                <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-inner">
-                                                    <img src={`${API_STORAGE_URL}/${existingFirmaEntrega}`} alt="Firma Actual" className="h-32 mx-auto grayscale" />
+                                        <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-3">
+                                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 flex items-center">
+                                                <UserCircleIcon className="h-4 w-4 mr-2" /> Firma Sistemas (Emite)
+                                            </h4>
+                                            {!showCurrentSignature && (
+                                                <div className="flex items-center gap-3 bg-slate-50 py-1.5 px-3 rounded-full border border-slate-200">
+                                                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                                        {useStoredSignature ? 'Usando firma guardada' : 'Dibujar firma'}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setUseStoredSignature(!useStoredSignature)}
+                                                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 shadow-sm ${useStoredSignature ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                                                    >
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${useStoredSignature ? 'translate-x-5' : 'translate-x-0'}`}
+                                                        />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {showCurrentSignature ? (
+                                            <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center bg-white min-h-[160px]">
+                                                <div className="text-center">
+                                                    <h3 className="text-sm font-bold text-slate-700 mb-3">Firma Actual de Emisión</h3>
+                                                    <img 
+                                                        src={getStorageUrl(existingFirmaEntrega)} 
+                                                        alt="Firma Guardada" 
+                                                        className="h-24 object-contain mx-auto mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-sm"
+                                                        onError={(e) => {
+                                                            console.error('Error loading signature:', e.target.src);
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                    <p className="text-xs text-green-600 font-bold uppercase tracking-widest mb-3">Esta firma ya está asociada a esta acta.</p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowCurrentSignature(false)}
+                                                        className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] hover:text-indigo-800 bg-indigo-50 px-4 py-2 rounded-xl transition-colors"
+                                                    >
+                                                        Cambiar Firma
+                                                    </button>
                                                 </div>
                                             </div>
+                                        ) : useStoredSignature ? (
+                                            <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center bg-white min-h-[160px]">
+                                                {currentUser?.firma_digital ? (
+                                                    <div className="text-center">
+                                                        <img 
+                                                            src={getStorageUrl(currentUser.firma_digital)} 
+                                                            alt="Firma Guardada" 
+                                                            className="h-24 object-contain mx-auto mb-2 mix-blend-multiply"
+                                                            onError={(e) => {
+                                                                console.error('Error loading signature:', e.target.src);
+                                                                e.target.style.display = 'none';
+                                                            }}
+                                                        />
+                                                        <p className="text-xs text-green-600 font-black uppercase tracking-widest mt-2">Firma guardada lista para usar</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center text-gray-500">
+                                                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                        </svg>
+                                                        <p className="mt-2 text-xs font-black text-slate-400 uppercase tracking-widest">No tienes una firma guardada</p>
+                                                        <p className="mt-1 text-[10px] font-bold text-slate-400">Apaga el botón superior para dibujarla manualmente, o configúrala en tu perfil.</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <SignaturePad onSave={setFirmaEntrega} buttonText={existingFirmaEntrega ? "Actualizar Firma" : "Registrar Firma Emisor"} />
                                         )}
-                                        <SignaturePad onSave={setFirmaEntrega} buttonText={existingFirmaEntrega ? "Actualizar Firma" : "Registrar Firma Emisor"} />
                                     </div>
                                 </div>
                                 <div className="bg-slate-50/50 p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden">
@@ -235,7 +305,15 @@ export default function ActasEntregaFormPage() {
                                         {existingFirmaRecibe && !firmaRecibe && (
                                             <div className="mb-6 animate-fade-in group/img">
                                                 <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-inner">
-                                                    <img src={`${API_STORAGE_URL}/${existingFirmaRecibe}`} alt="Firma Actual" className="h-32 mx-auto grayscale" />
+                                                    <img 
+                                                        src={getStorageUrl(existingFirmaRecibe)} 
+                                                        alt="Firma Actual" 
+                                                        className="h-32 mx-auto grayscale" 
+                                                        onError={(e) => {
+                                                            console.error('Error loading signature:', e.target.src);
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                         )}

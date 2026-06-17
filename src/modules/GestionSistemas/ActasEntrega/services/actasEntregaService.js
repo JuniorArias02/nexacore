@@ -44,6 +44,11 @@ const actasEntregaService = {
     delete: async (id) => {
         const response = await api.delete(`${BASE_URL}/${id}`);
         return response.data;
+    },
+
+    exportExcel: async (id) => {
+        const response = await api.get(`${BASE_URL}/${id}/exportar-excel`);
+        return response.data;
     }
 };
 

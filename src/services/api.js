@@ -40,4 +40,13 @@ api.interceptors.response.use(
 // Exportamos la URL base (sin /api) para imágenes y archivos estáticos
 export const API_STORAGE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
 
+export const getStorageUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `${API_STORAGE_URL}/${cleanPath}`;
+};
+
 export default api;

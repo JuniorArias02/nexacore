@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import actasEntregaService from '../services/actasEntregaService';
+import { authService } from '../../../Autenticacion/services/authService';
 
 export default function useActasEntregaForm(id) {
     const navigate = useNavigate();
@@ -22,6 +23,23 @@ export default function useActasEntregaForm(id) {
     const [firmaRecibe, setFirmaRecibe] = useState(null);
     const [existingFirmaEntrega, setExistingFirmaEntrega] = useState(null);
     const [existingFirmaRecibe, setExistingFirmaRecibe] = useState(null);
+    const [useStoredSignature, setUseStoredSignature] = useState(false);
+    const [showCurrentSignature, setShowCurrentSignature] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    // Load User for signature
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await authService.me();
+                const user = response.objeto || response;
+                setCurrentUser(user);
+            } catch (error) {
+                console.error('Error fetching current user:', error);
+            }
+        };
+        fetchUser();
+    }, []);
 
     // Peripherals Input
     const [tempPerifericoId, setTempPerifericoId] = useState('');
@@ -49,6 +67,10 @@ export default function useActasEntregaForm(id) {
                 });
                 setExistingFirmaEntrega(data.firma_entrega);
                 setExistingFirmaRecibe(data.firma_recibe);
+                if (data.firma_entrega) {
+                    setShowCurrentSignature(true);
+                    setUseStoredSignature(false);
+                }
             }
         } catch (error) {
             console.error('Error loading acta', error);
@@ -125,7 +147,12 @@ export default function useActasEntregaForm(id) {
             
             payload.append('perifericos', JSON.stringify(formData.perifericos));
 
-            if (firmaEntrega) payload.append('firma_entrega', base64ToFile(firmaEntrega, 'firma_entrega.png'));
+            if (useStoredSignature && currentUser?.firma_digital) {
+                payload.append('usar_firma_guardada_entrega', 'true');
+            } else if (firmaEntrega) {
+                payload.append('firma_entrega', base64ToFile(firmaEntrega, 'firma_entrega.png'));
+            }
+
             if (firmaRecibe) payload.append('firma_recibe', base64ToFile(firmaRecibe, 'firma_recibe.png'));
 
             if (isEditMode) {
@@ -182,6 +209,11 @@ export default function useActasEntregaForm(id) {
         handleAddPeriferico,
         handleRemovePeriferico,
         handleSubmit,
-        navigate
+        navigate,
+        currentUser,
+        useStoredSignature,
+        setUseStoredSignature,
+        showCurrentSignature,
+        setShowCurrentSignature
     };
 }
