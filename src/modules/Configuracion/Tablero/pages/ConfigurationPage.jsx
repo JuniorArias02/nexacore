@@ -6,6 +6,7 @@ import {
     LanguageIcon,
     ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import systemInfo from '../../../../config/systemInfo.json';
 
 const ConfigurationPage = () => {
     const settingsOptions = [
@@ -74,13 +75,13 @@ const ConfigurationPage = () => {
                 <h3 className="text-sm font-semibold text-indigo-900 uppercase tracking-wider mb-2">Información del Sistema</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-indigo-700">
                     <div>
-                        <span className="font-medium">Versión:</span> 2.0.0 (NexaCore)
+                        <span className="font-medium">Versión:</span> {systemInfo.version}
                     </div>
                     <div>
-                        <span className="font-medium">Entorno:</span> Producción
+                        <span className="font-medium">Entorno:</span> {systemInfo.environment}
                     </div>
                     <div>
-                        <span className="font-medium">Última Actualización:</span> 2026-02-14
+                        <span className="font-medium">Última Actualización:</span> {systemInfo.lastUpdate}
                     </div>
                 </div>
             </div>
