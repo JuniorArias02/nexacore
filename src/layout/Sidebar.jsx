@@ -9,16 +9,14 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
     const { hasAnyPermission } = useAuth();
     const [expandedItems, setExpandedItems] = useState({});
     
-    // Auto-expand groups based on active route, or just expand all by default
     const [expandedGroups, setExpandedGroups] = useState(() => {
         const initial = {};
         menuConfig.forEach(group => {
-            initial[group.title] = true; // Todo expandido por defecto
+            initial[group.title] = false;
         });
         return initial;
     });
 
-    // Option to auto-expand group if it contains the active item
     useEffect(() => {
         menuConfig.forEach(group => {
             const hasActiveItem = group.items.some(item => {
