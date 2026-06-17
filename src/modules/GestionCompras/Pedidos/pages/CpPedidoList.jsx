@@ -23,8 +23,8 @@ export default function CpPedidoList() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedOrderId, setExpandedOrderId] = useState(null);
-    const [exportingId, setExportingId] = useState(null);
-    const [exportingPdfId, setExportingPdfId] = useState(null);
+    const [exportingIds, setExportingIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
 
     // Filters & Pagination
     // Raw Filter Inputs
@@ -146,25 +146,25 @@ export default function CpPedidoList() {
 
     const handleExportExcel = async (id) => {
         try {
-            setExportingId(id);
+            setExportingIds(prev => [...prev, id]);
             await cpPedidoService.exportExcel(id);
         } catch (error) {
             console.error('Error exporting to Excel:', error);
             Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
         } finally {
-            setExportingId(null);
+            setExportingIds(prev => prev.filter(exportId => exportId !== id));
         }
     };
 
     const handleExportPdf = async (id) => {
         try {
-            setExportingPdfId(id);
+            setExportingPdfIds(prev => [...prev, id]);
             await cpPedidoService.exportPdf(id);
         } catch (error) {
             console.error('Error exporting to PDF:', error);
             Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
         } finally {
-            setExportingPdfId(null);
+            setExportingPdfIds(prev => prev.filter(exportId => exportId !== id));
         }
     };
 
@@ -474,11 +474,11 @@ export default function CpPedidoList() {
                                                 </Can>
                                                 <button
                                                     onClick={() => handleExportExcel(pedido.id)}
-                                                    disabled={exportingId === pedido.id}
-                                                    className={`p-1 rounded-full transition-colors ${exportingId === pedido.id ? 'text-gray-400 bg-gray-100' : 'text-green-600 hover:bg-green-50'}`}
+                                                    disabled={exportingIds.includes(pedido.id)}
+                                                    className={`p-1 rounded-full transition-colors ${exportingIds.includes(pedido.id) ? 'text-gray-400 bg-gray-100' : 'text-green-600 hover:bg-green-50'}`}
                                                     title="Descargar Excel"
                                                 >
-                                                    {exportingId === pedido.id ? (
+                                                    {exportingIds.includes(pedido.id) ? (
                                                         <div className="h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
                                                     ) : (
                                                         <TableCellsIcon className="h-5 w-5" />
@@ -486,11 +486,11 @@ export default function CpPedidoList() {
                                                 </button>
                                                 <button
                                                     onClick={() => handleExportPdf(pedido.id)}
-                                                    disabled={exportingPdfId === pedido.id}
-                                                    className={`p-1 rounded-full transition-colors ${exportingPdfId === pedido.id ? 'text-gray-400 bg-gray-100' : 'text-red-600 hover:bg-red-50'}`}
+                                                    disabled={exportingPdfIds.includes(pedido.id)}
+                                                    className={`p-1 rounded-full transition-colors ${exportingPdfIds.includes(pedido.id) ? 'text-gray-400 bg-gray-100' : 'text-red-600 hover:bg-red-50'}`}
                                                     title="Descargar PDF"
                                                 >
-                                                    {exportingPdfId === pedido.id ? (
+                                                    {exportingPdfIds.includes(pedido.id) ? (
                                                         <div className="h-5 w-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                                                     ) : (
                                                         <DocumentArrowDownIcon className="h-5 w-5" />
