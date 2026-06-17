@@ -10,12 +10,10 @@ const actasEntregaService = {
 
     getById: async (id) => {
         const response = await api.get(`${BASE_URL}/${id}`);
-        // Retornamos data.data porque el backend devuelve { success, data } para el GET /{id}
         return response.data.data;
     },
 
     create: async (formData) => {
-        // formData debe ser de tipo FormData, ya que enviamos archivos
         const response = await api.post(BASE_URL, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -25,7 +23,6 @@ const actasEntregaService = {
     },
 
     update: async (id, formData) => {
-        // Enviar con _method=PUT para simular el PUT con FormData
         formData.append('_method', 'PUT');
         const response = await api.post(`${BASE_URL}/${id}`, formData, {
             headers: {
@@ -37,7 +34,6 @@ const actasEntregaService = {
     
     search: async (query) => {
         const response = await api.get(`${BASE_URL}?q=${query}`);
-        // Asumiendo que el backend retorna los resultados filtrados en index
         return response.data; 
     },
     
