@@ -11,6 +11,7 @@ import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
 import { dependenciaSedeService } from '../../../Configuracion/DependenciaSede/services/dependenciaSedeService';
 // import { userService } from '../../users/services/userService'; // Removed
 import { authService } from '../../../Autenticacion/services/authService';
+import { useAuth } from '../../../../context/AuthContext';
 
 import {
     ClipboardDocumentListIcon,
@@ -40,6 +41,7 @@ function dataURLtoFile(dataurl, filename) {
 
 export default function CpPedidoForm({ initialData = null }) {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [headerData, setHeaderData] = useState({
         proceso_solicitante: '',
         tipo_solicitud: '',
@@ -298,6 +300,14 @@ export default function CpPedidoForm({ initialData = null }) {
         }
     };
 
+    const canCreatePrioritario = hasPermission('cp_pedido.realizar_pedido_prioritario');
+    const opcionesTipoSolicitud = tipoSolicitudes.map(t => {
+        if (t.nombre.toLowerCase().includes('prioritari') && !canCreatePrioritario) {
+            return { ...t, disabled: true };
+        }
+        return t;
+    });
+
     return (
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
             {/* Soft Premium Header */}
@@ -356,7 +366,7 @@ export default function CpPedidoForm({ initialData = null }) {
                         <div>
                             <CpPremiumSelect
                                 label={<span className="flex items-center"><ClockIcon className="h-4 w-4 mr-1.5" /> Tipo Solicitud</span>}
-                                options={tipoSolicitudes}
+                                options={opcionesTipoSolicitud}
                                 value={headerData.tipo_solicitud}
                                 onChange={(value) => handleHeaderChange({ target: { name: 'tipo_solicitud', value } })}
                                 placeholder="Seleccione..."

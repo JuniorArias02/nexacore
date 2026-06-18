@@ -51,17 +51,23 @@ export default function CpPremiumSelect({
                             options.map((option) => (
                                 <div
                                     key={option.id}
-                                    className={`relative cursor-pointer select-none py-3 px-4 mx-2 rounded-xl transition-all duration-200 group/item flex items-center justify-between ${String(value) === String(option.id)
-                                            ? 'bg-indigo-50/80 text-indigo-900 font-bold'
-                                            : 'text-slate-600 hover:bg-indigo-50/50 hover:text-indigo-700'
+                                    className={`relative select-none py-3 px-4 mx-2 rounded-xl transition-all duration-200 group/item flex items-center justify-between ${
+                                        option.disabled
+                                            ? 'opacity-50 cursor-not-allowed bg-slate-50 text-slate-400'
+                                            : String(value) === String(option.id)
+                                                ? 'bg-indigo-50/80 text-indigo-900 font-bold cursor-pointer'
+                                                : 'text-slate-600 hover:bg-indigo-50/50 hover:text-indigo-700 cursor-pointer'
                                         }`}
                                     onClick={() => {
-                                        onChange(option.id);
-                                        setIsOpen(false);
+                                        if (!option.disabled) {
+                                            onChange(option.id);
+                                            setIsOpen(false);
+                                        }
                                     }}
                                 >
                                     <span className={`block truncate ${String(value) === String(option.id) ? 'font-extrabold' : 'font-medium group-hover/item:scale-[1.02] origin-left transition-transform duration-300'}`}>
                                         {option.nombre}
+                                        {option.disabled && <span className="ml-2 text-[10px] text-red-400 font-bold uppercase tracking-wider">(No permitido)</span>}
                                     </span>
                                 </div>
                             ))
