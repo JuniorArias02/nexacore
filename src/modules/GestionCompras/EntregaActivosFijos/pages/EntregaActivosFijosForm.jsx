@@ -97,7 +97,6 @@ export default function EntregaActivosFijosForm() {
 
             // Safely handle responses - extract data if wrapped in response object
             const cleanPersonal = Array.isArray(personalData) ? personalData : (personalData?.objeto || personalData?.data || []);
-            console.log('Personal Data Loaded:', cleanPersonal);
             setPersonal(cleanPersonal);
 
             setSedes(Array.isArray(sedesData) ? sedesData : (sedesData?.objeto || sedesData?.data || []));
@@ -182,7 +181,6 @@ export default function EntregaActivosFijosForm() {
             setLoading(true);
             const response = await entregaActivosFijosService.getById(id);
             const entrega = response.objeto;
-            console.log('Entrega Loaded:', entrega);
 
             if (entrega) {
                 setFormData({

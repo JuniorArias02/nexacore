@@ -25,7 +25,6 @@ export default function InventoryDetailPage() {
         const fetchDetail = async () => {
             try {
                 const data = await inventoryService.getInventarioById(id);
-                console.log(data);
                 setItem(data);
             } catch (err) {
                 console.error("Error fetching inventory detail:", err);

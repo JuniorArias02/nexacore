@@ -47,7 +47,6 @@ const InformeConsolidadoPage = () => {
         try {
             setLoading(true);
             const data = await cpPedidoService.getAll();
-            console.log("data", data);
             setPedidos(data || []);
         } catch (err) {
             console.error('Error loading pedidos:', err);

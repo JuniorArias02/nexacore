@@ -25,7 +25,6 @@ const formatDate = (dateString) => {
 };
 
 export default function TabMantenimiento({ mantenimientos, config }) {
-    console.log(mantenimientos);
     const getColor = () => {
         if (config.dias_restantes === null) return 'slate';
         if (config.dias_restantes <= 0) return 'red';
