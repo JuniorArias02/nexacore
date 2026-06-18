@@ -64,3 +64,4 @@ Al interactuar con el sistema o generar respuestas, el agente debe:
 - **Ser Directo y Conciso:** Evitar textos genéricos, saludos extensos o explicaciones teóricas innecesarias.
 - **Ir al Grano:** Responder directamente con el código o la acción requerida. El tiempo es valioso; no agregues relleno.
 - **Enfoque Nexa:** Mantener un tono profesional, técnico y minimalista, acorde con la filosofía de diseño y arquitectura de NexaCore.
+- **Cero Texto Muerto en UI:** Al construir o editar interfaces, no inventar ni agregar textos decorativos estáticos o etiquetas de relleno (ej. "v2.0") a menos que se soliciten explícitamente.

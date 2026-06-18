@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { dependenciaSedeService } from '../services/dependenciaSedeService';
-import SedeSelect from '../../../GestionCompras/Inventario/components/search/SedeSelect';
+import { sedeService } from '../../Sede/services/sedeService';
+import CpPremiumSelect from '../../../GestionCompras/Pedidos/components/CpPremiumSelect';
 import Swal from 'sweetalert2';
 import {
     BuildingOfficeIcon,
@@ -20,12 +21,23 @@ export default function DependenciaSedeForm() {
         nombre: ''
     });
     const [loading, setLoading] = useState(false);
+    const [sedes, setSedes] = useState([]);
 
     useEffect(() => {
+        loadSedes();
         if (isEditing) {
             loadDependencia();
         }
     }, [id]);
+
+    const loadSedes = async () => {
+        try {
+            const data = await sedeService.getAll();
+            setSedes(Array.isArray(data) ? data : (data?.objeto || data?.data || []));
+        } catch (error) {
+            console.error("Error loading sedes:", error);
+        }
+    };
 
     const loadDependencia = async () => {
         try {
@@ -117,10 +129,6 @@ export default function DependenciaSedeForm() {
                     </div>
                     Volver al catálogo
                 </Link>
-                <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest tracking-widest">Protocolo Maestros v2.0</span>
-                </div>
             </div>
 
             <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
@@ -128,25 +136,14 @@ export default function DependenciaSedeForm() {
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 gap-8">
                             {/* Sede Select Section */}
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
-                                    Sede de Adscripción *
-                                </label>
-                                <div className="group relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <MapPinIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    </div>
-                                    <SedeSelect
-                                        value={formData.sede_id}
-                                        onChange={handleSedeChange}
-                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 placeholder:text-slate-300 font-bold appearance-none"
-                                    />
-                                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
-                                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </div>
+                            <div>
+                                <CpPremiumSelect
+                                    label={<span className="flex items-center"><MapPinIcon className="h-4 w-4 mr-1.5" /> Sede de Adscripción</span>}
+                                    options={sedes}
+                                    value={formData.sede_id}
+                                    onChange={(value) => handleSedeChange({ target: { name: 'sede_id', value } })}
+                                    placeholder="Seleccione una sede..."
+                                />
                             </div>
 
                             {/* Nombre Dependencia */}
@@ -164,7 +161,7 @@ export default function DependenciaSedeForm() {
                                         value={formData.nombre}
                                         onChange={handleChange}
                                         required
-                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
+                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
                                         placeholder="Ej. Departamento de Logística"
                                     />
                                 </div>
@@ -175,7 +172,7 @@ export default function DependenciaSedeForm() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-grow relative overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                                className="flex-grow relative overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black tracking-widest shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
                             >
                                 <div className="relative z-10 flex items-center justify-center gap-2">
                                     {loading ? (
@@ -194,20 +191,13 @@ export default function DependenciaSedeForm() {
                             <button
                                 type="button"
                                 onClick={() => navigate('/dependencias-sedes')}
-                                className="sm:w-1/3 py-4 bg-white text-slate-400 rounded-2xl font-black border border-slate-100 hover:bg-slate-50 hover:text-slate-600 transition-all"
+                                className="sm:w-1/3 py-4 bg-white text-slate-400 rounded-2xl font-black tracking-widest border border-slate-100 hover:bg-slate-50 hover:text-slate-600 transition-all"
                             >
                                 CANCELAR
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-
-            {/* Footer Brand */}
-            <div className="mt-12 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                    NexaCore Maestro Engine &copy; 2026
-                </p>
             </div>
         </div>
     );

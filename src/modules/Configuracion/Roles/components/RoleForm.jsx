@@ -106,10 +106,6 @@ export default function RoleForm() {
                     </div>
                     Volver a seguridad
                 </Link>
-                <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest tracking-widest">Protocolo Maestros v2.0</span>
-                </div>
             </div>
 
             <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
@@ -170,13 +166,6 @@ export default function RoleForm() {
                         </div>
                     </form>
                 </div>
-            </div>
-
-            {/* Footer Brand */}
-            <div className="mt-12 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                    NexaCore Security Engine &copy; 2026
-                </p>
             </div>
         </div>
     );
