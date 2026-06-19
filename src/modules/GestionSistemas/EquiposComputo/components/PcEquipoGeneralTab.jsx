@@ -37,6 +37,10 @@ export default function PcEquipoGeneralTab({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div className="group">
+                        <label className={labelClass}>Nombre del Equipo *</label>
+                        <input type="text" name="nombre_equipo" value={formData.nombre_equipo || ''} onChange={handleChange} placeholder="Ej. PC-ADMIN-01" className={inputClass} required />
+                    </div>
+                    <div className="group">
                         <label className={labelClass}>Tipo de Equipo *</label>
                         <select name="tipo" value={formData.tipo} onChange={handleChange} className={inputClass} required>
                             <option value="">Seleccione...</option>

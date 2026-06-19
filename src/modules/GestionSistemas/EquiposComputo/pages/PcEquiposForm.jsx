@@ -33,6 +33,7 @@ export default function PcEquiposForm() {
     const [areas, setAreas] = useState([]);
 
     const [formData, setFormData] = useState({
+        nombre_equipo: '',
         tipo: '',
         marca: '',
         modelo: '',

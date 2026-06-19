@@ -35,6 +35,16 @@ const pcEquiposService = {
         const response = await api.get(`/gestion-sistemas/pc-equipos/buscar?q=${query}`);
         return response.data;
     },
+
+    exportExcel: async (id) => {
+        const response = await api.get(`/gestion-sistemas/pc-equipos/${id}/hoja-vida/exportar-excel`);
+        return response.data;
+    },
+
+    exportPdf: async (id) => {
+        const response = await api.get(`/gestion-sistemas/pc-equipos/${id}/hoja-vida/exportar-pdf`);
+        return response.data;
+    },
 };
 
 export default pcEquiposService;

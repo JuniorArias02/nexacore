@@ -16,6 +16,8 @@ import {
     ServerIcon,
     FunnelIcon,
     ChevronRightIcon,
+    ArrowDownTrayIcon,
+    EyeIcon,
 } from '@heroicons/react/24/outline';
 
 const tipoIconMap = {
@@ -40,6 +42,9 @@ export default function PcEquiposList() {
 
     const [sedes, setSedes] = useState([]);
     const [filterSede, setFilterSede] = useState('todas');
+    
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
 
     useEffect(() => {
         loadSedes();
@@ -69,6 +74,58 @@ export default function PcEquiposList() {
             Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingExcelIds(prev => [...prev, id]);
+            const response = await pcEquiposService.exportExcel(id);
+            
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Archivo Excel generado y descargado correctamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar');
+            }
+        } catch (error) {
+            console.error('Error exporting PC to Excel:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(exportId => exportId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await pcEquiposService.exportPdf(id);
+            
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Archivo PDF generado y descargado correctamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar');
+            }
+        } catch (error) {
+            console.error('Error exporting PC to PDF:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(exportId => exportId !== id));
         }
     };
 
@@ -130,7 +187,7 @@ export default function PcEquiposList() {
     const TipoIcon = (tipo) => tipoIconMap[tipo?.toLowerCase()] || ComputerDesktopIcon;
 
     return (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
+        <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
             {/* Hero Header */}
             <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
                 <div className="relative z-10">
@@ -294,10 +351,42 @@ export default function PcEquiposList() {
                                                 <div className="flex justify-end gap-2.5">
                                                     <button
                                                         onClick={() => navigate(`/gestion-sistemas/pc-equipos/hoja-de-vida/${item.id}`)}
-                                                        className="p-2.5 bg-slate-50 hover:bg-teal-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-teal-600 hover:-translate-y-0.5"
-                                                        title="Hoja de Vida"
+                                                        className="p-2.5 bg-slate-50 hover:bg-blue-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-blue-600 hover:-translate-y-0.5"
+                                                        title="Ver Hoja de Vida"
                                                     >
-                                                        <DocumentTextIcon className="h-4.5 w-4.5 stroke-[2] w-5 h-5" />
+                                                        <EyeIcon className="stroke-[2] w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleExportExcel(item.id)}
+                                                        disabled={exportingExcelIds.includes(item.id)}
+                                                        className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                            exportingExcelIds.includes(item.id)
+                                                                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                                : 'bg-slate-50 hover:bg-emerald-600 text-slate-400 hover:text-white border-slate-100 hover:border-emerald-600 hover:-translate-y-0.5'
+                                                        }`}
+                                                        title="Descargar Excel"
+                                                    >
+                                                        {exportingExcelIds.includes(item.id) ? (
+                                                            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <ArrowDownTrayIcon className="stroke-[2] w-5 h-5" />
+                                                        )}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleExportPdf(item.id)}
+                                                        disabled={exportingPdfIds.includes(item.id)}
+                                                        className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                            exportingPdfIds.includes(item.id)
+                                                                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                                : 'bg-slate-50 hover:bg-rose-600 text-slate-400 hover:text-white border-slate-100 hover:border-rose-600 hover:-translate-y-0.5'
+                                                        }`}
+                                                        title="Descargar PDF"
+                                                    >
+                                                        {exportingPdfIds.includes(item.id) ? (
+                                                            <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <DocumentTextIcon className="stroke-[2] w-5 h-5" />
+                                                        )}
                                                     </button>
                                                     <button
                                                         onClick={() => navigate(`/gestion-sistemas/pc-equipos/editar/${item.id}`)}
