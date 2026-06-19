@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
 import api from '../../../../services/api';
 import { mantenimientoService } from '../services/mantenimientoService';
+import { CameraIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 export default function MantenimientoForm() {
     const { id } = useParams();
@@ -284,68 +285,98 @@ export default function MantenimientoForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Image 1 */}
                             <div className="relative group">
-                                <input type="file" accept="image/*"
-                                    onChange={(e) => handleImageChange(e, setImagen1, setPreview1)}
-                                    className="hidden" id="imagen1-input" />
-                                <label htmlFor="imagen1-input" className="cursor-pointer block border-2 border-dashed border-slate-200 rounded-3xl p-6 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all duration-300">
+                                <div className="block border-2 border-dashed border-slate-200 rounded-3xl p-6 text-center hover:border-indigo-400 transition-all duration-300">
+                                    <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, setImagen1, setPreview1)} className="hidden" id="imagen1-gallery" />
+                                    <input type="file" accept="image/*" capture="environment" onChange={(e) => handleImageChange(e, setImagen1, setPreview1)} className="hidden" id="imagen1-camera" />
+                                    
                                     {preview1 ? (
                                         <div className="relative group/preview">
                                             <img src={preview1} alt="Preview 1" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex flex-col items-center justify-center gap-3">
+                                                <label htmlFor="imagen1-camera" className="cursor-pointer px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <CameraIcon className="w-4 h-4"/> Tomar Foto
+                                                </label>
+                                                <label htmlFor="imagen1-gallery" className="cursor-pointer px-5 py-2.5 bg-white text-slate-800 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <PhotoIcon className="w-4 h-4"/> Galería
+                                                </label>
                                             </div>
                                         </div>
                                     ) : existingImages[0] ? (
                                         <div className="relative group/preview">
                                             <img src={`${API_URL}/${existingImages[0]}`} alt="Imagen actual 1" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex flex-col items-center justify-center gap-3">
+                                                <label htmlFor="imagen1-camera" className="cursor-pointer px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <CameraIcon className="w-4 h-4"/> Tomar Foto
+                                                </label>
+                                                <label htmlFor="imagen1-gallery" className="cursor-pointer px-5 py-2.5 bg-white text-slate-800 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <PhotoIcon className="w-4 h-4"/> Galería
+                                                </label>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="py-6 flex flex-col items-center">
-                                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                                </svg>
+                                        <div className="py-2 flex flex-col items-center gap-4">
+                                            <div className="flex gap-4">
+                                                <label htmlFor="imagen1-camera" className="cursor-pointer flex flex-col items-center p-4 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:-translate-y-1 transition-all shadow-sm">
+                                                    <CameraIcon className="w-8 h-8 mb-2" />
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Cámara</span>
+                                                </label>
+                                                <label htmlFor="imagen1-gallery" className="cursor-pointer flex flex-col items-center p-4 rounded-2xl bg-sky-50 text-sky-600 hover:bg-sky-100 hover:-translate-y-1 transition-all shadow-sm">
+                                                    <PhotoIcon className="w-8 h-8 mb-2" />
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Galería</span>
+                                                </label>
                                             </div>
-                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cargar Foto Principal</p>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2">Cargar Foto Principal</p>
                                         </div>
                                     )}
-                                </label>
+                                </div>
                             </div>
 
                             {/* Image 2 */}
                             <div className="relative group">
-                                <input type="file" accept="image/*"
-                                    onChange={(e) => handleImageChange(e, setImagen2, setPreview2)}
-                                    className="hidden" id="imagen2-input" />
-                                <label htmlFor="imagen2-input" className="cursor-pointer block border-2 border-dashed border-slate-200 rounded-3xl p-6 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all duration-300">
+                                <div className="block border-2 border-dashed border-slate-200 rounded-3xl p-6 text-center hover:border-indigo-400 transition-all duration-300">
+                                    <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, setImagen2, setPreview2)} className="hidden" id="imagen2-gallery" />
+                                    <input type="file" accept="image/*" capture="environment" onChange={(e) => handleImageChange(e, setImagen2, setPreview2)} className="hidden" id="imagen2-camera" />
+                                    
                                     {preview2 ? (
                                         <div className="relative group/preview">
                                             <img src={preview2} alt="Preview 2" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex flex-col items-center justify-center gap-3">
+                                                <label htmlFor="imagen2-camera" className="cursor-pointer px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <CameraIcon className="w-4 h-4"/> Tomar Foto
+                                                </label>
+                                                <label htmlFor="imagen2-gallery" className="cursor-pointer px-5 py-2.5 bg-white text-slate-800 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <PhotoIcon className="w-4 h-4"/> Galería
+                                                </label>
                                             </div>
                                         </div>
                                     ) : existingImages[1] ? (
                                         <div className="relative group/preview">
                                             <img src={`${API_URL}/${existingImages[1]}`} alt="Imagen actual 2" className="mx-auto h-48 w-full object-cover rounded-2xl shadow-md" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-                                                <span className="text-white text-xs font-black uppercase tracking-widest">Cambiar Foto</span>
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex flex-col items-center justify-center gap-3">
+                                                <label htmlFor="imagen2-camera" className="cursor-pointer px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <CameraIcon className="w-4 h-4"/> Tomar Foto
+                                                </label>
+                                                <label htmlFor="imagen2-gallery" className="cursor-pointer px-5 py-2.5 bg-white text-slate-800 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 hover:scale-105 transition-transform flex items-center gap-2">
+                                                    <PhotoIcon className="w-4 h-4"/> Galería
+                                                </label>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="py-6 flex flex-col items-center">
-                                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                                </svg>
+                                        <div className="py-2 flex flex-col items-center gap-4">
+                                            <div className="flex gap-4">
+                                                <label htmlFor="imagen2-camera" className="cursor-pointer flex flex-col items-center p-4 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:-translate-y-1 transition-all shadow-sm">
+                                                    <CameraIcon className="w-8 h-8 mb-2" />
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Cámara</span>
+                                                </label>
+                                                <label htmlFor="imagen2-gallery" className="cursor-pointer flex flex-col items-center p-4 rounded-2xl bg-sky-50 text-sky-600 hover:bg-sky-100 hover:-translate-y-1 transition-all shadow-sm">
+                                                    <PhotoIcon className="w-8 h-8 mb-2" />
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Galería</span>
+                                                </label>
                                             </div>
-                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cargar Foto Secundaria</p>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2">Cargar Foto Secundaria</p>
                                         </div>
                                     )}
-                                </label>
+                                </div>
                             </div>
                         </div>
 
