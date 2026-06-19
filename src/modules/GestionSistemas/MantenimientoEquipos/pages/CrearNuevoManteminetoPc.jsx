@@ -18,7 +18,8 @@ import {
     CubeIcon,
     HashtagIcon,
     CheckCircleIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    SparklesIcon
 } from '@heroicons/react/24/outline';
 
 export default function CrearNuevoManteminetoPc() {
@@ -39,7 +40,12 @@ export default function CrearNuevoManteminetoPc() {
         nombre_repuesto: '',
         estado: 'completado',
         firma_personal_cargo: '',
-        firma_sistemas: ''
+        firma_sistemas: '',
+        cpu: false,
+        pantalla: false,
+        teclado: false,
+        mouse: false,
+        unidad_cd: false
     });
 
     const [useStoredSignature, setUseStoredSignature] = useState(false);
@@ -89,7 +95,12 @@ export default function CrearNuevoManteminetoPc() {
                         firma_personal_cargo: '', 
                         firma_sistemas: '',
                         firma_personal_cargo_existente: m.firma_personal_cargo || null,
-                        firma_sistemas_existente: m.firma_sistemas || null
+                        firma_sistemas_existente: m.firma_sistemas || null,
+                        cpu: m.cpu === 1 || m.cpu === true,
+                        pantalla: m.pantalla === 1 || m.pantalla === true,
+                        teclado: m.teclado === 1 || m.teclado === true,
+                        mouse: m.mouse === 1 || m.mouse === true,
+                        unidad_cd: m.unidad_cd === 1 || m.unidad_cd === true
                     });
                     if (m.equipo) {
                         setInitialEquipo(m.equipo);
@@ -298,6 +309,51 @@ export default function CrearNuevoManteminetoPc() {
                             value={formData.descripcion}
                             onChange={handleChange}
                         ></textarea>
+                    </div>
+
+                    {/* Section 2.5: Cleaning of Components */}
+                    <div className="pt-8 border-t border-slate-50 space-y-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <SparklesIcon className="h-5 w-5 text-indigo-500" />
+                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Limpieza de Componentes</h2>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            {[
+                                { id: 'cpu', label: 'CPU' },
+                                { id: 'pantalla', label: 'Pantalla' },
+                                { id: 'teclado', label: 'Teclado' },
+                                { id: 'mouse', label: 'Mouse' },
+                                { id: 'unidad_cd', label: 'Unidad CD' }
+                            ].map((item) => (
+                                <label
+                                    key={item.id}
+                                    className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 select-none hover:scale-105 ${
+                                        formData[item.id]
+                                            ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 shadow-[0_10px_25px_-5px_rgba(79,70,229,0.15)]'
+                                            : 'border-slate-100 bg-slate-50 hover:bg-slate-100/70 text-slate-500 hover:border-slate-200'
+                                    }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        name={item.id}
+                                        checked={formData[item.id] || false}
+                                        onChange={handleChange}
+                                        className="sr-only"
+                                    />
+                                    {/* Visual indicator (checkbox circle/square) */}
+                                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center mb-3 transition-colors ${
+                                        formData[item.id] ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300 bg-white'
+                                    }`}>
+                                        {formData[item.id] && (
+                                            <svg className="w-3.5 h-3.5 stroke-2 stroke-current" fill="none" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <span className="text-xs font-black uppercase tracking-wider">{item.label}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Section 3: Responsibility & Spare Parts */}

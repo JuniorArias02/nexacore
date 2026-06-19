@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { cpDependenciaService } from '../services/cpDependenciaService';
-import SedeSelect from '../../Inventario/components/search/SedeSelect';
+import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
+import CpPremiumSelect from '../../Pedidos/components/CpPremiumSelect';
 import Swal from 'sweetalert2';
 import {
     BuildingLibraryIcon,
@@ -22,12 +23,23 @@ export default function CpDependenciaForm() {
         codigo: ''
     });
     const [loading, setLoading] = useState(false);
+    const [sedes, setSedes] = useState([]);
 
     useEffect(() => {
+        loadSedes();
         if (isEditing) {
             loadDependencia();
         }
     }, [id]);
+
+    const loadSedes = async () => {
+        try {
+            const data = await sedeService.getAll();
+            setSedes(Array.isArray(data) ? data : (data?.objeto || data?.data || []));
+        } catch (error) {
+            console.error("Error loading sedes:", error);
+        }
+    };
 
     const loadDependencia = async () => {
         try {
@@ -120,10 +132,6 @@ export default function CpDependenciaForm() {
                     </div>
                     Volver al catálogo
                 </Link>
-                <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest tracking-widest">Protocolo Maestros v2.0</span>
-                </div>
             </div>
 
             <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
@@ -131,21 +139,15 @@ export default function CpDependenciaForm() {
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-                            {/* Sede Select - Keeping SedeSelect component functionality */}
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
-                                    Sede de Ubicación *
-                                </label>
-                                <div className="group relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <BuildingOfficeIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    </div>
-                                    <SedeSelect
-                                        value={formData.sede_id}
-                                        onChange={handleSedeChange}
-                                        className="!block !w-full !pl-12 !pr-4 !py-4 !bg-slate-50 !border !border-slate-100 !rounded-2xl !outline-none !focus:ring-4 !focus:ring-indigo-500/10 !focus:border-indigo-600 !transition-all !text-slate-900 !placeholder:text-slate-300 !font-bold !appearance-none"
-                                    />
-                                </div>
+                            {/* Sede Select */}
+                            <div>
+                                <CpPremiumSelect
+                                    label={<span className="flex items-center"><BuildingOfficeIcon className="h-4 w-4 mr-1.5" /> Sede de Ubicación</span>}
+                                    options={sedes}
+                                    value={formData.sede_id}
+                                    onChange={(value) => handleSedeChange({ target: { name: 'sede_id', value } })}
+                                    placeholder="Seleccione una sede..."
+                                />
                             </div>
 
                             {/* Código (Opcional) */}
@@ -162,7 +164,7 @@ export default function CpDependenciaForm() {
                                         name="codigo"
                                         value={formData.codigo}
                                         onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
+                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
                                         placeholder="Ej: 1001"
                                     />
                                 </div>
@@ -183,7 +185,7 @@ export default function CpDependenciaForm() {
                                         value={formData.nombre}
                                         onChange={handleChange}
                                         required
-                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
+                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
                                         placeholder="Ej: DEPARTAMENTO DE SISTEMAS"
                                     />
                                 </div>
@@ -195,7 +197,7 @@ export default function CpDependenciaForm() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-grow relative overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                                className="flex-grow relative overflow-hidden group py-4 bg-indigo-600 text-white rounded-2xl font-black tracking-widest shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all disabled:bg-slate-300 disabled:shadow-none"
                             >
                                 <div className="relative z-10 flex items-center justify-center gap-2">
                                     {loading ? (
@@ -214,20 +216,13 @@ export default function CpDependenciaForm() {
                             <button
                                 type="button"
                                 onClick={() => navigate('/gestion-compras/cp-dependencias')}
-                                className="sm:w-1/3 py-4 bg-white text-slate-400 rounded-2xl font-black border border-slate-100 hover:bg-slate-50 hover:text-slate-600 transition-all"
+                                className="sm:w-1/3 py-4 bg-white text-slate-400 rounded-2xl font-black tracking-widest border border-slate-100 hover:bg-slate-50 hover:text-slate-600 transition-all"
                             >
                                 CANCELAR
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-
-            {/* Footer Brand */}
-            <div className="mt-12 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                    NexaCore Maestro Engine &copy; 2026
-                </p>
             </div>
         </div>
     );

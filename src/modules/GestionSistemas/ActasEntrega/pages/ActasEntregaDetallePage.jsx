@@ -65,15 +65,6 @@ export default function ActasEntregaDetallePage() {
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Visor de Documento</p>
                     </div>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => window.print()}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors text-sm"
-                    >
-                        <PrinterIcon className="h-5 w-5" /> Imprimir
-                    </button>
-                </div>
             </div>
 
             {/* Navigation */}

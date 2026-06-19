@@ -15,6 +15,7 @@ import HojaDeVidaEquipoPage from '../EquiposComputo/pages/HojaDeVidaEquipoPage';
 import PcMantenimientoList from '../MantenimientoEquipos/pages/PcMantenimientoList';
 import CrearNuevoManteminetoPc from '../MantenimientoEquipos/pages/CrearNuevoManteminetoPc';
 import PcMantenimientoCronograma from '../MantenimientoEquipos/pages/PcMantenimientoCronograma';
+import PcMantenimientoDetalles from '../MantenimientoEquipos/pages/PcMantenimientoDetalles';
 
 const GestionSistemasRouter = () => {
     return (
@@ -98,6 +99,11 @@ const GestionSistemasRouter = () => {
             <Route path="pc-mantenimientos" element={
                 <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar']}>
                     <PcMantenimientoList />
+                </PermissionProtectedRoute>
+            } />
+            <Route path="pc-mantenimientos/detalles/:id" element={
+                <PermissionProtectedRoute requiredPermissions={['pc_mantenimiento.listar', 'pc_mantenimiento.crear', 'pc_mantenimiento.actualizar', 'pc_mantenimiento.eliminar']}>
+                    <PcMantenimientoDetalles />
                 </PermissionProtectedRoute>
             } />
             <Route path="pc-mantenimientos/cronograma" element={

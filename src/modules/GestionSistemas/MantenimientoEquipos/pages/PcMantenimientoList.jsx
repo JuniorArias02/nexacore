@@ -16,6 +16,9 @@ import {
     PencilSquareIcon,
     TrashIcon,
     BuildingOfficeIcon,
+    EyeIcon,
+    ArrowDownTrayIcon,
+    DocumentTextIcon,
     TagIcon
 } from '@heroicons/react/24/outline';
 
@@ -27,6 +30,8 @@ export default function PcMantenimientoList() {
     const [selectedMantenimiento, setSelectedMantenimiento] = useState(null);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [currentSignature, setCurrentSignature] = useState(null);
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
 
     useEffect(() => {
         loadMantenimientos();
@@ -49,6 +54,58 @@ export default function PcMantenimientoList() {
         setSelectedMantenimiento(mantenimiento);
         setCurrentSignature(null);
         setIsSignatureModalOpen(true);
+    };
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingExcelIds(prev => [...prev, id]);
+            const response = await pcMantenimientoService.exportExcel(id);
+            
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Archivo Excel generado y descargado correctamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar');
+            }
+        } catch (error) {
+            console.error('Error exporting PC maintenance to Excel:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(exportId => exportId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await pcMantenimientoService.exportPdf(id);
+            
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Archivo PDF generado y descargado correctamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar');
+            }
+        } catch (error) {
+            console.error('Error exporting PC maintenance to PDF:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(exportId => exportId !== id));
+        }
     };
 
     const handleSignatureSave = async () => {
@@ -138,7 +195,7 @@ export default function PcMantenimientoList() {
     });
 
     return (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up font-sans">
+        <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up font-sans">
             {/* Hero Section */}
             <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
                 <div className="relative z-10">
@@ -321,6 +378,45 @@ export default function PcMantenimientoList() {
                                                         <CheckBadgeIcon className="h-4.5 w-4.5 stroke-[2] w-5 h-5" />
                                                     </button>
                                                 )}
+                                                <Link
+                                                    to={`/gestion-sistemas/pc-mantenimientos/detalles/${item.id}`}
+                                                    className="p-2.5 bg-slate-50 hover:bg-blue-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-blue-600 hover:-translate-y-0.5"
+                                                    title="Ver detalle"
+                                                >
+                                                    <EyeIcon className="h-4.5 w-4.5 stroke-[2]" />
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleExportExcel(item.id)}
+                                                    disabled={exportingExcelIds.includes(item.id)}
+                                                    className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                        exportingExcelIds.includes(item.id)
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                            : 'bg-slate-50 hover:bg-emerald-600 text-slate-400 hover:text-white border-slate-100 hover:border-emerald-600 hover:-translate-y-0.5'
+                                                    }`}
+                                                    title="Descargar Excel"
+                                                >
+                                                    {exportingExcelIds.includes(item.id) ? (
+                                                        <div className="h-4.5 w-4.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <ArrowDownTrayIcon className="h-4.5 w-4.5 stroke-[2]" />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleExportPdf(item.id)}
+                                                    disabled={exportingPdfIds.includes(item.id)}
+                                                    className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                        exportingPdfIds.includes(item.id)
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                            : 'bg-slate-50 hover:bg-rose-600 text-slate-400 hover:text-white border-slate-100 hover:border-rose-600 hover:-translate-y-0.5'
+                                                    }`}
+                                                    title="Descargar PDF"
+                                                >
+                                                    {exportingPdfIds.includes(item.id) ? (
+                                                        <div className="h-4.5 w-4.5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <DocumentTextIcon className="h-4.5 w-4.5 stroke-[2]" />
+                                                    )}
+                                                </button>
                                                 <Link
                                                     to={`/gestion-sistemas/pc-mantenimientos/editar/${item.id}`}
                                                     className="p-2.5 bg-slate-50 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-indigo-600 hover:-translate-y-0.5"

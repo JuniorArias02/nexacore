@@ -90,6 +90,32 @@ const pcMantenimientoService = {
             console.error('Error in pcMantenimientoService.delete:', error);
             throw error;
         }
+    },
+
+    /**
+     * Exporta un mantenimiento a Excel
+     */
+    exportExcel: async (id) => {
+        try {
+            const response = await api.get(`/gestion-sistemas/pc-mantenimientos/${id}/exportar-excel`);
+            return response.data;
+        } catch (error) {
+            console.error('Error in pcMantenimientoService.exportExcel:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Exporta un mantenimiento a PDF
+     */
+    exportPdf: async (id) => {
+        try {
+            const response = await api.get(`/gestion-sistemas/pc-mantenimientos/${id}/exportar-pdf`);
+            return response.data;
+        } catch (error) {
+            console.error('Error in pcMantenimientoService.exportPdf:', error);
+            throw error;
+        }
     }
 };
 
