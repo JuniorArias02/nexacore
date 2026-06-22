@@ -65,7 +65,7 @@ export default function CpPedidoEstadisticasPage() {
         return null; // Will redirect or show error in catch block
     }
 
-    const { reglas_cumplimiento, responsable_aprobacion } = estadisticas;
+    const { reglas_cumplimiento, detalles_aprobacion } = estadisticas;
     const esSlaCumplido = reglas_cumplimiento?.cumple_sla;
 
     return (
@@ -99,22 +99,22 @@ export default function CpPedidoEstadisticasPage() {
             </div>
 
             {/* Main Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 
                 {/* Tiempos de Aprobación Card */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 relative overflow-hidden group/item transition-all hover:shadow-[0_20px_60px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1">
                     <div className="absolute top-0 right-0 p-6 opacity-10 group-hover/item:opacity-20 transition-opacity">
                         <ClockIcon className="w-16 h-16 text-indigo-600" />
                     </div>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Tiempo de Aprobación</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Tiempo Total de Aprobación</h3>
                     <div className="flex items-end gap-2 mb-2">
                         <span className="text-4xl font-extrabold tracking-tight text-gray-900">
-                            {estadisticas.tiempo_aprobacion_horas}
+                            {estadisticas.tiempo_aprobacion_total_horas}
                         </span>
                         <span className="text-lg font-medium text-gray-500 mb-1">hrs</span>
                     </div>
                     <p className="text-sm font-medium text-indigo-600 bg-indigo-50 inline-flex px-3 py-1 rounded-full">
-                        {estadisticas.tiempo_aprobacion_formato}
+                        {estadisticas.tiempo_aprobacion_total_formato}
                     </p>
                 </div>
 
@@ -123,7 +123,7 @@ export default function CpPedidoEstadisticasPage() {
                     <div className="absolute top-0 right-0 p-6 opacity-20">
                         {esSlaCumplido ? <CheckBadgeIcon className="w-16 h-16 text-green-600" /> : <ExclamationTriangleIcon className="w-16 h-16 text-red-600" />}
                     </div>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4">Cumplimiento SLA</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4">Cumplimiento SLA Global</h3>
                     <div className="flex items-center gap-3 mb-2">
                         <span className={`text-3xl font-extrabold tracking-tight ${esSlaCumplido ? 'text-green-700' : 'text-red-700'}`}>
                             {esSlaCumplido ? 'CUMPLE' : 'NO CUMPLE'}
@@ -134,22 +134,76 @@ export default function CpPedidoEstadisticasPage() {
                     </p>
                 </div>
 
-                {/* Responsable Card */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 relative overflow-hidden group/item transition-all hover:shadow-[0_20px_60px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1">
-                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover/item:opacity-20 transition-opacity">
-                        <UserCircleIcon className="w-16 h-16 text-blue-600" />
+            </div>
+
+            {/* Timeline de Aprobaciones */}
+            <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 mb-8">
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="p-2 bg-blue-50 rounded-2xl text-blue-600">
+                        <UserCircleIcon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Responsable de Aprobación</h3>
-                    <div className="flex flex-col justify-center h-[calc(100%-2rem)]">
-                        <span className="text-xl font-bold text-gray-900 mb-1 truncate" title={responsable_aprobacion?.nombre || 'N/A'}>
-                            {responsable_aprobacion?.nombre || 'Pendiente'}
-                        </span>
-                        <span className="text-sm font-medium text-slate-500 bg-slate-100 self-start px-3 py-1 rounded-full">
-                            {responsable_aprobacion?.rol || 'N/A'}
-                        </span>
-                    </div>
+                    <h2 className="text-xl font-extrabold text-gray-900">Línea de Tiempo de Aprobaciones</h2>
                 </div>
 
+                <div className="relative pl-6 md:pl-8 space-y-8 before:absolute before:inset-0 before:ml-8 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-indigo-200 before:to-transparent">
+                    
+                    {/* Step Compras */}
+                    <div className="relative flex items-start md:justify-between group">
+                        <div className="absolute left-0 md:left-1/2 -ml-[9px] md:-ml-3 mt-1 h-6 w-6 rounded-full bg-white border-4 border-indigo-500 shadow-sm transition-all group-hover:scale-125 group-hover:border-indigo-600"></div>
+                        
+                        <div className="ml-8 md:ml-0 md:w-5/12 text-left md:text-right pr-4">
+                            <h4 className="text-lg font-bold text-gray-900 mb-1">Compras</h4>
+                            <p className="text-sm font-medium text-slate-500">
+                                {detalles_aprobacion?.compras?.responsable?.nombre || 'Pendiente'} 
+                                <span className="ml-2 inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
+                                    {detalles_aprobacion?.compras?.responsable?.rol || 'Rol'}
+                                </span>
+                            </p>
+                        </div>
+                        
+                        <div className="hidden md:block w-2/12"></div>
+                        
+                        <div className="mt-2 md:mt-0 ml-8 md:ml-0 md:w-5/12 pl-0 md:pl-4">
+                            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-sm group-hover:shadow-md transition-shadow">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Tiempo en área</p>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-2xl font-black text-indigo-600">{detalles_aprobacion?.compras?.tiempo_horas || 0}</span>
+                                    <span className="text-xs font-semibold text-slate-500">hrs</span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">{detalles_aprobacion?.compras?.tiempo_formato || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step Gerencia */}
+                    <div className="relative flex items-start md:justify-between group">
+                        <div className="absolute left-0 md:left-1/2 -ml-[9px] md:-ml-3 mt-1 h-6 w-6 rounded-full bg-white border-4 border-violet-500 shadow-sm transition-all group-hover:scale-125 group-hover:border-violet-600"></div>
+                        
+                        <div className="mt-2 md:mt-0 ml-8 md:ml-0 md:w-5/12 md:text-right pr-0 md:pr-4 order-2 md:order-1">
+                            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-sm group-hover:shadow-md transition-shadow text-left md:text-right">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Tiempo en área</p>
+                                <div className="flex items-baseline gap-2 justify-start md:justify-end">
+                                    <span className="text-2xl font-black text-violet-600">{detalles_aprobacion?.gerencia?.tiempo_horas || 0}</span>
+                                    <span className="text-xs font-semibold text-slate-500">hrs</span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">{detalles_aprobacion?.gerencia?.tiempo_formato || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className="hidden md:block w-2/12 order-2"></div>
+                        
+                        <div className="ml-8 md:ml-0 md:w-5/12 pl-0 md:pl-4 order-1 md:order-3 mb-2 md:mb-0">
+                            <h4 className="text-lg font-bold text-gray-900 mb-1">Gerencia</h4>
+                            <p className="text-sm font-medium text-slate-500">
+                                {detalles_aprobacion?.gerencia?.responsable?.nombre || 'Pendiente'} 
+                                <span className="ml-2 inline-flex items-center rounded-md bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-600/20">
+                                    {detalles_aprobacion?.gerencia?.responsable?.rol || 'Rol'}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             {/* Detalles de Cumplimiento */}
