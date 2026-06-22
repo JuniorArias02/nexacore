@@ -13,13 +13,17 @@ import {
     ComputerDesktopIcon,
     HashtagIcon,
     SignalIcon,
-    EyeIcon
+    EyeIcon,
+    ArrowDownTrayIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 export default function ActasDevolucionListPage() {
     const [devueltos, setDevueltos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
 
     useEffect(() => {
         loadDevueltos();
@@ -35,6 +39,40 @@ export default function ActasDevolucionListPage() {
             Swal.fire('Error', 'No se pudieron cargar las devoluciones', 'error');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingExcelIds(prev => [...prev, id]);
+            const response = await actasDevolucionService.exportExcel(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar excel');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await actasDevolucionService.exportPdf(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar pdf');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(eId => eId !== id));
         }
     };
 
@@ -204,6 +242,38 @@ export default function ActasDevolucionListPage() {
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleExportExcel(item.id)}
+                                                    disabled={exportingExcelIds.includes(item.id)}
+                                                    className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                        exportingExcelIds.includes(item.id)
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                            : 'bg-slate-50 hover:bg-emerald-600 text-slate-400 hover:text-white border-slate-100 hover:border-emerald-600'
+                                                    }`}
+                                                    title="Descargar Excel"
+                                                >
+                                                    {exportingExcelIds.includes(item.id) ? (
+                                                        <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <ArrowDownTrayIcon className="h-5 w-5 stroke-[2]" />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleExportPdf(item.id)}
+                                                    disabled={exportingPdfIds.includes(item.id)}
+                                                    className={`p-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                        exportingPdfIds.includes(item.id)
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                            : 'bg-slate-50 hover:bg-rose-600 text-slate-400 hover:text-white border-slate-100 hover:border-rose-600'
+                                                    }`}
+                                                    title="Descargar PDF"
+                                                >
+                                                    {exportingPdfIds.includes(item.id) ? (
+                                                        <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <DocumentTextIcon className="h-5 w-5 stroke-[2]" />
+                                                    )}
+                                                </button>
                                                 <Link
                                                     to={`/gestion-sistemas/actas-devolucion/detalles/${item.id}`}
                                                     className="p-2.5 bg-slate-50 hover:bg-blue-600 text-slate-400 hover:text-white rounded-xl transition-all duration-300 shadow-sm border border-slate-100 hover:border-blue-600"

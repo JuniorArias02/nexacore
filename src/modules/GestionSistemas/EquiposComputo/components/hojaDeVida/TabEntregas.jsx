@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { 
     TruckIcon, 
     UserIcon, 
     CalendarDaysIcon, 
-    ExclamationTriangleIcon 
+    ExclamationTriangleIcon,
+    ArrowDownTrayIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
+import actasEntregaService from '../../../ActasEntrega/services/actasEntregaService';
 
 const formatDate = (dateString) => {
     if (!dateString) return '—';
@@ -22,6 +26,43 @@ const formatDate = (dateString) => {
 };
 
 export default function TabEntregas({ entregas }) {
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingExcelIds(prev => [...prev, id]);
+            const response = await actasEntregaService.exportExcel(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar excel');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await actasEntregaService.exportPdf(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar pdf');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
+
     if (!entregas || entregas.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
@@ -77,6 +118,40 @@ export default function TabEntregas({ entregas }) {
                                         Estado: {e.estado}
                                     </span>
                                 )}
+                                <div className="flex justify-center gap-2">
+                                    <button
+                                        onClick={() => handleExportExcel(e.id)}
+                                        disabled={exportingExcelIds.includes(e.id)}
+                                        className={`p-2 rounded-xl transition-all duration-300 shadow-sm border ${
+                                            exportingExcelIds.includes(e.id)
+                                                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                : 'bg-white hover:bg-emerald-600 text-slate-400 hover:text-white border-slate-200 hover:border-emerald-600'
+                                        }`}
+                                        title="Descargar Excel"
+                                    >
+                                        {exportingExcelIds.includes(e.id) ? (
+                                            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <ArrowDownTrayIcon className="w-5 h-5 stroke-[2]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleExportPdf(e.id)}
+                                        disabled={exportingPdfIds.includes(e.id)}
+                                        className={`p-2 rounded-xl transition-all duration-300 shadow-sm border ${
+                                            exportingPdfIds.includes(e.id)
+                                                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                : 'bg-white hover:bg-rose-600 text-slate-400 hover:text-white border-slate-200 hover:border-rose-600'
+                                        }`}
+                                        title="Descargar PDF"
+                                    >
+                                        {exportingPdfIds.includes(e.id) ? (
+                                            <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <DocumentTextIcon className="w-5 h-5 stroke-[2]" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         {e.devolucion && (

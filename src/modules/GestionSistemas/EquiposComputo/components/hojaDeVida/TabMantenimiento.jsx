@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { 
-    WrenchScrewdriverIcon 
+    WrenchScrewdriverIcon,
+    ArrowDownTrayIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
+import pcMantenimientoService from '../../../MantenimientoEquipos/services/pcMantenimientoService';
 
 const colorMap = {
     red: { bg: 'bg-red-50/50', border: 'border-red-100', text: 'text-red-700', icon: 'text-red-500', fill: 'bg-red-500' },
@@ -25,6 +29,42 @@ const formatDate = (dateString) => {
 };
 
 export default function TabMantenimiento({ mantenimientos, config }) {
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingExcelIds(prev => [...prev, id]);
+            const response = await pcMantenimientoService.exportExcel(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar excel');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await pcMantenimientoService.exportPdf(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar pdf');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
     const getColor = () => {
         if (config.dias_restantes === null) return 'slate';
         if (config.dias_restantes <= 0) return 'red';
@@ -100,6 +140,7 @@ export default function TabMantenimiento({ mantenimientos, config }) {
                                     <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descripción Técnica</th>
                                     <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Responsable</th>
                                     <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Inversión</th>
+                                    <th className="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -135,11 +176,47 @@ export default function TabMantenimiento({ mantenimientos, config }) {
                                             </p>
                                             <p className="text-[9px] font-bold text-slate-400 tracking-widest uppercase">COP TOTAL</p>
                                         </td>
+                                        <td className="px-8 py-6 text-center">
+                                            <div className="flex justify-center gap-2">
+                                                <button
+                                                    onClick={() => handleExportExcel(m.id)}
+                                                    disabled={exportingExcelIds.includes(m.id)}
+                                                    className={`p-2 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                        exportingExcelIds.includes(m.id)
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                            : 'bg-slate-50 hover:bg-emerald-600 text-slate-400 hover:text-white border-slate-100 hover:border-emerald-600'
+                                                    }`}
+                                                    title="Descargar Excel"
+                                                >
+                                                    {exportingExcelIds.includes(m.id) ? (
+                                                        <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <ArrowDownTrayIcon className="w-5 h-5 stroke-[2]" />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleExportPdf(m.id)}
+                                                    disabled={exportingPdfIds.includes(m.id)}
+                                                    className={`p-2 rounded-xl transition-all duration-300 shadow-sm border ${
+                                                        exportingPdfIds.includes(m.id)
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                            : 'bg-slate-50 hover:bg-rose-600 text-slate-400 hover:text-white border-slate-100 hover:border-rose-600'
+                                                    }`}
+                                                    title="Descargar PDF"
+                                                >
+                                                    {exportingPdfIds.includes(m.id) ? (
+                                                        <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <DocumentTextIcon className="w-5 h-5 stroke-[2]" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                                 {(!mantenimientos || mantenimientos.length === 0) && (
                                     <tr>
-                                        <td colSpan="5" className="px-8 py-20 text-center">
+                                        <td colSpan="6" className="px-8 py-20 text-center">
                                             <WrenchScrewdriverIcon className="h-12 w-12 text-slate-200 mx-auto mb-4" />
                                             <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Sin historial de mantenimiento</p>
                                         </td>

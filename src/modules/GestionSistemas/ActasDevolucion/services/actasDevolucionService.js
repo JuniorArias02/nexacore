@@ -36,6 +36,16 @@ const actasDevolucionService = {
     delete: async (id) => {
         const response = await api.delete(`${BASE_URL}/${id}`);
         return response.data;
+    },
+
+    exportExcel: async (id) => {
+        const response = await api.get(`${BASE_URL}/${id}/exportar-excel`);
+        return response.data;
+    },
+
+    exportPdf: async (id) => {
+        const response = await api.get(`${BASE_URL}/${id}/exportar-pdf`);
+        return response.data;
     }
 };
 

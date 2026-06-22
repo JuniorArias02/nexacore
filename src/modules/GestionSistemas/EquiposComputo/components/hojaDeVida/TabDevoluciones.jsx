@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { 
     ArrowPathIcon, 
     UserIcon, 
     CalendarDaysIcon, 
-    ExclamationTriangleIcon 
+    ExclamationTriangleIcon,
+    ArrowDownTrayIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
+import actasDevolucionService from '../../../ActasDevolucion/services/actasDevolucionService';
 
 const formatDate = (dateString) => {
     if (!dateString) return '—';
@@ -21,6 +25,43 @@ const formatDate = (dateString) => {
 };
 
 export default function TabDevoluciones({ entregas }) {
+    const [exportingExcelIds, setExportingExcelIds] = useState([]);
+    const [exportingPdfIds, setExportingPdfIds] = useState([]);
+
+    const handleExportExcel = async (id) => {
+        try {
+            setExportingExcelIds(prev => [...prev, id]);
+            const response = await actasDevolucionService.exportExcel(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar excel');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en Excel.', 'error');
+        } finally {
+            setExportingExcelIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
+
+    const handleExportPdf = async (id) => {
+        try {
+            setExportingPdfIds(prev => [...prev, id]);
+            const response = await actasDevolucionService.exportPdf(id);
+            if (response.success && response.data && response.data.file_url) {
+                window.open(response.data.file_url, '_blank');
+            } else {
+                throw new Error(response.message || 'Error desconocido al exportar pdf');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudo generar el reporte en PDF.', 'error');
+        } finally {
+            setExportingPdfIds(prev => prev.filter(eId => eId !== id));
+        }
+    };
+
     const devoluciones = entregas?.filter(e => e.devolucion) || [];
 
     if (devoluciones.length === 0) {
@@ -68,6 +109,40 @@ export default function TabDevoluciones({ entregas }) {
                                 <span className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-amber-500 text-white shadow-sm">
                                     Devuelto al Almacén
                                 </span>
+                                <div className="flex justify-center gap-2">
+                                    <button
+                                        onClick={() => handleExportExcel(e.devolucion.id)}
+                                        disabled={exportingExcelIds.includes(e.devolucion.id)}
+                                        className={`p-2 rounded-xl transition-all duration-300 shadow-sm border ${
+                                            exportingExcelIds.includes(e.devolucion.id)
+                                                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                : 'bg-white hover:bg-emerald-600 text-slate-400 hover:text-white border-slate-200 hover:border-emerald-600'
+                                        }`}
+                                        title="Descargar Excel"
+                                    >
+                                        {exportingExcelIds.includes(e.devolucion.id) ? (
+                                            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <ArrowDownTrayIcon className="w-5 h-5 stroke-[2]" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => handleExportPdf(e.devolucion.id)}
+                                        disabled={exportingPdfIds.includes(e.devolucion.id)}
+                                        className={`p-2 rounded-xl transition-all duration-300 shadow-sm border ${
+                                            exportingPdfIds.includes(e.devolucion.id)
+                                                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                                                : 'bg-white hover:bg-rose-600 text-slate-400 hover:text-white border-slate-200 hover:border-rose-600'
+                                        }`}
+                                        title="Descargar PDF"
+                                    >
+                                        {exportingPdfIds.includes(e.devolucion.id) ? (
+                                            <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <DocumentTextIcon className="w-5 h-5 stroke-[2]" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
