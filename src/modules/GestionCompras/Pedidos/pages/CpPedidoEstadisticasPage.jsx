@@ -17,6 +17,7 @@ export default function CpPedidoEstadisticasPage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [estadisticas, setEstadisticas] = useState(null);
+    const [datosExtra, setDatosExtra] = useState({ estadoActual: '', auditoria: null });
 
     useEffect(() => {
         loadEstadisticas();
@@ -30,9 +31,11 @@ export default function CpPedidoEstadisticasPage() {
             // The backend returns { mensaje, objeto: { estadisticas: {...} }, status }
             if (response.objeto && response.objeto.estadisticas) {
                 setEstadisticas(response.objeto.estadisticas);
+                setDatosExtra({ estadoActual: response.objeto.estado_actual, auditoria: response.objeto.auditoria });
             } else if (response.success && response.data) {
                 // Fallback to docs structure
                 setEstadisticas(response.data.estadisticas);
+                setDatosExtra({ estadoActual: response.data.estado_actual, auditoria: response.data.auditoria });
             } else {
                 throw new Error("Formato de respuesta inesperado");
             }
@@ -65,7 +68,8 @@ export default function CpPedidoEstadisticasPage() {
         return null; // Will redirect or show error in catch block
     }
 
-    const { reglas_cumplimiento, detalles_aprobacion } = estadisticas;
+    const { reglas_cumplimiento, detalles_aprobacion, progreso_items } = estadisticas;
+    const { estadoActual, auditoria } = datosExtra;
     const esSlaCumplido = reglas_cumplimiento?.cumple_sla;
 
     return (
@@ -83,18 +87,42 @@ export default function CpPedidoEstadisticasPage() {
             </button>
 
             {/* Hero Header - Nexa Premium Style */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group">
-                <div className="relative z-10">
-                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 mb-6 backdrop-blur-md">
-                        ESTADÍSTICAS Y SLA
-                    </span>
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 md:p-12 text-white shadow-2xl mb-10 group flex flex-col md:flex-row justify-between items-center">
+                <div className="relative z-10 md:w-2/3 mb-6 md:mb-0">
+                    <div className="flex flex-wrap gap-3 mb-6">
+                        <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/20 backdrop-blur-md">
+                            ESTADÍSTICAS Y SLA
+                        </span>
+                        {estadoActual && (
+                            <span className="inline-flex items-center rounded-full bg-indigo-500/50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ring-1 ring-inset ring-white/30 backdrop-blur-md">
+                                ESTADO: {estadoActual}
+                            </span>
+                        )}
+                    </div>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-sm">
                         Métricas del Pedido #{id}
                     </h1>
                     <p className="text-indigo-100 max-w-2xl text-lg font-medium leading-relaxed opacity-90">
-                        Análisis de tiempos de respuesta, responsables y cumplimiento de Acuerdos de Nivel de Servicio (SLA) para esta solicitud.
+                        Análisis de tiempos de respuesta, responsables y trazabilidad completa de auditoría para esta solicitud.
                     </p>
                 </div>
+                
+                {/* Progreso Circular */}
+                {progreso_items && (
+                    <div className="relative z-10 md:w-1/3 flex justify-center md:justify-end items-center">
+                        <div className="relative flex items-center justify-center">
+                            <svg className="w-32 h-32 transform -rotate-90">
+                                <circle cx="64" cy="64" r="56" fill="transparent" stroke="rgba(255,255,255,0.1)" strokeWidth="12" />
+                                <circle cx="64" cy="64" r="56" fill="transparent" stroke="white" strokeWidth="12" strokeDasharray={351.85} strokeDashoffset={351.85 - (351.85 * progreso_items.porcentaje_completado) / 100} className="transition-all duration-1000 ease-out" />
+                            </svg>
+                            <div className="absolute flex flex-col items-center justify-center">
+                                <span className="text-2xl font-black text-white drop-shadow-sm">{Math.round(progreso_items.porcentaje_completado)}%</span>
+                                <span className="text-[9px] uppercase tracking-widest text-indigo-100 font-bold">Completado</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                
                 <ChartBarIcon className="absolute right-12 bottom-0 h-64 w-64 text-white/5 -mb-20 pointer-events-none transform -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
             </div>
 
@@ -136,75 +164,100 @@ export default function CpPedidoEstadisticasPage() {
 
             </div>
 
-            {/* Timeline de Aprobaciones */}
-            <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 mb-8">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="p-2 bg-blue-50 rounded-2xl text-blue-600">
-                        <UserCircleIcon className="w-6 h-6" />
+            {/* Tarjetas de Detalles de Aprobación */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Tarjeta Compras */}
+                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 relative overflow-hidden group/item transition-all hover:shadow-[0_20px_60px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Aprobación Compras</h3>
+                    <div className="mb-4">
+                        <span className="text-3xl font-black text-indigo-600 mr-2">{detalles_aprobacion?.compras?.tiempo_horas || 0}</span>
+                        <span className="text-sm font-semibold text-slate-500">hrs</span>
+                        <p className="text-xs text-slate-400 mt-1">{detalles_aprobacion?.compras?.tiempo_formato || 'N/A'}</p>
                     </div>
-                    <h2 className="text-xl font-extrabold text-gray-900">Línea de Tiempo de Aprobaciones</h2>
+                    <div className="mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                        <p className="text-sm font-medium text-gray-900">{detalles_aprobacion?.compras?.responsable?.nombre || 'Pendiente'}</p>
+                        <p className="text-xs text-indigo-600 font-bold">{detalles_aprobacion?.compras?.responsable?.rol || 'Rol'}</p>
+                    </div>
+                    {detalles_aprobacion?.compras?.motivo && (
+                        <p className="text-sm text-slate-600 italic">"{detalles_aprobacion.compras.motivo}"</p>
+                    )}
                 </div>
 
-                <div className="relative pl-6 md:pl-8 space-y-8 before:absolute before:inset-0 before:ml-8 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-indigo-200 before:to-transparent">
-                    
-                    {/* Step Compras */}
-                    <div className="relative flex items-start md:justify-between group">
-                        <div className="absolute left-0 md:left-1/2 -ml-[9px] md:-ml-3 mt-1 h-6 w-6 rounded-full bg-white border-4 border-indigo-500 shadow-sm transition-all group-hover:scale-125 group-hover:border-indigo-600"></div>
-                        
-                        <div className="ml-8 md:ml-0 md:w-5/12 text-left md:text-right pr-4">
-                            <h4 className="text-lg font-bold text-gray-900 mb-1">Compras</h4>
-                            <p className="text-sm font-medium text-slate-500">
-                                {detalles_aprobacion?.compras?.responsable?.nombre || 'Pendiente'} 
-                                <span className="ml-2 inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
-                                    {detalles_aprobacion?.compras?.responsable?.rol || 'Rol'}
-                                </span>
-                            </p>
-                        </div>
-                        
-                        <div className="hidden md:block w-2/12"></div>
-                        
-                        <div className="mt-2 md:mt-0 ml-8 md:ml-0 md:w-5/12 pl-0 md:pl-4">
-                            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-sm group-hover:shadow-md transition-shadow">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Tiempo en área</p>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-black text-indigo-600">{detalles_aprobacion?.compras?.tiempo_horas || 0}</span>
-                                    <span className="text-xs font-semibold text-slate-500">hrs</span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-1">{detalles_aprobacion?.compras?.tiempo_formato || 'N/A'}</p>
-                            </div>
-                        </div>
+                {/* Tarjeta Responsable (Gerencia) */}
+                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 relative overflow-hidden group/item transition-all hover:shadow-[0_20px_60px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Aprobación Responsable</h3>
+                    <div className="mb-4">
+                        <span className="text-3xl font-black text-violet-600 mr-2">{detalles_aprobacion?.gerencia?.tiempo_horas || 0}</span>
+                        <span className="text-sm font-semibold text-slate-500">hrs</span>
+                        <p className="text-xs text-slate-400 mt-1">{detalles_aprobacion?.gerencia?.tiempo_formato || 'N/A'}</p>
                     </div>
-
-                    {/* Step Gerencia */}
-                    <div className="relative flex items-start md:justify-between group">
-                        <div className="absolute left-0 md:left-1/2 -ml-[9px] md:-ml-3 mt-1 h-6 w-6 rounded-full bg-white border-4 border-violet-500 shadow-sm transition-all group-hover:scale-125 group-hover:border-violet-600"></div>
-                        
-                        <div className="mt-2 md:mt-0 ml-8 md:ml-0 md:w-5/12 md:text-right pr-0 md:pr-4 order-2 md:order-1">
-                            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-sm group-hover:shadow-md transition-shadow text-left md:text-right">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Tiempo en área</p>
-                                <div className="flex items-baseline gap-2 justify-start md:justify-end">
-                                    <span className="text-2xl font-black text-violet-600">{detalles_aprobacion?.gerencia?.tiempo_horas || 0}</span>
-                                    <span className="text-xs font-semibold text-slate-500">hrs</span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-1">{detalles_aprobacion?.gerencia?.tiempo_formato || 'N/A'}</p>
-                            </div>
-                        </div>
-
-                        <div className="hidden md:block w-2/12 order-2"></div>
-                        
-                        <div className="ml-8 md:ml-0 md:w-5/12 pl-0 md:pl-4 order-1 md:order-3 mb-2 md:mb-0">
-                            <h4 className="text-lg font-bold text-gray-900 mb-1">Gerencia</h4>
-                            <p className="text-sm font-medium text-slate-500">
-                                {detalles_aprobacion?.gerencia?.responsable?.nombre || 'Pendiente'} 
-                                <span className="ml-2 inline-flex items-center rounded-md bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-600/20">
-                                    {detalles_aprobacion?.gerencia?.responsable?.rol || 'Rol'}
-                                </span>
-                            </p>
-                        </div>
+                    <div className="mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                        <p className="text-sm font-medium text-gray-900">{detalles_aprobacion?.gerencia?.responsable?.nombre || 'Pendiente'}</p>
+                        <p className="text-xs text-violet-600 font-bold">{detalles_aprobacion?.gerencia?.responsable?.rol || 'Rol'}</p>
                     </div>
-
+                    {detalles_aprobacion?.gerencia?.motivo && (
+                        <p className="text-sm text-slate-600 italic">"{detalles_aprobacion.gerencia.motivo}"</p>
+                    )}
                 </div>
             </div>
+
+            {/* Trazabilidad de Eventos (Auditoría) */}
+            {auditoria && auditoria.trazabilidad_eventos && (
+                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 mb-8">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="p-2 bg-blue-50 rounded-2xl text-blue-600">
+                            <ClockIcon className="w-6 h-6" />
+                        </div>
+                        <h2 className="text-xl font-extrabold text-gray-900">Timeline de Auditoría</h2>
+                    </div>
+
+                    <div className="relative pl-6 md:pl-8 space-y-8 before:absolute before:inset-0 before:ml-8 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-indigo-300 before:to-transparent">
+                        {auditoria.trazabilidad_eventos.map((evento, index) => (
+                            <div key={index} className="relative flex items-start group">
+                                <div className="absolute left-0 -ml-[9px] mt-1.5 h-5 w-5 rounded-full bg-white border-4 border-indigo-500 shadow-sm transition-all group-hover:scale-125 group-hover:border-indigo-600 z-10"></div>
+                                <div className="ml-8 w-full">
+                                    <div className="flex flex-col md:flex-row md:items-baseline md:justify-between mb-1">
+                                        <h4 className="text-lg font-bold text-gray-900">{evento.hito}</h4>
+                                        <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{evento.fecha}</span>
+                                    </div>
+                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-green-700 ring-1 ring-inset ring-green-600/20 mb-2 mt-1">
+                                        {evento.estado}
+                                    </span>
+                                    {evento.observacion && (
+                                        <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-2">
+                                            <p className="text-sm text-slate-600 italic">"{evento.observacion}"</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Observaciones Generales Adicionales */}
+                    {(auditoria.observaciones_generales || auditoria.observaciones_pedidos || auditoria.observacion_gerencia) && (
+                        <div className="mt-10 pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {auditoria.observaciones_generales && (
+                                <div className="bg-orange-50/50 rounded-2xl p-4 border border-orange-100">
+                                    <h5 className="text-[10px] font-black uppercase tracking-wider text-orange-800 mb-2">Obs. Generales</h5>
+                                    <p className="text-sm text-orange-900">{auditoria.observaciones_generales}</p>
+                                </div>
+                            )}
+                            {auditoria.observaciones_pedidos && (
+                                <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100">
+                                    <h5 className="text-[10px] font-black uppercase tracking-wider text-indigo-800 mb-2">Obs. Compras</h5>
+                                    <p className="text-sm text-indigo-900">{auditoria.observaciones_pedidos}</p>
+                                </div>
+                            )}
+                            {auditoria.observacion_gerencia && (
+                                <div className="bg-violet-50/50 rounded-2xl p-4 border border-violet-100">
+                                    <h5 className="text-[10px] font-black uppercase tracking-wider text-violet-800 mb-2">Obs. Responsable</h5>
+                                    <p className="text-sm text-violet-900">{auditoria.observacion_gerencia}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Detalles de Cumplimiento */}
             <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 mb-8">
