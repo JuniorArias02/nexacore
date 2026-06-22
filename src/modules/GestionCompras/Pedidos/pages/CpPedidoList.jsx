@@ -14,7 +14,8 @@ import {
     TableCellsIcon,
     ChevronDownIcon,
     ChevronUpIcon,
-    LinkIcon
+    LinkIcon,
+    ChartBarIcon
 } from '@heroicons/react/24/outline';
 import Can from '../../../../components/common/Can';
 
@@ -119,6 +120,10 @@ export default function CpPedidoList() {
 
     const handleViewDetails = (id) => {
         navigate(`/gestion-compras/cp-pedidos/${id}`);
+    };
+
+    const handleViewEstadisticas = (id) => {
+        navigate(`/gestion-compras/cp-pedidos/${id}/estadisticas`);
     };
 
     const handleDelete = async (id) => {
@@ -463,6 +468,13 @@ export default function CpPedidoList() {
                                                         <EyeIcon className="h-5 w-5" />
                                                     </button>
                                                 </Can>
+                                                <button
+                                                    onClick={() => handleViewEstadisticas(pedido.id)}
+                                                    className="p-1 rounded-full text-purple-600 hover:bg-purple-50 transition-colors"
+                                                    title="Ver Estadísticas"
+                                                >
+                                                    <ChartBarIcon className="h-5 w-5" />
+                                                </button>
                                                 <Can permission="cp_pedido.actualizar">
                                                     <button
                                                         onClick={() => navigate(`/gestion-compras/cp-pedidos/${pedido.id}/editar`)}

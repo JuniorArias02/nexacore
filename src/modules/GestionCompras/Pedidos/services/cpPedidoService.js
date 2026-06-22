@@ -11,6 +11,11 @@ export const cpPedidoService = {
         return response.data;
     },
 
+    getEstadisticas: async (id) => {
+        const response = await api.get(`/gestion-compras/cp-pedidos/${id}/estadisticas`);
+        return response.data;
+    },
+
     create: async (data) => {
         const formData = new FormData();
 

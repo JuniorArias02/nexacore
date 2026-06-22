@@ -21,6 +21,7 @@ import CpPedidoEditPage from '../Pedidos/pages/CpPedidoEditPage';
 import CpPedidoList from '../Pedidos/pages/CpPedidoList';
 import CpPedidoDetail from '../Pedidos/pages/CpPedidoDetail';
 import InformeConsolidadoPage from '../Pedidos/pages/InformeConsolidadoPage';
+import CpPedidoEstadisticasPage from '../Pedidos/pages/CpPedidoEstadisticasPage';
 
 import EntregaActivosFijosList from '../EntregaActivosFijos/pages/EntregaActivosFijosList';
 import EntregaActivosFijosForm from '../EntregaActivosFijos/pages/EntregaActivosFijosForm';
@@ -138,6 +139,11 @@ const GestionComprasRouter = () => {
             <Route path="informe-consolidado-pedidos" element={
                 <PermissionProtectedRoute requiredPermissions={['cp_pedido.consolidado']}>
                     <InformeConsolidadoPage />
+                </PermissionProtectedRoute>
+            } />
+            <Route path="cp-pedidos/:id/estadisticas" element={
+                <PermissionProtectedRoute requiredPermissions={['cp_pedido.listar', 'cp_pedido.listar.compras', 'cp_pedido.listar.responsable']}>
+                    <CpPedidoEstadisticasPage />
                 </PermissionProtectedRoute>
             } />
 
