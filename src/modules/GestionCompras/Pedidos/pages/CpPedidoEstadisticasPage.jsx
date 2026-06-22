@@ -183,9 +183,9 @@ export default function CpPedidoEstadisticasPage() {
                     )}
                 </div>
 
-                {/* Tarjeta Responsable (Gerencia) */}
+                {/* Tarjeta Responsable Aprobar */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5 relative overflow-hidden group/item transition-all hover:shadow-[0_20px_60px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Aprobación Responsable</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Responsable Aprobar</h3>
                     <div className="mb-4">
                         <span className="text-3xl font-black text-violet-600 mr-2">{detalles_aprobacion?.gerencia?.tiempo_horas || 0}</span>
                         <span className="text-sm font-semibold text-slate-500">hrs</span>
@@ -193,7 +193,7 @@ export default function CpPedidoEstadisticasPage() {
                     </div>
                     <div className="mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
                         <p className="text-sm font-medium text-gray-900">{detalles_aprobacion?.gerencia?.responsable?.nombre || 'Pendiente'}</p>
-                        <p className="text-xs text-violet-600 font-bold">{detalles_aprobacion?.gerencia?.responsable?.rol || 'Rol'}</p>
+                        <p className="text-xs text-violet-600 font-bold">Responsable Aprobar</p>
                     </div>
                     {detalles_aprobacion?.gerencia?.motivo && (
                         <p className="text-sm text-slate-600 italic">"{detalles_aprobacion.gerencia.motivo}"</p>
@@ -217,7 +217,9 @@ export default function CpPedidoEstadisticasPage() {
                                 <div className="absolute left-0 -ml-[9px] mt-1.5 h-5 w-5 rounded-full bg-white border-4 border-indigo-500 shadow-sm transition-all group-hover:scale-125 group-hover:border-indigo-600 z-10"></div>
                                 <div className="ml-8 w-full">
                                     <div className="flex flex-col md:flex-row md:items-baseline md:justify-between mb-1">
-                                        <h4 className="text-lg font-bold text-gray-900">{evento.hito}</h4>
+                                        <h4 className="text-lg font-bold text-gray-900">
+                                            {evento.hito === 'Revisión de Gerencia' ? 'Revisión de Responsable' : evento.hito}
+                                        </h4>
                                         <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{evento.fecha}</span>
                                     </div>
                                     <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-green-700 ring-1 ring-inset ring-green-600/20 mb-2 mt-1">
@@ -250,7 +252,7 @@ export default function CpPedidoEstadisticasPage() {
                             )}
                             {auditoria.observacion_gerencia && (
                                 <div className="bg-violet-50/50 rounded-2xl p-4 border border-violet-100">
-                                    <h5 className="text-[10px] font-black uppercase tracking-wider text-violet-800 mb-2">Obs. Responsable</h5>
+                                    <h5 className="text-[10px] font-black uppercase tracking-wider text-violet-800 mb-2">Obs. Responsable Aprobar</h5>
                                     <p className="text-sm text-violet-900">{auditoria.observacion_gerencia}</p>
                                 </div>
                             )}
