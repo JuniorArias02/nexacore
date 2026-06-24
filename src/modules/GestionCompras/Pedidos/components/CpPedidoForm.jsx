@@ -5,6 +5,7 @@ import { getStorageUrl } from '../../../../services/api';
 import CpPedidoItemForm from './CpPedidoItemForm';
 import SignaturePad from '../../../Firmas/components/SignaturePad';
 import CpPremiumSelect from './CpPremiumSelect';
+import CpHorarioPedido from './CpHorarioPedido';
 import { cpPedidoService } from '../services/cpPedidoService';
 import { cpTipoSolicitudService } from '../../TipoSolicitud/services/cpTipoSolicitudService';
 import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
@@ -329,7 +330,7 @@ export default function CpPedidoForm({ initialData = null }) {
             </div>
 
             {/* Information Guide - NexaCore Style */}
-
+            {!initialData && <CpHorarioPedido />}
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Header Section */}
