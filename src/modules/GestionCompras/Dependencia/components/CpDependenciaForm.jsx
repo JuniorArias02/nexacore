@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import {
     BuildingLibraryIcon,
     ArrowLeftIcon,
-    HashtagIcon,
     TagIcon,
     BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
@@ -19,8 +18,7 @@ export default function CpDependenciaForm() {
 
     const [formData, setFormData] = useState({
         sede_id: '',
-        nombre: '',
-        codigo: ''
+        nombre: ''
     });
     const [loading, setLoading] = useState(false);
     const [sedes, setSedes] = useState([]);
@@ -47,8 +45,7 @@ export default function CpDependenciaForm() {
             const data = await cpDependenciaService.getById(id);
             setFormData({
                 sede_id: data.sede_id,
-                nombre: data.nombre,
-                codigo: data.codigo || ''
+                nombre: data.nombre
             });
         } catch (error) {
             console.error("Error loading dependencia:", error);
@@ -134,7 +131,7 @@ export default function CpDependenciaForm() {
                 </Link>
             </div>
 
-            <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
+            <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50">
                 <div className="p-8 md:p-12">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -150,28 +147,8 @@ export default function CpDependenciaForm() {
                                 />
                             </div>
 
-                            {/* Código (Opcional) */}
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
-                                    Código Interno
-                                </label>
-                                <div className="group relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <HashtagIcon className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="codigo"
-                                        value={formData.codigo}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-900 placeholder:text-slate-300 font-bold"
-                                        placeholder="Ej: 1001"
-                                    />
-                                </div>
-                            </div>
-
                             {/* Nombre de la Dependencia */}
-                            <div className="md:col-span-2 space-y-2">
+                            <div className="space-y-2">
                                 <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
                                     Nombre de la Dependencia *
                                 </label>
