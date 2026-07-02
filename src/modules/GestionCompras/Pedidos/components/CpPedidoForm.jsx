@@ -40,6 +40,12 @@ function dataURLtoFile(dataurl, filename) {
     return new File([u8arr], filename, { type: mime });
 }
 
+// Helper para obtener fecha y hora actual en formato local (para el input datetime-local)
+function getLocalISOTime() {
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    return (new Date(Date.now() - tzOffset)).toISOString().slice(0, 16);
+}
+
 export default function CpPedidoForm({ initialData = null, isProgramadoEdit = false }) {
     const navigate = useNavigate();
     const { hasPermission } = useAuth();
@@ -452,7 +458,7 @@ export default function CpPedidoForm({ initialData = null, isProgramadoEdit = fa
                                             type="datetime-local"
                                             value={fechaProgramada}
                                             onChange={(e) => setFechaProgramada(e.target.value)}
-                                            min={new Date().toISOString().slice(0, 16)}
+                                            min={getLocalISOTime()}
                                             className="block w-full sm:w-56 rounded-2xl border-slate-200 bg-slate-50 py-3 px-4 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-800 font-medium sm:text-sm transition-all"
                                             required={esProgramado}
                                         />
