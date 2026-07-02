@@ -29,6 +29,7 @@ import {
     PhotoIcon,
     InboxIcon,
     ChatBubbleLeftRightIcon,
+    ClockIcon,
 } from '@heroicons/react/24/outline';
 
 
@@ -125,6 +126,10 @@ const menuConfig = [
                 children: [
                     { name: 'Crear Pedido', href: '/gestion-compras/cp-pedidos/nuevo', icon: PlusCircleIcon, permissions: ['cp_pedido.crear'] },
                 ]
+            },
+            {
+                name: 'Pedidos Programados', href: '/gestion-compras/cp-pedidos-programados', icon: ClockIcon,
+                permissions: ['cp_pedido.listar', 'cp_pedido.crear'],
             },
             {
                 name: 'Informe Consolidado', href: '/gestion-compras/informe-consolidado-pedidos', icon: DocumentChartBarIcon,

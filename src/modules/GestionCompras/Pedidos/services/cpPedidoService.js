@@ -45,6 +45,33 @@ export const cpPedidoService = {
         return response.data;
     },
 
+    programar: async (data) => {
+        const formData = new FormData();
+
+        formData.append('datos_pedido', JSON.stringify({
+            proceso_solicitante: data.proceso_solicitante,
+            tipo_solicitud: data.tipo_solicitud,
+            observacion: data.observacion,
+            sede_id: data.sede_id,
+            items: data.items
+        }));
+        
+        formData.append('fecha_programada', data.fecha_programada);
+        formData.append('creado_por', data.creado_por);
+        formData.append('use_stored_signature', data.use_stored_signature ? '1' : '0');
+        
+        if (data.firma_file instanceof File) {
+            formData.append('firma_file', data.firma_file);
+        }
+
+        const response = await api.post('/gestion-compras/pedidos-programados', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
     update: async (id, data) => {
         const formData = new FormData();
 

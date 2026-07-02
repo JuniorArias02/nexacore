@@ -27,6 +27,9 @@ import EntregaActivosFijosList from '../EntregaActivosFijos/pages/EntregaActivos
 import EntregaActivosFijosForm from '../EntregaActivosFijos/pages/EntregaActivosFijosForm';
 import EntregaActivosFijosHistory from '../EntregaActivosFijos/pages/EntregaActivosFijosHistory';
 
+import PedidosProgramadosListPage from '../PedidosProgramados/pages/PedidosProgramadosListPage';
+import CpPedidoProgramadoEditPage from '../PedidosProgramados/pages/CpPedidoProgramadoEditPage';
+
 const GestionComprasRouter = () => {
     return (
         <Routes>
@@ -171,6 +174,17 @@ const GestionComprasRouter = () => {
             <Route path="entrega-activos-fijos/historial" element={
                 <PermissionProtectedRoute requiredPermissions={['cp_entrega_activos_fijos.listar']}>
                     <EntregaActivosFijosHistory />
+                </PermissionProtectedRoute>
+            } />
+            {/* Pedidos Programados */}
+            <Route path="cp-pedidos-programados" element={
+                <PermissionProtectedRoute requiredPermissions={['cp_pedido.listar', 'cp_pedido.crear']}>
+                    <PedidosProgramadosListPage />
+                </PermissionProtectedRoute>
+            } />
+            <Route path="cp-pedidos-programados/editar/:id" element={
+                <PermissionProtectedRoute requiredPermissions={['cp_pedido.listar', 'cp_pedido.crear']}>
+                    <CpPedidoProgramadoEditPage />
                 </PermissionProtectedRoute>
             } />
         </Routes>

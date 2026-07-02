@@ -7,10 +7,10 @@ import SignaturePad from '../../../Firmas/components/SignaturePad';
 import CpPremiumSelect from './CpPremiumSelect';
 import CpHorarioPedido from './CpHorarioPedido';
 import { cpPedidoService } from '../services/cpPedidoService';
+import { pedidosProgramadosService } from '../../PedidosProgramados/services/pedidosProgramadosService';
 import { cpTipoSolicitudService } from '../../TipoSolicitud/services/cpTipoSolicitudService';
 import { sedeService } from '../../../Configuracion/Sede/services/sedeService';
 import { dependenciaSedeService } from '../../../Configuracion/DependenciaSede/services/dependenciaSedeService';
-// import { userService } from '../../users/services/userService'; // Removed
 import { authService } from '../../../Autenticacion/services/authService';
 import { useAuth } from '../../../../context/AuthContext';
 
@@ -40,7 +40,7 @@ function dataURLtoFile(dataurl, filename) {
     return new File([u8arr], filename, { type: mime });
 }
 
-export default function CpPedidoForm({ initialData = null }) {
+export default function CpPedidoForm({ initialData = null, isProgramadoEdit = false }) {
     const navigate = useNavigate();
     const { hasPermission } = useAuth();
     const [headerData, setHeaderData] = useState({
@@ -52,13 +52,16 @@ export default function CpPedidoForm({ initialData = null }) {
     });
 
     // Signature state
-    const [useStoredSignature, setUseStoredSignature] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
-    const [showCurrentSignature, setShowCurrentSignature] = useState(false);
+    const [usarFirmaGuardada, setUsarFirmaGuardada] = useState(false);
+    const [usuarioActual, setUsuarioActual] = useState(null);
+    const [mostrarFirmaActual, setMostrarFirmaActual] = useState(false);
 
     const [items, setItems] = useState([]);
     const [signatureData, setSignatureData] = useState(null);
     const [loading, setLoading] = useState(false);
+    
+    const [esProgramado, setEsProgramado] = useState(false);
+    const [fechaProgramada, setFechaProgramada] = useState('');
 
     // Dependencies state
     const [tipoSolicitudes, setTipoSolicitudes] = useState([]);
@@ -66,15 +69,14 @@ export default function CpPedidoForm({ initialData = null }) {
     const [dependencias, setDependencias] = useState([]);
 
     useEffect(() => {
-        loadDependencies();
-        loadCurrentUser();
+        cargarDependencias();
+        cargarUsuarioActual();
     }, []);
 
-    const checkTimeAllowed = () => {
-        const now = new Date();
-        const day = now.getDay();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
+    const isTimeAllowedForDate = (dateObj) => {
+        const day = dateObj.getDay();
+        const hours = dateObj.getHours();
+        const minutes = dateObj.getMinutes();
         const timeInMinutes = hours * 60 + minutes;
 
         if (day >= 1 && day <= 5) {
@@ -82,34 +84,59 @@ export default function CpPedidoForm({ initialData = null }) {
             const isAfternoon = timeInMinutes >= 840 && timeInMinutes <= 900;
             return isMorning || isAfternoon;
         } else if (day === 6) {
-            return timeInMinutes >= 480 && timeInMinutes <= 1260;
+            return timeInMinutes >= 480 && timeInMinutes <= 540;
         }
         return false;
     };
 
+    const checkTimeAllowed = () => {
+        return isTimeAllowedForDate(new Date());
+    };
+
     useEffect(() => {
         if (initialData) {
-            setHeaderData({
-                proceso_solicitante: initialData.proceso_solicitante?.id || initialData.proceso_solicitante_id || initialData.proceso_solicitante || '',
-                tipo_solicitud: initialData.tipo_solicitud?.id || initialData.tipo_solicitud_id || initialData.tipo_solicitud || '',
-                observacion: initialData.observacion || '',
-                sede_id: initialData.sede?.id || initialData.sede_id || initialData.sede || '',
-                elaborado_por: initialData.elaborado_por?.id || initialData.elaborado_por_id || initialData.elaborado_por || '',
-            });
-            setItems(initialData.items || []);
+            if (isProgramadoEdit) {
+                const datos = initialData.datos_pedido || {};
+                setHeaderData({
+                    proceso_solicitante: datos.proceso_solicitante || '',
+                    tipo_solicitud: datos.tipo_solicitud || '',
+                    observacion: datos.observacion || '',
+                    sede_id: datos.sede_id || '',
+                    elaborado_por: initialData.creado_por || '',
+                });
+                setItems(datos.items || []);
+                setEsProgramado(true);
+                if (initialData.fecha_programada) {
+                    const dateStr = initialData.fecha_programada.replace(' ', 'T');
+                    setFechaProgramada(dateStr.substring(0, 16));
+                }
+                if (initialData.firma_programador) {
+                    setMostrarFirmaActual(true);
+                    initialData.elaborado_por_firma = initialData.firma_programador;
+                }
+            } else {
+                setHeaderData({
+                    proceso_solicitante: initialData.proceso_solicitante?.id || initialData.proceso_solicitante_id || initialData.proceso_solicitante || '',
+                    tipo_solicitud: initialData.tipo_solicitud?.id || initialData.tipo_solicitud_id || initialData.tipo_solicitud || '',
+                    observacion: initialData.observacion || '',
+                    sede_id: initialData.sede?.id || initialData.sede_id || initialData.sede || '',
+                    elaborado_por: initialData.elaborado_por?.id || initialData.elaborado_por_id || initialData.elaborado_por || '',
+                });
+                setItems(initialData.items || []);
 
-            if (initialData.elaborado_por_firma) {
-                setShowCurrentSignature(true);
+                if (initialData.elaborado_por_firma) {
+                    setMostrarFirmaActual(true);
+                }
             }
         }
-    }, [initialData]);
+    }, [initialData, isProgramadoEdit]);
 
-    const loadCurrentUser = async () => {
+    const cargarUsuarioActual = async () => {
         try {
             const response = await authService.me();
             // Handle response wrapper if present
             const user = response.objeto || response;
-            setCurrentUser(user);
+            setUsuarioActual(user);
 
             // Auto-set elaborado_por only if not editing
             if (!initialData && user && user.id) {
@@ -123,7 +150,7 @@ export default function CpPedidoForm({ initialData = null }) {
         }
     };
 
-    const loadDependencies = async () => {
+    const cargarDependencias = async () => {
         try {
             const [tipos, sed] = await Promise.all([
                 cpTipoSolicitudService.getAll(),
@@ -177,7 +204,7 @@ export default function CpPedidoForm({ initialData = null }) {
             const selectedType = tipoSolicitudes.find(t => t.id == value);
             const isPrioritario = selectedType && selectedType.nombre.toLowerCase().includes('prioritari');
             
-            if (!isPrioritario && !checkTimeAllowed() && !initialData) {
+            if (!esProgramado && !isPrioritario && !checkTimeAllowed() && !initialData) {
                 Swal.fire({
                     title: '<span class="text-xl font-extrabold text-slate-800">Horario Restringido</span>',
                     html: `
@@ -211,21 +238,21 @@ export default function CpPedidoForm({ initialData = null }) {
         }));
     };
 
-    const handleAddItem = (item) => {
+    const manejarAgregarItem = (item) => {
         setItems(prev => [...prev, item]);
     };
 
-    const handleRemoveItem = (index) => {
+    const manejarRemoverItem = (index) => {
         setItems(prev => prev.filter((_, i) => i !== index));
     };
 
-    const handleSubmit = async (e) => {
+    const manejarEnvio = async (e) => {
         e.preventDefault();
 
         const selectedType = tipoSolicitudes.find(t => t.id == headerData.tipo_solicitud);
         const isPrioritario = selectedType && selectedType.nombre.toLowerCase().includes('prioritari');
 
-        if (!initialData && !isPrioritario && !checkTimeAllowed()) {
+        if (!initialData && !esProgramado && !isPrioritario && !checkTimeAllowed()) {
             Swal.fire('Horario Restringido', 'El horario para crear pedidos no prioritarios ha finalizado.', 'warning');
             return;
         }
@@ -241,13 +268,27 @@ export default function CpPedidoForm({ initialData = null }) {
         }
 
         if (!initialData) {
-            if (!useStoredSignature && !signatureData) {
+            if (!usarFirmaGuardada && !signatureData) {
                 Swal.fire('Error', 'Debe firmar el pedido o usar su firma guardada', 'warning');
                 return;
             }
 
-            if (useStoredSignature && !currentUser?.firma_digital) {
+            if (usarFirmaGuardada && !usuarioActual?.firma_digital) {
                 Swal.fire('Error', 'No tiene una firma guardada en su perfil', 'error');
+                return;
+            }
+        } else if (isProgramadoEdit && !mostrarFirmaActual && !usarFirmaGuardada && !signatureData) {
+             Swal.fire('Error', 'Debe firmar el pedido o usar su firma guardada', 'warning');
+             return;
+        }
+        
+        if (esProgramado) {
+            if (!fechaProgramada) {
+                Swal.fire('Error', 'Debe seleccionar una fecha programada', 'warning');
+                return;
+            }
+            if (!isPrioritario && !isTimeAllowedForDate(new Date(fechaProgramada))) {
+                Swal.fire('Horario Restringido', 'La fecha programada seleccionada debe estar dentro del horario permitido (L-V: 7:30-8:30 AM / 2:00-3:00 PM, Sab: 8:00-9:00 AM).', 'warning');
                 return;
             }
         }
@@ -256,28 +297,65 @@ export default function CpPedidoForm({ initialData = null }) {
             setLoading(true);
 
             let signatureFile = null;
-            if (!showCurrentSignature && !useStoredSignature && signatureData) {
+            if (!mostrarFirmaActual && !usarFirmaGuardada && signatureData) {
                 // Convert signature to File
                 signatureFile = dataURLtoFile(signatureData, 'firma_elaborado_por.png');
             }
 
-            const payload = {
-                ...headerData,
-                elaborado_por: headerData.elaborado_por || currentUser?.id, // Ensure ID is present
-                items: items,
-                elaborado_por_firma: signatureFile,
-                use_stored_signature: !showCurrentSignature && useStoredSignature
-            };
-
-            if (initialData) {
-                await cpPedidoService.update(initialData.id, payload);
-                Swal.fire('Éxito', 'Pedido actualizado correctamente', 'success');
+            if (esProgramado) {
+                const payload = {
+                    proceso_solicitante: headerData.proceso_solicitante,
+                    tipo_solicitud: headerData.tipo_solicitud,
+                    observacion: headerData.observacion,
+                    sede_id: headerData.sede_id,
+                    items: items,
+                    fecha_programada: fechaProgramada,
+                    creado_por: headerData.elaborado_por || usuarioActual?.id,
+                    firma_file: signatureFile,
+                    use_stored_signature: !mostrarFirmaActual && usarFirmaGuardada
+                };
+                
+                if (isProgramadoEdit && initialData) {
+                    const updatePayload = {
+                        datos_pedido: {
+                            proceso_solicitante: payload.proceso_solicitante,
+                            tipo_solicitud: payload.tipo_solicitud,
+                            observacion: payload.observacion,
+                            sede_id: payload.sede_id,
+                            items: payload.items
+                        },
+                        fecha_programada: payload.fecha_programada,
+                        use_stored_signature: payload.use_stored_signature,
+                    };
+                    if (signatureFile) {
+                        updatePayload.firma_file = signatureFile;
+                    }
+                    await pedidosProgramadosService.update(initialData.id, updatePayload);
+                    Swal.fire('Éxito', 'Pedido programado actualizado correctamente', 'success');
+                    navigate('/gestion-compras/cp-pedidos-programados');
+                } else {
+                    await cpPedidoService.programar(payload);
+                    Swal.fire('Éxito', 'Pedido programado correctamente', 'success');
+                    navigate('/gestion-compras/cp-pedidos');
+                }
             } else {
-                await cpPedidoService.create(payload);
-                Swal.fire('Éxito', 'Pedido creado correctamente', 'success');
-            }
+                const payload = {
+                    ...headerData,
+                    elaborado_por: headerData.elaborado_por || usuarioActual?.id, // Ensure ID is present
+                    items: items,
+                    elaborado_por_firma: signatureFile,
+                    use_stored_signature: !mostrarFirmaActual && usarFirmaGuardada
+                };
 
-            navigate('/gestion-compras/cp-pedidos');
+                if (initialData && !isProgramadoEdit) {
+                    await cpPedidoService.update(initialData.id, payload);
+                    Swal.fire('Éxito', 'Pedido actualizado correctamente', 'success');
+                } else {
+                    await cpPedidoService.create(payload);
+                    Swal.fire('Éxito', 'Pedido creado correctamente', 'success');
+                }
+                navigate('/gestion-compras/cp-pedidos');
+            }
 
             if (!initialData) {
                 setHeaderData({
@@ -289,7 +367,9 @@ export default function CpPedidoForm({ initialData = null }) {
                 });
                 setItems([]);
                 setSignatureData(null);
-                setUseStoredSignature(false);
+                setUsarFirmaGuardada(false);
+                setEsProgramado(false);
+                setFechaProgramada('');
             }
 
         } catch (error) {
@@ -332,7 +412,57 @@ export default function CpPedidoForm({ initialData = null }) {
             {/* Information Guide - NexaCore Style */}
             {!initialData && <CpHorarioPedido />}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={manejarEnvio} className="space-y-6">
+                
+                {/* Opción de Programar */}
+                {(!initialData || isProgramadoEdit) && (
+                    <div className="bg-white p-6 rounded-3xl border border-indigo-100 shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-30 -mr-20 -mt-20 transition-transform duration-700 group-hover:scale-110 pointer-events-none"></div>
+                        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 z-10">
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-800 tracking-tight flex items-center mb-1">
+                                    <ClockIcon className="h-5 w-5 mr-2 text-indigo-600" />
+                                    Programar Pedido
+                                </h2>
+                                <p className="text-sm text-slate-500 font-medium max-w-lg">
+                                    ¿Desea guardar este pedido en espera para una fecha futura?
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                                <label className="flex items-center cursor-pointer">
+                                    <div className="relative">
+                                        <input 
+                                            type="checkbox" 
+                                            className="sr-only" 
+                                            checked={esProgramado}
+                                            onChange={(e) => setEsProgramado(e.target.checked)}
+                                        />
+                                        <div className={`block w-14 h-8 rounded-full transition-colors duration-300 ${esProgramado ? 'bg-indigo-600' : 'bg-slate-300'}`}></div>
+                                        <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 ${esProgramado ? 'transform translate-x-6' : ''}`}></div>
+                                    </div>
+                                    <span className="ml-3 text-sm font-bold text-slate-700 uppercase tracking-widest">
+                                        {esProgramado ? 'Sí, Programar' : 'No, Crear Ahora'}
+                                    </span>
+                                </label>
+
+                                {esProgramado && (
+                                    <div className="animate-fade-in-up w-full sm:w-auto">
+                                        <input
+                                            type="datetime-local"
+                                            value={fechaProgramada}
+                                            onChange={(e) => setFechaProgramada(e.target.value)}
+                                            min={new Date().toISOString().slice(0, 16)}
+                                            className="block w-full sm:w-56 rounded-2xl border-slate-200 bg-slate-50 py-3 px-4 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-800 font-medium sm:text-sm transition-all"
+                                            required={esProgramado}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Header Section */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative">
                     <div className="flex items-center mb-6 border-b border-slate-50 pb-4">
@@ -379,8 +509,8 @@ export default function CpPedidoForm({ initialData = null }) {
                 {/* Items Section */}
                 <CpPedidoItemForm
                     items={items}
-                    onAddItem={handleAddItem}
-                    onRemoveItem={handleRemoveItem}
+                    onAddItem={manejarAgregarItem}
+                    onRemoveItem={manejarRemoverItem}
                     isFarmacia={dependencias.find(d => d.id == headerData.proceso_solicitante)?.nombre?.toUpperCase().includes('FARMACIA')}
                 />
 
@@ -490,19 +620,19 @@ export default function CpPedidoForm({ initialData = null }) {
                             </div>
                             <h2 className="text-lg font-bold text-slate-800 tracking-tight">Firma Elaborado Por *</h2>
                         </div>
-                        {!showCurrentSignature && (
+                        {!mostrarFirmaActual && (
                             <div className="flex items-center gap-3 bg-slate-50 py-1.5 px-3 rounded-full border border-slate-200">
                                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    {useStoredSignature ? 'Usando firma guardada' : 'Dibujar firma'}
+                                    {usarFirmaGuardada ? 'Usando firma guardada' : 'Dibujar firma'}
                                 </span>
                                 <button
                                     type="button"
-                                    onClick={() => setUseStoredSignature(!useStoredSignature)}
-                                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 shadow-sm ${useStoredSignature ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                                    onClick={() => setUsarFirmaGuardada(!usarFirmaGuardada)}
+                                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 shadow-sm ${usarFirmaGuardada ? 'bg-indigo-600' : 'bg-slate-300'}`}
                                 >
                                     <span
                                         aria-hidden="true"
-                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${useStoredSignature ? 'translate-x-5' : 'translate-x-0'}`}
+                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${usarFirmaGuardada ? 'translate-x-5' : 'translate-x-0'}`}
                                     />
                                 </button>
                             </div>
@@ -511,7 +641,7 @@ export default function CpPedidoForm({ initialData = null }) {
 
 
 
-                    {showCurrentSignature ? (
+                    {mostrarFirmaActual ? (
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-white min-h-[160px]">
                             <div className="text-center">
                                 <h3 className="text-sm font-bold text-slate-700 mb-3">Firma Actual del Pedido</h3>
@@ -527,19 +657,19 @@ export default function CpPedidoForm({ initialData = null }) {
                                 <p className="text-sm text-green-600 font-medium mb-3">Esta firma ya está asociada a este pedido.</p>
                                 <button
                                     type="button"
-                                    onClick={() => setShowCurrentSignature(false)}
+                                    onClick={() => setMostrarFirmaActual(false)}
                                     className="text-xs font-bold text-indigo-600 uppercase tracking-widest hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-md transition-colors"
                                 >
                                     Cambiar Firma
                                 </button>
                             </div>
                         </div>
-                    ) : useStoredSignature ? (
+                    ) : usarFirmaGuardada ? (
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-white min-h-[160px]">
-                            {currentUser?.firma_digital ? (
+                            {usuarioActual?.firma_digital ? (
                                 <div className="text-center">
                                     <img
-                                        src={getStorageUrl(currentUser.firma_digital)}
+                                        src={getStorageUrl(usuarioActual.firma_digital)}
                                         alt="Firma Guardada"
                                         className="h-24 object-contain mx-auto mb-2"
                                         onError={(e) => {
@@ -548,8 +678,6 @@ export default function CpPedidoForm({ initialData = null }) {
                                         }}
                                     />
                                     <p className="text-sm text-green-600 font-medium">Firma guardada lista para usar</p>
-                                    {/* Debug path */}
-                                    {/* <p className="text-xs text-gray-400 mt-1">{currentUser.firma_digital}</p> */}
                                 </div>
                             ) : (
                                 <div className="text-center text-gray-500">
