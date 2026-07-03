@@ -9,6 +9,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
     const { hasAnyPermission } = useAuth();
     const [expandedItems, setExpandedItems] = useState({});
     
+    
     const [expandedGroups, setExpandedGroups] = useState(() => {
         const initial = {};
         menuConfig.forEach(group => {
@@ -214,7 +215,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                 
                                 {/* Group Items */}
                                 <div className={`grid transition-all duration-300 ease-in-out ${(!collapsed && !isGroupExpanded) ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'}`}>
-                                    <ul className="space-y-1.5 overflow-hidden">
+                                    <ul className="space-y-1.5 overflow-hidden px-4 -mx-4 py-2 -my-2">
                                         {group.items.map((item) => {
                                             const active = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
                                             const hasChildren = item.children && item.children.length > 0;
@@ -314,7 +315,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                                     {/* Nested Items */}
                                                     {hasChildren && !collapsed && (
                                                         <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-1' : 'grid-rows-[0fr] opacity-0'}`}>
-                                                            <ul className="ml-10 pl-3 border-l border-slate-200/50 space-y-1 overflow-hidden py-1">
+                                                            <ul className="ml-10 pl-3 border-l border-slate-200/50 space-y-1 overflow-hidden py-2 -my-1 pr-3 -mr-3">
                                                                 {item.children.map((child) => {
                                                                     const childActive = location.pathname === child.href;
                                                                     return (

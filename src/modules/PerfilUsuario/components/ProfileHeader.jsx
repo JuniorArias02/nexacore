@@ -73,7 +73,7 @@ const ProfileHeader = ({ user, onUpdateUser }) => {
                         )}
 
                         {/* Overlay when uploading or hovering */}
-                        <div className={`absolute inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center transition-opacity duration-300 ${uploading ? 'opacity-100' : 'opacity-0 group-hover/avatar:opacity-100'}`}>
+                        <div className={`absolute inset-1 rounded-full backdrop-blur-sm bg-black/40 flex items-center justify-center transition-opacity duration-300 ${uploading ? 'opacity-100' : 'opacity-0 group-hover/avatar:opacity-100'}`}>
                             {uploading ? (
                                 <div className="w-8 h-8 border-4 border-white/50 border-t-white rounded-full animate-spin"></div>
                             ) : (

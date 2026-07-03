@@ -1,12 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { cpDependenciaService } from '../services/cpDependenciaService';
 import Swal from 'sweetalert2';
-import { PencilIcon, TrashIcon, PlusIcon, BuildingLibraryIcon, BuildingOfficeIcon, HashtagIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, BuildingLibraryIcon, BuildingOfficeIcon, HashtagIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 
 export default function CpDependenciaList() {
     const [dependencias, setDependencias] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedSede, setSelectedSede] = useState('');
+
+    const uniqueSedes = useMemo(() => {
+        const sedes = dependencias.map(d => d.sede ? d.sede.nombre : `ID: ${d.sede_id}`);
+        return [...new Set(sedes)].filter(Boolean);
+    }, [dependencias]);
+
+    const filteredDependencias = useMemo(() => {
+        return dependencias.filter(item => {
+            const matchesSearch = 
+                (item.nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (item.codigo || '').toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const itemSede = item.sede ? item.sede.nombre : `ID: ${item.sede_id}`;
+            const matchesSede = selectedSede === '' || itemSede === selectedSede;
+
+            return matchesSearch && matchesSede;
+        });
+    }, [dependencias, searchTerm, selectedSede]);
 
     useEffect(() => {
         loadDependencias();
@@ -87,6 +107,37 @@ export default function CpDependenciaList() {
                 <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl opacity-50 pointer-events-none"></div>
             </div>
 
+            {/* Filters Section */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-white p-4 rounded-3xl shadow-sm ring-1 ring-gray-900/5">
+                <div className="relative flex-1">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Buscar por código o nombre..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="block w-full rounded-2xl border-0 py-3.5 pl-11 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
+                    />
+                </div>
+                <div className="relative sm:w-72">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                    <select
+                        value={selectedSede}
+                        onChange={(e) => setSelectedSede(e.target.value)}
+                        className="block w-full rounded-2xl border-0 py-3.5 pl-11 pr-10 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 appearance-none transition-all bg-gray-50/50 hover:bg-gray-50 focus:bg-white cursor-pointer"
+                    >
+                        <option value="">Todas las Sedes</option>
+                        {uniqueSedes.map(sede => (
+                            <option key={sede} value={sede}>{sede}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
             {/* Table Content */}
             <div className="bg-white shadow-2xl rounded-3xl overflow-hidden ring-1 ring-gray-900/5 transition-all">
                 <div className="overflow-x-auto">
@@ -112,7 +163,7 @@ export default function CpDependenciaList() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : dependencias.length === 0 ? (
+                            ) : filteredDependencias.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-20 text-center">
                                         <div className="flex flex-col items-center justify-center">
@@ -124,7 +175,7 @@ export default function CpDependenciaList() {
                                     </td>
                                 </tr>
                             ) : (
-                                dependencias.map((item) => (
+                                filteredDependencias.map((item) => (
                                     <tr key={item.id} className="hover:bg-indigo-50/30 transition-all duration-200 group">
                                         <td className="px-6 py-5 whitespace-nowrap">
                                             <span className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-xs font-black text-slate-500 tracking-tight">
