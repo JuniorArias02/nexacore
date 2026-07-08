@@ -40,10 +40,10 @@ function dataURLtoFile(dataurl, filename) {
     return new File([u8arr], filename, { type: mime });
 }
 
-// Helper para obtener fecha y hora actual en formato local (para el input datetime-local)
-function getLocalISOTime() {
+// Helper para obtener fecha actual en formato local (para el input date)
+function getLocalISODate() {
     const tzOffset = (new Date()).getTimezoneOffset() * 60000;
-    return (new Date(Date.now() - tzOffset)).toISOString().slice(0, 16);
+    return (new Date(Date.now() - tzOffset)).toISOString().slice(0, 10);
 }
 
 export default function CpPedidoForm({ initialData = null, isProgramadoEdit = false }) {
@@ -114,7 +114,7 @@ export default function CpPedidoForm({ initialData = null, isProgramadoEdit = fa
                 setEsProgramado(true);
                 if (initialData.fecha_programada) {
                     const dateStr = initialData.fecha_programada.replace(' ', 'T');
-                    setFechaProgramada(dateStr.substring(0, 16));
+                    setFechaProgramada(dateStr.substring(0, 10));
                 }
                 if (initialData.firma_programador) {
                     setMostrarFirmaActual(true);
@@ -293,10 +293,6 @@ export default function CpPedidoForm({ initialData = null, isProgramadoEdit = fa
                 Swal.fire('Error', 'Debe seleccionar una fecha programada', 'warning');
                 return;
             }
-            if (!isPrioritario && !isTimeAllowedForDate(new Date(fechaProgramada))) {
-                Swal.fire('Horario Restringido', 'La fecha programada seleccionada debe estar dentro del horario permitido (L-V: 7:30-8:30 AM / 2:00-3:00 PM, Sab: 8:00-9:00 AM).', 'warning');
-                return;
-            }
         }
 
         try {
@@ -455,10 +451,10 @@ export default function CpPedidoForm({ initialData = null, isProgramadoEdit = fa
                                 {esProgramado && (
                                     <div className="animate-fade-in-up w-full sm:w-auto">
                                         <input
-                                            type="datetime-local"
+                                            type="date"
                                             value={fechaProgramada}
                                             onChange={(e) => setFechaProgramada(e.target.value)}
-                                            min={getLocalISOTime()}
+                                            min={getLocalISODate()}
                                             className="block w-full sm:w-56 rounded-2xl border-slate-200 bg-slate-50 py-3 px-4 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-800 font-medium sm:text-sm transition-all"
                                             required={esProgramado}
                                         />
