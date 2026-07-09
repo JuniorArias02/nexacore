@@ -33,9 +33,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
         });
     }, [location.pathname]);
 
-    const toggleExpandItem = (e, key) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const toggleExpandItem = (key) => {
         setExpandedItems(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
@@ -185,11 +183,13 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                                             onClick={(e) => {
                                                                 if (item.external) {
                                                                     handleExternalDownload(e, item.href, item.name);
-                                                                } else if (hasChildren) {
-                                                                    e.preventDefault();
-                                                                    toggleExpandItem(e, item.href);
-                                                                } else if (window.innerWidth < 1024) {
-                                                                    onClose();
+                                                                } else {
+                                                                    if (hasChildren) {
+                                                                        toggleExpandItem(item.href);
+                                                                    }
+                                                                    if (window.innerWidth < 1024) {
+                                                                        onClose();
+                                                                    }
                                                                 }
                                                             }}
                                                         >
