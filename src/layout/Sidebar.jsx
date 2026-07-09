@@ -183,7 +183,9 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                                             `}
                                                             title={collapsed ? item.name : ''}
                                                             onClick={(e) => {
-                                                                if (hasChildren) {
+                                                                if (item.external) {
+                                                                    handleExternalDownload(e, item.href, item.name);
+                                                                } else if (hasChildren) {
                                                                     e.preventDefault();
                                                                     toggleExpandItem(e, item.href);
                                                                 } else if (window.innerWidth < 1024) {
