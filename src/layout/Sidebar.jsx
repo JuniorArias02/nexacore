@@ -41,12 +41,21 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
         setExpandedGroups(prev => ({ ...prev, [title]: !prev[title] }));
     };
 
-    const handleExternalDownload = async (e, url, name) => {
+    const handleExternalDownload = async (e, url, name, isApiDownload = false) => {
         e.preventDefault();
         e.stopPropagation();
         
         try {
-            const response = await fetch(url);
+            const headers = {};
+            if (isApiDownload) {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+            }
+
+            const response = await fetch(url, { headers });
+            if (!response.ok) throw new Error('Error al descargar');
             const blob = await response.blob();
             const blobUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -182,7 +191,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, setCollapsed }) => {
                                                             title={collapsed ? item.name : ''}
                                                             onClick={(e) => {
                                                                 if (item.external) {
-                                                                    handleExternalDownload(e, item.href, item.name);
+                                                                    handleExternalDownload(e, item.href, item.name, item.isApiDownload);
                                                                 } else {
                                                                     if (hasChildren) {
                                                                         toggleExpandItem(item.href);

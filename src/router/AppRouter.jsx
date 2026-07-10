@@ -29,6 +29,7 @@ import SedesForm from '../modules/Configuracion/Sede/pages/SedesForm';
 import ProfilePage from '../modules/PerfilUsuario/pages/ProfilePage';
 import ConfigurationPage from '../modules/Configuracion/Tablero/pages/ConfigurationPage';
 import PermisosPage from '../modules/Configuracion/Permisos/pages/PermisosPage';
+import ImagenMensualPage from '../modules/Configuracion/ImagenMensual/pages/ImagenMensualPage';
 import MantenimientoList from '../modules/GestionInfraestructura/Mantenimiento/pages/MantenimientoList';
 import MantenimientoFormPage from '../modules/GestionInfraestructura/Mantenimiento/pages/MantenimientoFormPage';
 import MantenimientoReceptorPage from '../modules/GestionInfraestructura/Mantenimiento/pages/MantenimientoReceptorPage';
@@ -291,6 +292,11 @@ const AppRouter = () => {
                     <Route path="/permisos" element={
                         <PermissionProtectedRoute requiredPermissions={['permiso.crear', 'permiso.actualizar', 'permiso.eliminar']}>
                             <PermisosPage />
+                        </PermissionProtectedRoute>
+                    } />
+                    <Route path="/imagen-mensual" element={
+                        <PermissionProtectedRoute requiredPermissions={['imagen_mensual.crud']}>
+                            <ImagenMensualPage />
                         </PermissionProtectedRoute>
                     } />
 

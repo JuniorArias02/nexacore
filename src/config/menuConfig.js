@@ -232,6 +232,10 @@ const menuConfig = [
                 name: 'Gestión de Permisos', href: '/permisos', icon: KeyIcon,
                 permissions: ['permiso.crear', 'permiso.actualizar', 'permiso.eliminar'],
             },
+            {
+                name: 'Imagen Mensual', href: '/imagen-mensual', icon: PhotoIcon,
+                permissions: ['imagen_mensual.crud'],
+            },
         ]
     },
     {
@@ -276,10 +280,11 @@ const menuConfig = [
             },
             {
                 name: 'Imagen Mensual', 
-                href: '/mensual.png', 
+                href: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/imagen-mensual`, 
                 icon: PhotoIcon,
                 permissions: [],
-                external: true
+                external: true,
+                isApiDownload: true
             }
         ]
     }
