@@ -1,42 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { cpProductoService } from '../../Producto/services/cpProductoService';
 import Swal from 'sweetalert2';
-import { PlusIcon, TrashIcon, CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/outline'; // Asegúrate de importar esto
+import { PlusIcon, TrashIcon, CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/outline';
 
-const SearchableProductSelect = ({ options, value, onChange }) => {
+const SearchableProductSelect = ({ options = [], value, onChange, onSearch }) => {
     const [query, setQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
 
-    // Filter options based on query (name or code)
-    const filteredOptions = query === ''
-        ? options
-        : options.filter((product) => {
-            const nameMatch = product.nombre.toLowerCase().includes(query.toLowerCase());
-            const codeMatch = product.codigo ? product.codigo.toLowerCase().includes(query.toLowerCase()) : false;
-            return nameMatch || codeMatch;
-        });
+    // Debounce the query and call onSearch (Server-side search)
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (onSearch) {
+                onSearch(query);
+            }
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [query, onSearch]);
 
-    const selectedProduct = options.find(p => p.id == value);
+    const safeOptions = Array.isArray(options) ? options : [];
+    const selectedProduct = safeOptions.find(p => p.id == value);
 
     return (
-        <div className="relative mt-1">
-            <div className="relative w-full cursor-default overflow-hidden rounded-2xl border-slate-200 bg-white text-left shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 sm:text-sm transition-all">
+        <div className="relative">
+            <div className="relative w-full">
                 <input
-                    className="w-full border-slate-200 rounded-2xl py-2.5 pl-4 pr-10 text-sm leading-5 text-slate-800 font-medium focus:border-indigo-500 focus:ring-0"
+                    className="mt-1 block w-full rounded-2xl border-slate-200 py-2.5 px-4 pr-10 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 sm:text-sm transition-all"
                     onChange={(event) => {
                         setQuery(event.target.value);
                         if (!isOpen) setIsOpen(true);
                     }}
                     onFocus={() => setIsOpen(true)}
-                    /* onClick={() => setIsOpen(true)} */
                     placeholder="Buscar por nombre o código..."
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck="false"
                     translate="no"
-                    value={selectedProduct ? (isOpen ? query : selectedProduct.nombre) : query}
+                    value={selectedProduct ? (isOpen ? query : (selectedProduct.codigo || selectedProduct.nombre)) : query}
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pt-1 pointer-events-none">
                     <ChevronUpDownIcon
                         className="h-5 w-5 text-slate-400"
                         aria-hidden="true"
@@ -46,16 +47,16 @@ const SearchableProductSelect = ({ options, value, onChange }) => {
 
             {/* Dropdown Options */}
             {isOpen && (
-                <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {filteredOptions.length === 0 ? (
-                        <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                <ul className="absolute z-20 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-white py-2 text-base shadow-xl border border-slate-100 focus:outline-none sm:text-sm">
+                    {safeOptions.length === 0 ? (
+                        <div className="relative cursor-default select-none py-3 px-5 text-slate-500 font-medium">
                             No se encontraron productos.
                         </div>
                     ) : (
-                        filteredOptions.map((product) => (
+                        safeOptions.map((product) => (
                             <li
                                 key={product.id}
-                                className={`relative cursor-default select-none py-2 pl-10 pr-4 ${product.id == value ? 'bg-indigo-100 text-indigo-900' : 'text-gray-900 hover:bg-gray-100'
+                                className={`relative cursor-pointer select-none py-2.5 pl-10 pr-4 transition-colors ${product.id == value ? 'bg-indigo-50 text-indigo-900' : 'text-slate-700 hover:bg-slate-50'
                                     }`}
                                 onClick={() => {
                                     onChange(product);
@@ -63,13 +64,13 @@ const SearchableProductSelect = ({ options, value, onChange }) => {
                                     setIsOpen(false);
                                 }}
                             >
-                                <span className={`block truncate ${product.id == value ? 'font-medium' : 'font-normal'}`}>
-                                    {product.codigo ? <span className="text-gray-500 mr-2 text-xs">[{product.codigo}]</span> : null}
+                                <span className={`block truncate ${product.id == value ? 'font-bold' : 'font-medium'}`}>
+                                    {product.codigo ? <span className="text-slate-400 mr-2 text-xs font-bold bg-slate-100 px-2 py-0.5 rounded-md">[{product.codigo}]</span> : null}
                                     {product.nombre}
                                 </span>
                                 {product.id == value ? (
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-600">
-                                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                        <CheckIcon className="h-5 w-5 stroke-2" aria-hidden="true" />
                                     </span>
                                 ) : null}
                             </li>
@@ -96,21 +97,25 @@ export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem, isFar
     });
 
     useEffect(() => {
-        loadProductos();
+        loadProductos('');
     }, []);
 
-    const loadProductos = async () => {
+    const loadProductos = useCallback(async (searchQuery = '') => {
         try {
-            const data = await cpProductoService.getAll();
-            if (data && data.objeto) {
-                setProductos(data.objeto);
-            } else if (Array.isArray(data)) {
-                setProductos(data);
-            }
+            const data = await cpProductoService.getAll({ search: searchQuery, page: 1 });
+            
+            // Extraemos los productos usando optional chaining para un código mucho más limpio
+            const productosArray = data?.objeto?.data 
+                || data?.data?.data 
+                || data?.objeto 
+                || (Array.isArray(data) ? data : []);
+
+            setProductos(Array.isArray(productosArray) ? productosArray : []);
         } catch (error) {
             console.error("Error loading products:", error);
+            setProductos([]);
         }
-    };
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -164,6 +169,7 @@ export default function CpPedidoItemForm({ items, onAddItem, onRemoveItem, isFar
                         options={productos}
                         value={currentItem.productos_id}
                         onChange={handleProductSelect}
+                        onSearch={loadProductos}
                     />
                 </div>
 
