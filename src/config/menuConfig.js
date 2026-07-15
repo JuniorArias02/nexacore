@@ -285,6 +285,14 @@ const menuConfig = [
                 permissions: [],
                 external: true,
                 isApiDownload: true
+            },
+            {
+                name: 'Descargar Hosts (Bloqueo Redes)',
+                href: '/hosts',
+                icon: ShieldCheckIcon,
+                permissions: [],
+                external: true,
+                download: 'hosts'
             }
         ]
     }

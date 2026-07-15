@@ -1,0 +1,172 @@
+# Copyright (c) 1993-2009 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+# localhost name resolution is handled within DNS itself.
+#	127.0.0.1       localhost
+#	::1             localhost
+
+
+
+
+
+
+# Added by Docker Desktop
+192.168.20.2 host.docker.internal
+192.168.20.2 gateway.docker.internal
+# To allow the same kube context to work on the host and the container:
+127.0.0.1 kubernetes.docker.internal
+# End of section
+
+# WhatsApp Blocking
+127.0.0.1 whatsapp.com
+127.0.0.1 www.whatsapp.com
+127.0.0.1 web.whatsapp.com
+127.0.0.1 api.whatsapp.com
+127.0.0.1 chat.whatsapp.com
+127.0.0.1 wa.me
+127.0.0.1 l.whatsapp.com
+127.0.0.1 pps.whatsapp.com
+127.0.0.1 static.whatsapp.com
+127.0.0.1 media.whatsapp.com
+127.0.0.1 mmg.whatsapp.net
+127.0.0.1 mmg-fna.whatsapp.net
+127.0.0.1 whatsapp.net
+127.0.0.1 www.whatsapp.net
+127.0.0.1 v.whatsapp.net
+127.0.0.1 e1.whatsapp.net
+127.0.0.1 e2.whatsapp.net
+127.0.0.1 e3.whatsapp.net
+127.0.0.1 e4.whatsapp.net
+127.0.0.1 e5.whatsapp.net
+127.0.0.1 e6.whatsapp.net
+127.0.0.1 e7.whatsapp.net
+127.0.0.1 e8.whatsapp.net
+127.0.0.1 e9.whatsapp.net
+127.0.0.1 e10.whatsapp.net
+127.0.0.1 e11.whatsapp.net
+127.0.0.1 e12.whatsapp.net
+127.0.0.1 e13.whatsapp.net
+127.0.0.1 e14.whatsapp.net
+127.0.0.1 e15.whatsapp.net
+127.0.0.1 e16.whatsapp.net
+127.0.0.1 g.whatsapp.net
+127.0.0.1 mms.whatsapp.net
+127.0.0.1 sticker-server.whatsapp.net
+127.0.0.1 sro.whatsapp.net
+127.0.0.1 business.whatsapp.com
+127.0.0.1 api.whatsapp.business
+::1 whatsapp.com
+::1 www.whatsapp.com
+::1 web.whatsapp.com
+::1 api.whatsapp.com
+::1 chat.whatsapp.com
+::1 wa.me
+::1 l.whatsapp.com
+::1 pps.whatsapp.com
+::1 static.whatsapp.com
+::1 media.whatsapp.com
+::1 mmg.whatsapp.net
+::1 mmg-fna.whatsapp.net
+::1 whatsapp.net
+::1 www.whatsapp.net
+::1 v.whatsapp.net
+::1 e1.whatsapp.net
+::1 e2.whatsapp.net
+::1 e3.whatsapp.net
+::1 e4.whatsapp.net
+::1 e5.whatsapp.net
+::1 e6.whatsapp.net
+::1 e7.whatsapp.net
+::1 e8.whatsapp.net
+::1 e9.whatsapp.net
+::1 e10.whatsapp.net
+::1 e11.whatsapp.net
+::1 e12.whatsapp.net
+::1 e13.whatsapp.net
+::1 e14.whatsapp.net
+::1 e15.whatsapp.net
+::1 e16.whatsapp.net
+::1 g.whatsapp.net
+::1 mms.whatsapp.net
+::1 sticker-server.whatsapp.net
+::1 sro.whatsapp.net
+::1 business.whatsapp.com
+::1 api.whatsapp.business
+
+# YouTube Blocking
+127.0.0.1 youtube.com
+127.0.0.1 www.youtube.com
+127.0.0.1 m.youtube.com
+127.0.0.1 youtu.be
+127.0.0.1 ytimg.com
+127.0.0.1 s.ytimg.com
+127.0.0.1 i.ytimg.com
+127.0.0.1 i1.ytimg.com
+127.0.0.1 i2.ytimg.com
+127.0.0.1 i3.ytimg.com
+127.0.0.1 i4.ytimg.com
+127.0.0.1 youtube-nocookie.com
+127.0.0.1 www.youtube-nocookie.com
+127.0.0.1 music.youtube.com
+127.0.0.1 studio.youtube.com
+127.0.0.1 tv.youtube.com
+127.0.0.1 kids.youtube.com
+127.0.0.1 gaming.youtube.com
+127.0.0.1 yt.be
+127.0.0.1 googlevideo.com
+127.0.0.1 r1---sn-vgqs7nel.googlevideo.com
+127.0.0.1 r2---sn-vgqs7nel.googlevideo.com
+127.0.0.1 r3---sn-vgqs7nel.googlevideo.com
+127.0.0.1 r4---sn-vgqs7nel.googlevideo.com
+127.0.0.1 redirector.googlevideo.com
+127.0.0.1 suggestqueries.google.com
+127.0.0.1 yt3.ggpht.com
+127.0.0.1 lh3.googleusercontent.com
+127.0.0.1 googleapis.com
+127.0.0.1 youtube.googleapis.com
+127.0.0.1 youtubei.googleapis.com
+127.0.0.1 youtubeembeddedplayer.googleapis.com
+127.0.0.1 wide-youtube.l.google.com
+::1 youtube.com
+::1 www.youtube.com
+::1 m.youtube.com
+::1 youtu.be
+::1 ytimg.com
+::1 s.ytimg.com
+::1 i.ytimg.com
+::1 i1.ytimg.com
+::1 i2.ytimg.com
+::1 i3.ytimg.com
+::1 i4.ytimg.com
+::1 youtube-nocookie.com
+::1 www.youtube-nocookie.com
+::1 music.youtube.com
+::1 studio.youtube.com
+::1 tv.youtube.com
+::1 kids.youtube.com
+::1 gaming.youtube.com
+::1 yt.be
+::1 googlevideo.com
+::1 redirector.googlevideo.com
+::1 suggestqueries.google.com
+::1 yt3.ggpht.com
+::1 lh3.googleusercontent.com
+::1 youtube.googleapis.com
+::1 youtubei.googleapis.com
+::1 youtubeembeddedplayer.googleapis.com
+::1 wide-youtube.l.google.com
+
