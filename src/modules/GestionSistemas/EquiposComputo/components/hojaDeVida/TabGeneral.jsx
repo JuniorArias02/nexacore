@@ -98,7 +98,7 @@ export default function TabGeneral({ equipo }) {
                     <div>
                         <InfoRow label="Sede de Operación" value={equipo.sede?.nombre} />
                         <InfoRow label="Área / Departamento" value={equipo.area?.nombre} />
-                        <InfoRow label="Responsable Asignado" value={equipo.responsable?.nombre_completo} />
+                        <InfoRow label="Responsable Asignado" value={equipo.responsable?.nombre} />
                         <InfoRow label="Sincronizado por" value={equipo.creador?.nombre_completo || equipo.creador?.usuario} />
                     </div>
                     <div>
