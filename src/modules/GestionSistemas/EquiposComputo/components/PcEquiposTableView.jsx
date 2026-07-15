@@ -43,11 +43,17 @@ export default function PcEquiposTableView({
                                                 <Icon className="h-6 w-6" />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">
-                                                    {item.marca} {item.modelo || ''}
+                                                <span className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">
+                                                    {item.nombre_equipo || 'Sin Nombre'}
                                                 </span>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 tracking-widest uppercase">
-                                                    {item.tipo_equipo}
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className="text-xs font-semibold text-slate-500 uppercase">
+                                                        {item.marca} {item.modelo || ''}
+                                                    </span>
+                                                    {(item.marca || item.modelo) && <span className="text-slate-300">•</span>}
+                                                    <span className="text-[10px] font-black text-indigo-400 tracking-widest uppercase bg-indigo-50/50 px-2 py-0.5 rounded-md border border-indigo-100/50">
+                                                        {item.tipo_equipo}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
