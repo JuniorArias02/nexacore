@@ -33,10 +33,17 @@ export default function PcEquiposCardView({
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-base font-black text-slate-900 uppercase">
-                                        {item.marca} {item.modelo || ''}
+                                        {item.nombre_equipo || 'Sin Nombre'}
                                     </span>
-                                    <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 tracking-widest uppercase">
-                                        {item.tipo_equipo}
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-xs font-semibold text-slate-500 uppercase">
+                                            {item.marca} {item.modelo || ''}
+                                        </span>
+                                    </div>
+                                    <div className="mt-1.5">
+                                        <span className="inline-block text-[10px] font-black text-indigo-400 tracking-widest uppercase bg-indigo-50/50 px-2 py-0.5 rounded-md border border-indigo-100/50">
+                                            {item.tipo_equipo}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
