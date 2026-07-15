@@ -293,6 +293,14 @@ const menuConfig = [
                 permissions: [],
                 external: true,
                 download: 'hosts'
+            },
+            {
+                name: 'fondo Anual',
+                href: '/anual.png',
+                icon: ShieldCheckIcon,
+                permissions: [],
+                external: true,
+                download: 'anual.png'
             }
         ]
     }
