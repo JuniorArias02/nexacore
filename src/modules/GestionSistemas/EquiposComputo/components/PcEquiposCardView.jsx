@@ -48,10 +48,14 @@ export default function PcEquiposCardView({
 
                         <div className="grid grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-2xl">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Serial</span>
-                                <span className="text-xs font-bold text-slate-700 truncate">{item.serial}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">No. Inv</span>
+                                <span className="text-xs font-bold text-slate-700 truncate">{item.numero_inventario || 'N/A'}</span>
                             </div>
                             <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Serial</span>
+                                <span className="text-xs font-bold text-slate-700 truncate">{item.serial || 'N/A'}</span>
+                            </div>
+                            <div className="flex flex-col gap-1 col-span-2">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Activo Fijo</span>
                                 <span className="text-xs font-bold text-slate-700 truncate">{item.activo_fijo || 'N/A'}</span>
                             </div>

@@ -73,6 +73,7 @@ export default function PcEquiposList() {
             setLoading(true);
             const params = filterSede !== 'todas' ? { sede_id: filterSede } : {};
             const response = await pcEquiposService.getAll(params);
+            console.log(response);
             setEquipos(response.objeto || []);
         } catch (error) {
             console.error('Error loading equipos:', error);
@@ -167,10 +168,8 @@ export default function PcEquiposList() {
     const filtered = equipos.filter((item) => {
         const matchSearch =
             !searchTerm ||
-            item.marca?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.modelo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.numero_inventario?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.serial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.activo_fijo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.tipo_equipo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.sede?.nombre?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchEstado = filterEstado === 'todos' || item.estado === filterEstado;
@@ -228,7 +227,7 @@ export default function PcEquiposList() {
                     </div>
                     <input
                         type="text"
-                        placeholder="Buscar por marca, modelo, serial, sede..."
+                        placeholder="Buscar por número de inventario, serial, tipo, sede..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="block w-full pl-11 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm shadow-slate-200/50"

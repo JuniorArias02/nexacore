@@ -55,8 +55,12 @@ export default function PcEquiposTableView({
                                     <td className="px-6 py-5">
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider w-16">No. Inv:</span>
+                                                <span className="text-xs font-bold text-slate-700 truncate">{item.numero_inventario || 'N/A'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider w-16">Serial:</span>
-                                                <span className="text-xs font-bold text-slate-700 truncate">{item.serial}</span>
+                                                <span className="text-xs font-bold text-slate-700 truncate">{item.serial || 'N/A'}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider w-16">Activo:</span>
