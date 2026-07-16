@@ -219,7 +219,7 @@ export default function CpPedidoForm({ initialData = null, isProgramadoEdit = fa
                             <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
                                 <ul class="space-y-2 font-medium text-slate-700">
                                     <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Lunes a Viernes: 7:30 AM - 8:30 AM / 2:00 PM - 3:00 PM</li>
-                                    <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Sábados: 8:00 AM - 9:00 PM</li>
+                                    <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Sábados: 8:00 AM - 9:00 AM</li>
                                 </ul>
                             </div>
                             <p class="mt-4 text-xs text-slate-500">Nota: Los pedidos prioritarios pueden realizarse en cualquier horario.</p>
