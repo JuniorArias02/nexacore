@@ -33,7 +33,7 @@ export default function CpHorarioPedido() {
                             </div>
                         </li>
                         <li className="flex items-start">
-                            <div className="bg-indigo-100 rounded-full p-1 mt-0.5 mr-3 shrink-0">
+                            <div className="bg-indigo-100 rounded-full p-1 mt-0.5 mr-3 shrink-0"> 
                                 <ClockIcon className="h-4 w-4 text-indigo-600" />
                             </div>
                             <div>
