@@ -38,7 +38,7 @@ export default function CpHorarioPedido() {
                             </div>
                             <div>
                                 <strong className="block text-sm text-slate-800">Sábados</strong>
-                                <span className="text-sm text-slate-600 font-medium">8:00 AM - 9:00 PM</span>
+                                <span className="text-sm text-slate-600 font-medium">8:00 AM - 9:00 AM</span>
                             </div>
                         </li>
                     </ul>
