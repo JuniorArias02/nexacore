@@ -1,8 +1,23 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  Options -MultiViews
+
+  # Permite servir index.html directamente
   RewriteRule ^index\.html$ - [L]
+
+  # Redirige a HTTPS si el host lo permite
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Fallback para SPA (React/Vite)
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|eot)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
 </IfModule>
