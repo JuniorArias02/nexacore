@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CameraIcon, ArrowUpTrayIcon, TrashIcon, PencilIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import SignaturePad from '../../Firmas/components/SignaturePad';
 import { resizeImageBlob } from '../utils/imageUtils';
@@ -20,6 +20,18 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
     // New cropping states
     const [isCropModalOpen, setIsCropModalOpen] = useState(false);
     const [cropImage, setCropImage] = useState(null);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -46,6 +58,9 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
 
     const handleDrawingSave = (blob) => {
         setDrawingBlob(blob);
+        if (isMobile) {
+            setIsSignatureModalOpen(false);
+        }
     };
 
     const handleSubmit = (e) => {
@@ -145,11 +160,36 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
                     {/* Content */}
                     <div className="min-h-[300px] flex items-center justify-center">
                         {activeTab === 'draw' ? (
-                            <div className="w-full flex-grow flex flex-col min-h-[400px]">
-                                <SignaturePad 
-                                    embedded={true} 
-                                    onSave={handleDrawingSave} 
-                                />
+                            <div className="w-full flex-grow">
+                                {isMobile ? (
+                                    <div className="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-indigo-50 p-4 shadow-[0_20px_60px_-20px_rgba(79,70,229,0.2)]">
+                                        <div className="mb-4 rounded-[1.5rem] border border-dashed border-indigo-200 bg-white/70 p-4 text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-600">Firma en pantalla</p>
+                                            <p className="mt-1 text-sm font-semibold text-slate-600">Toca el botón para abrir el panel de firma y dibujar con el dedo.</p>
+                                        </div>
+
+                                        {drawingBlob ? (
+                                            <div className="mb-4 flex items-center justify-center rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-3">
+                                                <img src={drawingBlob} alt="Firma capturada" className="max-h-24 object-contain" />
+                                            </div>
+                                        ) : null}
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsSignatureModalOpen(true)}
+                                            className="w-full rounded-[1.5rem] bg-indigo-600 px-4 py-4 text-[10px] font-black uppercase tracking-[0.25em] text-white shadow-lg shadow-indigo-100 transition-all hover:bg-indigo-700"
+                                        >
+                                            Abrir panel de firma
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-indigo-50 p-2 shadow-[0_20px_60px_-20px_rgba(79,70,229,0.2)] sm:p-4">
+                                        <SignaturePad
+                                            embedded={true}
+                                            onSave={handleDrawingSave}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="w-full">
@@ -221,6 +261,35 @@ const ProfileSignature = ({ user, onSubmit, loading }) => {
                     </button>
                 </div>
             </form>
+
+            {isMobile && isSignatureModalOpen ? (
+                <div className="fixed inset-0 z-[200000] flex items-center justify-center bg-slate-950/70 px-2 py-3 backdrop-blur-sm">
+                    <div className="relative flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-600">Dibuja tu firma</p>
+                                <h4 className="text-base font-black text-slate-800">Panel de firma</h4>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsSignatureModalOpen(false)}
+                                className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-50 text-slate-500 transition-all hover:bg-red-50 hover:text-red-500"
+                            >
+                                <XMarkIcon className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-hidden p-3 sm:p-4">
+                            <SignaturePad
+                                embedded={true}
+                                onSave={handleDrawingSave}
+                                showConfirmButton={true}
+                                confirmButtonText="Aceptar firma"
+                            />
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
             {/* Crop Modal */}
             <SignatureCropModal

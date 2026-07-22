@@ -295,7 +295,7 @@ export default function ActasEntregaFormPage() {
                                         ) : (
                                             <SignaturePad onSave={setFirmaEntrega} buttonText={existingFirmaEntrega ? "Actualizar Firma" : "Registrar Firma Emisor"} />
                                         )}
-                                    </div>
+                                    </div> 
                                 </div>
                                 <div className="bg-slate-50/50 p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden">
                                     <div className="relative z-10">
